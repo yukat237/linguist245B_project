@@ -9,7 +9,8 @@
   <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
   <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
   <!--  <script src="stims.js"></script> -->
-
+  <!-- Add plugin to the end of your jsPsych experiment. 
+   (Don’t forget to add  timeline.push(save_data) after you define save_data)! -->
 </head>
 <body>
   <script>
@@ -43,7 +44,7 @@
     '<h1>Welcome to the emotion recognition study!</h1>',
     '<p>In this experiment, you will hear speech clips in foreign languages.</p>',
     '<p>You will hear each audio once. Your task is to judge the intended emotion of the speaker for each audio.</p>',
-    '<p>Even if you are not sure, make your best guess. </p>',
+    '<p>If you’re unsure, please give your best guess.</p>',
     '<p>Press the button below to begin.</p>'
       ],
       
