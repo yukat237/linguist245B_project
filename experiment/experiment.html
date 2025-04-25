@@ -7,13 +7,21 @@
   <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-canvas-button-response@2.0.0."></script>
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!--for DataPipe-->
   <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
   <!--  <script src="stims.js"></script> -->
-  <!-- Add plugin to the end of your jsPsych experiment. 
+  <!-- Add plugin to the end of your jsPsych experiment.
    (Don’t forget to add  timeline.push(save_data) after you define save_data)! -->
 </head>
 <body>
   <script>
+    // DataPipe participant ID creation    
+    const subject_id = jsPsych.randomization.randomID(10);
+    const filename = `${subject_id}.csv`;
+    
+
+
     // Initialize jsPsych
     const jsPsych = initJsPsych({
         // TODO: add a progress bar showing how far the experiment has progressed
@@ -44,7 +52,7 @@
     '<h1>Welcome to the emotion recognition study!</h1>',
     '<p>In this experiment, you will hear speech clips in foreign languages.</p>',
     '<p>You will hear each audio once. Your task is to judge the intended emotion of the speaker for each audio.</p>',
-    '<p>If you’re unsure, please give your best guess.</p>',
+    '<p>If you are unsure, please give your best guess.</p>',
     '<p>Press the button below to begin.</p>'
       ],
       
@@ -101,8 +109,18 @@
     for (let i = 0; i < shuffledStimuli .length; i++) {
       const readingTrials = createReadingTrials(shuffledStimuli [i], i + 1);
       timeline.push(...readingTrials);
-    }
-*/
+    */
+    
+    // Saving data as instructed by DataPipe
+    const save_data = {
+                type: jsPsychPipe,
+                action: "save",
+                experiment_id: "eSR841l7tfeH",
+                filename: filename,
+                data_string: ()=>jsPsych.data.get().csv()
+              };
+    timeline.push(save_data)          
+
     // Final page
     const completion = {
       type: jsPsychHtmlKeyboardResponse,
