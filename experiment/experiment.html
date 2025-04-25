@@ -11,8 +11,7 @@
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!--for DataPipe-->
   <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
   <!--  <script src="stims.js"></script> -->
-  <!-- Add plugin to the end of your jsPsych experiment.
-   (Don’t forget to add  timeline.push(save_data) after you define save_data)! -->
+  
 </head>
 <body>
   <script>
@@ -59,13 +58,14 @@
       show_clickable_nav: true
     };
     timeline.push(instructions);
-/*
-    // Function to create reading trials for a sentence
-    function createReadingTrials(item, itemNum) {
-      const sentence = item.sentence;
-      const condition = item.condition;
-      const trials = [];
-      
+
+//loading audio before experiment part...
+    const preload = {
+      type: jsPsychPreload,
+      audio: ['audio/happy1.mp3', 'audio/sad1.mp3'] // add all your files here
+    };
+    timeline.push(preload);
+/*     
 
       //TODO: Add a trial showing a fixation cross briefly, before each sentence 
       const fixation = {
