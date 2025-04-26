@@ -88,18 +88,19 @@
       ctx.fillText("Click to play audio", canvas.width / 2, canvas.height / 2 - 20);
     },
     choices: ['Play Audio'],
-    on_finish: function(data){
-      // Remove Play button after use
-      data.audio_played = true;
-    },
-    on_load: function(){
-      const audio = new Audio(audioFile);
+    on_load: function() {
       const button = document.querySelector('.jspsych-btn');
-      button.onclick = () => {
-        button.disabled = true;
+      const audio = new Audio(audioFile);
+
+      // Clear any old event listeners first
+      const new_button = button.cloneNode(true);
+      button.parentNode.replaceChild(new_button, button);
+
+      new_button.onclick = () => {
+        new_button.disabled = true;
         audio.play();
         audio.onended = () => {
-          jsPsych.finishTrial(); // proceed only after audio ends
+          jsPsych.finishTrial();
         };
       };
     },
