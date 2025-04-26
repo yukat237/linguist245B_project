@@ -7,7 +7,7 @@
   <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-canvas-button-response@2.0.0."></script>
+  <script src="https://unpkg.com/@jspsych/plugin-canvas-button-response@2.0.0"></script>
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!--for DataPipe-->
   <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
   <!--  <script src="stims.js"></script> -->
@@ -20,6 +20,7 @@
     const jsPsych = initJsPsych({
         // TODO: add a progress bar showing how far the experiment has progressed
         show_progress_bar: true,
+        override_safe_mode: true,
       on_finish: function() {
         // Displays data at the end of the experiment
         // Better to comment out for the real experiment so participants aren't confused
@@ -75,6 +76,61 @@
       audio: audioFiles
     };
     timeline.push(preload);
+
+// main part: creating trials
+    function createAudioEmotionTrial(audioFile) {
+  return {
+    type: jsPsychCanvasButtonResponse,
+    stimulus: (canvas) => {
+      let ctx = canvas.getContext('2d');
+      ctx.font = "20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Click to play audio", canvas.width / 2, canvas.height / 2 - 20);
+    },
+    choices: ['Play Audio'],
+    on_finish: function(data){
+      // Remove Play button after use
+      data.audio_played = true;
+    },
+    on_load: function(){
+      const audio = new Audio(audioFile);
+      const button = document.querySelector('.jspsych-btn');
+      button.onclick = () => {
+        button.disabled = true;
+        audio.play();
+        audio.onended = () => {
+          jsPsych.finishTrial(); // proceed only after audio ends
+        };
+      };
+    },
+    data: {
+      stimulus_file: audioFile
+    },
+    canvas_size: [600, 200]
+  };
+}
+
+function createEmotionChoiceTrial() {
+  return {
+    type: jsPsychCanvasButtonResponse,
+    stimulus: (canvas) => {
+      let ctx = canvas.getContext('2d');
+      ctx.font = "20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("What emotion did the speaker express?", canvas.width / 2, canvas.height / 2 - 40);
+    },
+    choices: ['Happy', 'Sad', 'Angry', 'Frustrated', 'Surprised', 'Fear', 'Neutral'],
+    canvas_size: [600, 200]
+  };
+}
+
+for (let i = 0; i < audioFiles.length; i++) {
+  timeline.push(createAudioEmotionTrial(audioFiles[i]));
+  timeline.push(createEmotionChoiceTrial());
+}
+
+
+
 /*     
 
       //TODO: Add a trial showing a fixation cross briefly, before each sentence 
