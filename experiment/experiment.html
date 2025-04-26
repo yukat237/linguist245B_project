@@ -2,209 +2,121 @@
 <html>
 <head>
   <title>Emotion Recognition Study</title>
-  <!-- Load JsPsych -->
+  <!-- Load jsPsych -->
   <script src="https://unpkg.com/jspsych@7.3.3"></script>
   <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-canvas-button-response@2.0.0"></script>
-  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!--for DataPipe-->
-  <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
-  <!--  <script src="stims.js"></script> -->
-  
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!-- For DataPipe -->
+  <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" />
 </head>
 <body>
   <script>
 
-    // Initialize jsPsych
     const jsPsych = initJsPsych({
-        // TODO: add a progress bar showing how far the experiment has progressed
-        show_progress_bar: true,
-        override_safe_mode: true,
+      show_progress_bar: true,
+      override_safe_mode: true,
       on_finish: function() {
-        // Displays data at the end of the experiment
-        // Better to comment out for the real experiment so participants aren't confused
         jsPsych.data.displayData();
       }
     });
-    // DataPipe participant ID creation    
+
     const subject_id = jsPsych.randomization.randomID(10);
     const filename = `${subject_id}.csv`;
 
-
-    // Simple stimuli for debugging 
-    /* 
-    const experimentStimuli = [
-      ["Alice", "met", "Bob"],
-      ["Alice", "and", "Bob", "went", "to", "the", "store"]
-    ];
-    */
-    
-
-    // We will store each trial in a list called timeline 
     const timeline = [];
 
-    // Instructions
     const instructions = {
       type: jsPsychInstructions,
       pages: [
-    '<h1>Welcome to the emotion recognition study!</h1>',
-    '<p>In this experiment, you will hear speech clips in foreign languages.</p>',
-    '<p>You will hear each audio once. Your task is to judge the intended emotion of the speaker for each audio.</p>',
-    '<p>If you are unsure, please give your best guess.</p>',
-    '<p>Press the button below to begin.</p>'
+        '<h1>Welcome to the emotion recognition study!</h1>',
+        '<p>You will hear speech clips in different languages.</p>',
+        '<p>You will hear each clip once. Judge the speaker\'s emotion.</p>',
+        '<p>If unsure, make your best guess!</p>',
+        '<p>Press "Next" to begin.</p>'
       ],
-      
       show_clickable_nav: true
     };
     timeline.push(instructions);
 
     const audioFiles = [
-  'stim/test_stim/AESDD_anger_a20 (6).wav',
-  'stim/test_stim/AESDD_happy_h02 (6).wav',
-  'stim/test_stim/CaFE_anger_notintense_12-C-1-6.wav',
-  'stim/test_stim/CaFE_Sad_notintense_01-T-1-1.wav',
-  'stim/test_stim/JVNV_F2_sad_regular_60.wav',
-  'stim/test_stim/JVNV_happy_M1_happy_regular_01.wav',
-  'stim/test_stim/THAI_frustrated_s001_clip_actor002_script1_1_5a.flac',
-  'stim/test_stim/THAI_happy_s005_clip_actor010_script2_2_3a.flac'
-  ];
+      'stim/test_stim/AESDD_anger_a20 (6).wav',
+      'stim/test_stim/AESDD_happy_h02 (6).wav',
+      'stim/test_stim/CaFE_anger_notintense_12-C-1-6.wav',
+      'stim/test_stim/CaFE_Sad_notintense_01-T-1-1.wav',
+      'stim/test_stim/JVNV_F2_sad_regular_60.wav',
+      'stim/test_stim/JVNV_happy_M1_happy_regular_01.wav',
+      'stim/test_stim/THAI_frustrated_s001_clip_actor002_script1_1_5a.flac',
+      'stim/test_stim/THAI_happy_s005_clip_actor010_script2_2_3a.flac'
+    ];
 
-//loading audio before experiment part...
     const preload = {
       type: jsPsychPreload,
       audio: audioFiles
     };
     timeline.push(preload);
 
-// main part: creating trials
-function createAudioEmotionTrial(audioFile) {
-  return {
-    type: jsPsychCanvasButtonResponse,
-    stimulus: (canvas) => {
-      let ctx = canvas.getContext('2d');
-      ctx.font = "20px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("Click to play audio", canvas.width / 2, canvas.height / 2 - 20);
-    },
-    choices: ['Play Audio'],
-    canvas_size: [600, 200],
-    post_trial_gap: 0,
-    on_load: async function() {
-      const button = document.querySelector('.jspsych-btn');
+    const emotions = ['Happy', 'Sad', 'Angry', 'Frustrated', 'Fear', 'Disgust', 'Neutral'];
 
-      const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
-      const context = jsPsych.pluginAPI.audioContext();
+    // Main trials
+    audioFiles.forEach(function(audioFile) {
 
-      button.onclick = () => {
-        button.disabled = true;
-
-        const source = context.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(context.destination);
-
-        source.start();
-        source.onended = () => {
-          jsPsych.finishTrial(); // Only after audio ends, move to next page
-        };
-      };
-    },
-    data: {
-      stimulus_file: audioFile
-    }
-  };
-}
-
-function createEmotionChoiceTrial() {
-  return {
-    type: jsPsychCanvasButtonResponse,
-    stimulus: (canvas) => {
-      let ctx = canvas.getContext('2d');
-      ctx.font = "20px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("What emotion did the speaker express?", canvas.width / 2, canvas.height / 2 - 40);
-    },
-    choices: ['Happy', 'Sad', 'Angry', 'None of these'],
-    canvas_size: [600, 200],
-    post_trial_gap: 0,
-  };
-}
-
-for (let i = 0; i < audioFiles.length; i++) {
-  timeline.push(createAudioEmotionTrial(audioFiles[i]));
-  timeline.push(createEmotionChoiceTrial());
-}
-
-
-
-/*     
-
-      //TODO: Add a trial showing a fixation cross briefly, before each sentence 
-      const fixation = {
-                type: jsPsychHtmlKeyboardResponse,
-                stimulus: '<div class="fixation">+</div>',
-                choices: "NO_KEYS",
-                trial_duration: 500
+      const playAudio = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>Click the button below to listen to the audio.</p>',
+        choices: ['Play Audio'],
+        on_start: function(trial) {
+          trial.response_ends_trial = false;
+        },
+        on_load: function() {
+          const button = document.querySelector('.jspsych-btn');
+          button.addEventListener('click', async () => {
+            button.disabled = true; // Prevent double-click
+            const context = jsPsych.pluginAPI.audioContext();
+            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
+            const source = context.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(context.destination);
+            source.start();
+            source.onended = () => {
+              jsPsych.finishTrial();
             };
-      timeline.push(fixation);
-      //TODO:  Add a trial showing a message telling the participant to press the spacebar to begin the sentence
-      const prestimText = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p>Press the spacebar to begin the sentence.</p>',
-        choices: [' ']
+          });
+        },
+        data: {stimulus_file: audioFile}
       };
-      timeline.push(prestimText);
 
+      const emotionChoice = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>Which emotion did the speaker express?</p>',
+        choices: emotions,
+        margin_vertical: '20px', // Add space between buttons
+        button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+        data: {stimulus_file: audioFile}
+      };
 
-      // Loops over every word in the sentence 
-      // Each word is its own trial 
-      for (let i = 0; i < sentence.length; i++) {
-        trials.push({
-            // TODO: FIll me in the plugin parameters here! 
-            // The plugin should display a word on each trial, 
-            // and then advance to the next word when the spacebar is pressed.
-            // Make sure the trial saves: 
-            // The word displayed & the participant Reaction Time, PLUS:
-            // The number of the sentence and the number of the word in the sentence
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<p style="font-size: 40px;">${sentence[i]}</p>`,
-            choices: [' '],
-        });
-      }
-      
-      return trials;
-    }
+      timeline.push(playAudio);
+      timeline.push(emotionChoice);
+    });
 
-    // TODO: Shuffle the presentation order of the sentences 
-    const shuffledStimuli  = jsPsych.randomization.shuffle(experimentStimuli)
-    // Add reading trials for each sentence
-    for (let i = 0; i < shuffledStimuli .length; i++) {
-      const readingTrials = createReadingTrials(shuffledStimuli [i], i + 1);
-      timeline.push(...readingTrials);
-    */
-    
-    // Saving data as instructed by DataPipe
     const save_data = {
-                type: jsPsychPipe,
-                action: "save",
-                experiment_id: "eSR841l7tfeH",
-                filename: filename,
-                data_string: ()=>jsPsych.data.get().csv()
-              };
-    timeline.push(save_data)          
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: "eSR841l7tfeH",
+      filename: filename,
+      data_string: ()=>jsPsych.data.get().csv()
+    };
+    timeline.push(save_data);
 
-    // Final page
     const completion = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<div class="content"><h2>Thank you!</h2>' +
-                '<p>The experiment is now complete.</p>' +
-                '<p>Press the SPACEBAR to see the data.</p></div>',
-      choices: [' ']
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<h2>Thank you!</h2><p>The experiment is complete.</p>',
+      choices: ['Finish']
     };
     timeline.push(completion);
 
-    // This line actually runs the experiment 
     jsPsych.run(timeline);
+
   </script>
 </body>
 </html>
