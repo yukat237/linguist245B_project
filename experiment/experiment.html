@@ -78,7 +78,7 @@
     timeline.push(preload);
 
 // main part: creating trials
-    function createAudioEmotionTrial(audioFile) {
+function createAudioEmotionTrial(audioFile) {
   return {
     type: jsPsychCanvasButtonResponse,
     stimulus: (canvas) => {
@@ -88,18 +88,19 @@
       ctx.fillText("Click to play audio", canvas.width / 2, canvas.height / 2 - 20);
     },
     choices: ['Play Audio'],
-    on_load: function() {
+    on_load: async function() {
       const button = document.querySelector('.jspsych-btn');
-      const audio = new Audio(audioFile);
 
-      // Clear any old event listeners first
-      const new_button = button.cloneNode(true);
-      button.parentNode.replaceChild(new_button, button);
+      const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
+      const context = jsPsych.pluginAPI.audioContext();
+      const source = context.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(context.destination);
 
-      new_button.onclick = () => {
-        new_button.disabled = true;
-        audio.play();
-        audio.onended = () => {
+      button.onclick = () => {
+        button.disabled = true;
+        source.start();
+        source.onended = () => {
           jsPsych.finishTrial();
         };
       };
@@ -110,6 +111,7 @@
     canvas_size: [600, 200]
   };
 }
+
 
 function createEmotionChoiceTrial() {
   return {
