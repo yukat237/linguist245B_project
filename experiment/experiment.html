@@ -26,6 +26,10 @@
         jsPsych.data.displayData();
       }
     });
+    // DataPipe participant ID creation    
+    const subject_id = jsPsych.randomization.randomID(10);
+    const filename = `${subject_id}.csv`;
+
 
     // Simple stimuli for debugging 
     /* 
