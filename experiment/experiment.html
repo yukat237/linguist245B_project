@@ -93,12 +93,14 @@ function createAudioEmotionTrial(audioFile) {
 
       const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
       const context = jsPsych.pluginAPI.audioContext();
-      const source = context.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(context.destination);
 
       button.onclick = () => {
         button.disabled = true;
+
+        const source = context.createBufferSource(); // ← CREATE NEW SOURCE each time
+        source.buffer = audioBuffer;
+        source.connect(context.destination);
+
         source.start();
         source.onended = () => {
           jsPsych.finishTrial();
@@ -111,6 +113,7 @@ function createAudioEmotionTrial(audioFile) {
     canvas_size: [600, 200]
   };
 }
+
 
 
 function createEmotionChoiceTrial() {
