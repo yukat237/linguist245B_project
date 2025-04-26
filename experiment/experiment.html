@@ -59,10 +59,21 @@
     };
     timeline.push(instructions);
 
+    const audioFiles = [
+  'stim/test_stim/AESDD_anger_a20 (6).wav',
+  'stim/test_stim/AESDD_happy_h02 (6).wav',
+  'stim/test_stim/CaFE_anger_notintense_12-C-1-6.wav',
+  'stim/test_stim/CaFE_Sad_notintense_01-T-1-1.wav',
+  'stim/test_stim/JVNV_F2_sad_regular_60.wav',
+  'stim/test_stim/JVNV_happy_M1_happy_regular_01.wav',
+  'stim/test_stim/THAI_frustrated_s001_clip_actor002_script1_1_5a.flac',
+  'stim/test_stim/THAI_happy_s005_clip_actor010_script2_2_3a.flac'
+  ];
+
 //loading audio before experiment part...
     const preload = {
       type: jsPsychPreload,
-      audio: ['audio/happy1.mp3', 'audio/sad1.mp3'] // add all your files here
+      audio: audioFiles
     };
     timeline.push(preload);
 /*     
