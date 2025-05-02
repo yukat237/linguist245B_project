@@ -1,6 +1,6 @@
 ---
-title: "Replication of Study X by Sample & Sample (20xx, Psychological Science)"
-author: "Replication Author[s] (contact information)"
+title: "Replication of Study "Recognizing Emotions in a Foreign Language" by Marc D. Pell, Laura Monetta, Silke Paulmann, Sonja A. Kotz (2009, Journal of Nonverbal Behaviors)"
+author: "Yuka Tatsumi (ytatsumi@stanford.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   html:
@@ -12,25 +12,60 @@ format:
 
 ## Introduction
 
-[No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.  These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection.  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for replication, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
+instructions---[No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.
+ These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole. 
+ Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection. 
+  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, 
+  the target finding for replication, 
+  and any other essential information.  
+  NO literature review.  
+  write both the intro and the methods in past tense.  
+
+Conveying and recognizing emotions is an integral part of human communication. Psychologists have 
+been researching on this matter cross-cultrally to explore human's ability in recognizing displays
+independent of cuture and learning, however mainly from facial expression, while not so much in vocal emotion. 
+Given this, Pell et al. (2009) explores the "universality" of emotion recognition in human speech.
+
+They investigated whether Argentine Spanish speakers can recognize speaker emotions in foreign lanuguages: English, German, and Arabic,
+ in addition to their native language Argentine Spanish. 
+ The stimuli they heard were all in psuedo-sentences, 
+ which were validated by native speakers that they successfully display the intended emotion.
+ The task was very simple-- they heard each audio item, and gussed the intended emotion from 7 choices: anger (enojo), disgust (repugnancia), fear (miedo), sadness (tristeza), joy (alegrıa), and neutral (neutralidad).
+ Results showed that overall each emotion was recognized accurately: 64% in Spanish, 59% in Arabic, 58% in English, and 56% in German.
+ Also, using ANOVA and post hoc Tukey's comparisions, 
+ they showed that the participants performed significantly better in their native language than each of the other lanugages, which suggests the "in-group advantage" of emotional recognition.
+Regarding the emotion difference, although there was no overall significant difference, they found interactions with language--
+ "joy" items were recognized significantly more accurately in Spanish (89%) than in Arabic (59%) or German (57%), both of which also outperformed English (32%).
+"Anger" was recognized more accurately in Spanish (81%) and German (77%) than in English (67%) or Arabic (66%).
+"Sadness" was recognized with the least accuracy in Spanish (51%) which differed significantly from Arabic (77%), English (74%), and German (65%).
+These interaction patterns in Anger and Sad align very closely with the reported accuracy of emotion recognition by native speakers for each language set, which may suggest that 
+these effects are item-dependent. 
+
+In the present replication study, I aim to mainly replicate the universality and the in-group advantage of the emotion recognition, using different datasets and participants. 
 
 
 ## Methods
 
 ### Power Analysis
 
-Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
+<instructions>
+Original effect size, 
+power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.
+Considerations of feasibility for selecting planned sample size.
 
 ### Planned Sample
 
+<instructions>
 Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any.
 
 ### Materials
 
+<instructions>
 All materials - can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
 ### Procedure	
 
+<instructions>
 Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
 ### Analysis Plan

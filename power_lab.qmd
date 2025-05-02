@@ -1,0 +1,343 @@
+---
+title: "power"
+format: html
+editor: visual
+---
+
+```{r}
+# IMPORTANT: Please install R and RStudio 
+# Also install these packages:
+# install.packages(c("tidyverse", "pwr", "effectsize", "emmeans"))
+
+library(tidyverse)
+library(pwr)        
+library(effectsize)
+library(emmeans)
+
+```
+
+# Power analysis
+
+In this lab, we'll take a look at determining what sample size we would need in order to achieve adequate statistical power to test a hypothesis of interest.
+
+## Conceptual Check
+
+1.  A researcher is planning a study comparing reaction times between two experimental conditions. Which of these changes would increase the study's statistical power?
+
+    -   Decreasing the sample size
+
+    -   Increasing the significance level from α = 0.05 to α = 0.01
+
+    -   Using a more sensitive measurement technique that reduces error variance
+
+    -   Using a one-tailed test instead of a two-tailed test when the direction of the effect is predicted\
+
+2.  Two researchers are studying the same phenomenon:
+
+    -   Researcher A uses 30 participants per condition and finds a non-significant result
+
+    -   Researcher B uses 100 participants per condition and finds a significant result
+
+        Assuming both studies were methodologically sound, what might explain this difference?\
+
+3.  If you're planning a replication of a study that found a medium-sized effect (say, d = 0.5), but you suspect the original study might have overestimated the effect size, how should this affect your sample size planning?
+
+## 1.1: Formula-based power analysis (t-test)
+
+We're going to start by using the `pwr` package to explore the statistical power for testing a simple comparison of two means.
+
+Imagine you collected response times for two different conditions and want to know whether they're different. Here's an example dataset:
+
+```{r}
+set.seed(123)  # For reproducibility
+t_test_data <- data.frame(
+  group = rep(c("conditionA", "conditionB"), each = 30),
+  RT = c(rnorm(30, mean = 500, sd = 80),  # ConditionA group
+         rnorm(30, mean = 550, sd = 80))  # ConditionB group 
+)
+
+head(t_test_data)
+```
+
+Here's a visualization of the distributions:
+
+```{r}
+# Density plot showing overlapping distributions
+ggplot(data = t_test_data, 
+       mapping = aes(x = RT, fill = group, color = group)) + 
+  geom_density(alpha = 0.4) +
+  geom_rug(sides="b", alpha = 0.7) +
+  labs(title = "Distribution of RTs by Group",
+       x = "Score",
+       y = "Density") +
+  theme_bw()
+```
+
+We can calculate the cohen's $d$ for our simulated dataset.
+
+```{r}
+# Using the effectsize package
+d_value <- cohens_d(RT ~ group, data = t_test_data)
+d_numeric <- d_value$Cohens_d
+print(d_numeric)
+```
+
+We can show the means on the plot to see how far apart they are:
+
+```{r}
+ggplot(data = t_test_data, 
+       mapping = aes(x = RT, fill = group, color = group)) + 
+  geom_density(alpha = 0.4) +
+  geom_vline(data = t_test_data %>% 
+               group_by(group) %>% 
+               summarize(mean_score = mean(RT)),
+             aes(xintercept = mean_score, color = group),
+             linetype = "dashed", size = 1) +
+  # Add annotations to show effect size
+  labs(title = "Visualizing the Effect Size Between Groups",
+       subtitle = paste("Cohen's d =", round(d_numeric, 2)),
+       x = "Score",
+       y = "Density") +
+  theme_bw()
+
+```
+
+Now we conduct a power analysis for a two-sample t-test with this effect size.
+
+```{r}
+power_result <- pwr.t.test(
+  d = d_numeric,         # Effect size (Cohen's d)
+  sig.level = 0.05,      # Alpha level (0.05 is conventional)
+  power = 0.80,          # Desired power (0.80 is conventional)
+  type = "two.sample",   # Two independent groups
+  alternative = "two.sided"  # Two-tailed test
+)
+
+# Print the results
+plot(power_result)
+```
+
+## Conceptual Check
+
+1.  Based on our example data, what is the estimated effect size (Cohen's d)? How would you interpret this effect size in practical terms?
+2.  How many participants would we need per group to achieve 80% power with our calculated effect size?
+3.  For your replication project, how could you estimate the effect size you expect to find? Would you use the original study's reported effect size, or adjust it?
+
+## 1.2: Formula-based power analysis (regression)
+
+Many research papers in psycholinguistics report results from regression analyses, often showing just coefficients, standard errors, and p-values. Let's explore how to conduct a power analysis using this information.
+
+```{r}
+df <- read_csv("https://raw.githubusercontent.com/SocialInteractionLab/LINGUIST245B/refs/heads/master/assets/data/gibsonwu2013.csv")
+
+
+# Run the regression model
+model <- lm(rt ~ type, data = df)
+
+# Display regression results
+summary(model)
+```
+
+When reading a paper, you might see a table of regression coefficients like this, reported
+
+```         
+Coefficient estimate for predictor: b = 93.41, t = 4.00, p < 0.001.
+```
+
+To conduct a power analysis, we need to:
+
+1.  Identify the effect size of interest (usually the standardized coefficient)
+2.  Determine the appropriate power analysis method for this design
+
+The `effectsize` package has a lot of nice function for converting the kinds of statistics reported in papers to effect sizes. In this case, we can use the `t_to_eta2` function. Check it out at this site:
+
+<https://easystats4u.shinyapps.io/statistic2effectsize/>
+
+The trick is to convert the stats in the paper to some effect size number (e.g. the cohen f2) and then plug that into the `pwr` package.
+
+```{r}
+reported_t <- 3.00 
+reported_sample <- 40
+reported_f2 <- t_to_f2(t = reported_t, df_error = reported_sample-2)$Cohens_f2_partial
+replication_power <- pwr.f2.test(
+  u = 1,
+  v = NULL,
+  f2 = reported_f2,
+  sig.level = 0.05,
+  power = 0.80
+)
+ceiling(replication_power$v + 2)
+```
+
+> Note: The pwr package is designed for basic statistical tests like t-tests, ANOVAs, correlations, and linear regression. It has limitations. For example, it's not suitable for logistic regression - for logistic regression power analysis or mixed effects models.
+
+## 1.3: Simulation-based power analysis
+
+This time, we will determine the sample size you would need via simulation. Let's assume that for each group, the data is generated from a normal distribution with the means and standard deviations from the pilot data set in \`df.power\`. The code below creates data sets with different sample sizes. It draws 10 samples, with samples sizes varying from 10 to 60 participants in steps of 5.
+
+```{r}
+set.seed(123)
+n_samples = 10 # number of samples
+sample_sizes = seq(10, 60, 5) # sample sizes
+
+df.power <- data.frame(
+  group = rep(c("A", "B", "C"), each = 30),
+  observation = c(
+    rnorm(30, mean = 100, sd = 30),  # Group A
+    rnorm(30, mean = 115, sd = 30),  # Group B 
+    rnorm(30, mean = 130, sd = 30)   # Group C
+  )
+)
+
+# getting the mean and sd from each group
+df.params = df.power %>% 
+  group_by(group) %>% 
+  summarize(mean = mean(observation),
+            sd = sd(observation))
+
+# generating random samples using the different sample sizes
+df.sim = expand_grid(sample_size = sample_sizes,
+                     sample = 1:n_samples,
+                     group = c("A", "B", "C")) %>% 
+  left_join(df.params,
+            by = "group") %>% 
+  mutate(observation = pmap(.l = list(n = sample_size,
+                                      mean = mean,
+                                      sd = sd),
+                            .f = ~ rnorm(n = ..1,
+                                         mean = ..2,
+                                         sd = ..3))) %>% 
+  unnest(cols = c(observation)) %>% 
+  select(sample_size, sample, group, observation)
+```
+
+Now for each \`sample_size\` and each \`sample\` we, fit a linear model and run an ANOVA using the \`joint_tests()\` function from the "emmeans" package. We save the results in a dataframe called \`df.lm_results1\` with the following columns:
+
+\* **sample_size**: number of observations in a sample
+
+\* **sample**: index for the sample
+
+\* **fit**: the results of fitting the ANOVA
+
+```{r}
+# Run linear models for sample
+df.lm_results = df.sim %>% 
+  group_by(sample_size, sample) %>%
+  nest() %>% 
+  mutate(fit = map(.x = data,
+                   .f = ~ lm(formula = observation ~ group,
+                             data = .) %>% 
+                     emmeans::joint_tests())) %>% 
+  select(-data) %>% 
+  unnest() %>%
+  select(sample_size, sample, p.value)
+
+head(df.lm_results)
+
+```
+
+## 1.4: Calculating power for given alpha and sample size
+
+For each sample determine whether it is significant for three different alpha levels (.05, .01, and .001).
+
+Use these significance results to calculate the power at each alpha level/sample size pair. Save the results in a dataframe called \`df.lm_results3\` with the following columns:
+
+\* **sample_size**: number of observations in sample
+
+\* **alpha**: significance level
+
+\* **power**: the proportion of significant samples of a given sample size at a given alpha level
+
+Make sure to print \`df.lm_results3\` afterwards! (e.g., using \`head()\`).
+
+```{r}
+alphas = c(.05, .01, .001)
+
+# Calculate power for each alpha level and sample size
+df.lm_results %>%
+  crossing(alpha = alphas) %>%
+  mutate(significant = p.value < alpha) %>%
+  group_by(sample_size, alpha) %>%
+  summarize(power = mean(significant), .groups = "drop") %>%
+  ggplot(aes(x = sample_size, y = power, color = factor(alpha))) +
+  geom_point() +
+  geom_smooth(method = "loess", se = TRUE) +
+  geom_hline(yintercept = 0.8, linetype = "dashed", color = "gray50") +
+  scale_color_brewer(palette = "Set1", name = "Alpha level") +
+  labs(title = "Power by Sample Size for Different Alpha Levels",
+       x = "Sample Size (per group)",
+       y = "Power (proportion of significant results)") +
+  theme_bw()
+
+
+```
+
+> Note: there's a package called `simr` that allows for this kind of simulation-based power analysis for fancier statistical models (e.g. the mixed-effects models we'll talk about later in the quarter). But you can always do it yourself like this.
+>
+> <https://humburg.github.io/Power-Analysis/simr_power_analysis.html>
+
+## Conceptual Questions:
+
+1\. How does changing the alpha level affect the power curve?
+
+2\. Why is simulation-based power analysis valuable for more complex statistics?
+
+3\. If you had to design an experiment with limited resources, how would you balance statistical power with practical constraints?
+
+# 2.1: Your turn
+
+Now it's time to apply these power analysis techniques to the paper you're planning to replicate.
+
+## Step 1: Identify the statistical test
+
+Look at your target paper and identify:
+
+\- What statistical test was used? (t-test, ANOVA, regression, etc.) –\> ANOVA
+
+\- What are the key predictors or comparisons? –\> 4 languages x 5 emotions
+
+\- What effect sizes are reported (or can be calculated)?
+
+## Step 2: Extract effect size information
+
+Papers report statistics in different ways. You'll need to convert these to standardized effect sizes:
+
+If your paper reports:
+
+\- \*\*Cohen's d\*\*: Use this directly
+
+\- \*\*Mean difference and SD\*\*: Calculate d = (Mean1 - Mean2) / pooled_SD
+
+\- \*\*t-values\*\*: Use the effectsize package: \`t_to_d(t, df_error)\`
+
+\- \*\*F-values\*\*: Use \`F_to_f(f, df, df_error)\` then convert to f²
+
+\- \*\*Regression coefficients\*\*: Use \`t_to_f2(t, df_error)\` for linear regression
+
+\- \*\*Odds ratios (OR)\*\*: For logistic regression, convert to d using d = log(OR) × (√3/π)
+
+## Step 3: Conduct power analysis
+
+Use the appropriate pwr function for your test type:
+
+```{r}
+# For t-tests
+pwr.t.test(d = your_d, sig.level = 0.05, power = 0.80, type = "two.sample", 
+           alternative = "two.sided")
+
+# For ANOVA (variance explained)
+pwr.anova.test(k = num_groups, f = your_f, sig.level = 0.05, power = 0.80)
+
+# For correlation
+pwr.r.test(r = your_r, sig.level = 0.05, power = 0.80)
+
+# For linear regression (single predictor)
+pwr.f2.test(u = 1, f2 = 1.061856, sig.level = 0.05, power = 0.8)
+
+# For multiple regression
+pwr.f2.test(u = num_predictors, f2 = your_f2, sig.level = 0.05, power = 0.80)
+```
+
+```         
+> eta2_to_f2(0.515) >> 1.061856
+```
