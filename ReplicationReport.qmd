@@ -53,37 +53,82 @@ Original effect size,
 power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.
 Considerations of feasibility for selecting planned sample size.
 
+- they do not directly report Cohen's d, but report F-values: 
+-- 4 x 5 ANOVA, main effect of language on vocal emotion recognition scores, F(3, 180) = 7.49, p < .0001.
+-- a significant main effect for emotion, F(4, 240) = 63.59, p < .0001, and a significant interaction of Language X Emotion, F(12, 720) = 39.65, p < .0001.
+-- focusing on the main effect for emotion, Eta2 (partial) is 0.515. eta2_to_f2(0.515) >> 1.061856.  
+-- pwr.f2.test(u = 5, f2 = 1.061856, sig.level = 0.05, power = 0.8) --> this suggest that I need 12.4833 people.
+-- focusing on the main effect for language, Eta2 (partial) is 0.515. eta2_to_f2(0.111) >  0.1248594
+-- pwr.f2.test(u = 3, f2 = 0.1248594, sig.level = 0.05, power = 0.80)  --> this suggest that I need 87.3 people.   
+
+
 ### Planned Sample
 
 <instructions>
 Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any.
+
+Participants will be recruited from Prolifics.
+They are preselected by their language background: English native speaker, currently physically living in US, no more than 2 years of Spanish, no/minimal exposure to any other languages other than English, including no exposures to entertianments, such as non-English games, songs, shows, animations, that involves exposures to its spoken languages.
+
+Given the power analyses, I plan to aim for 90 sample size. 
+Study termination will be to stop at n = 100; the buffer is coming from data drop in case participants did show descripancies in the self-reported language background and Prolific profiles, which happen a lot on Prolific.
+If participants failed in attention checks within the study, they will be immidiately exited and its data is xcluded from the study. Compensation will be paid only upto that time.
+
+
 
 ### Materials
 
 <instructions>
 All materials - can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
+I will use completely different datasets from the original articles.
+The test languages are:
+- Canadian French
+- Japanese
+- Thai 
+- Greek
+The materials for each language are all open source that is either downloadable freely or access by request.
+Here is the article for each source:
+- CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402).
+- HCUDB2: Hiroshima City University (2024): Hiroshima City University Japanese Emotional Speech Corpus (HCUDB). Speech Resources Consortium, National Institute of Informatics. (dataset). https://doi.org/10.32130/src.HCUDB
+- THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0.
+- AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
+
+
 ### Procedure	
 
 <instructions>
 Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
+
+
 ### Analysis Plan
 
-Can also quote directly, though it is less often spelled out effectively for an analysis strategy section.  The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
+Can also quote directly, though it is less often spelled out effectively for an analysis strategy section. 
+ The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
 
 **Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+
+
 
 ### Differences from Original Study
 
 Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
 
+
+
+
+
+
 ### Methods Addendum (Post Data Collection)
 
 You can comment this section out prior to final report with data collection.
 
+
 #### Actual Sample
   Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+
+
 
 #### Differences from pre-data collection methods plan
   Any differences from what was described as the original plan, or “none”.

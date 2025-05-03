@@ -332,7 +332,7 @@ pwr.anova.test(k = num_groups, f = your_f, sig.level = 0.05, power = 0.80)
 pwr.r.test(r = your_r, sig.level = 0.05, power = 0.80)
 
 # For linear regression (single predictor)
-pwr.f2.test(u = 1, f2 = 1.061856, sig.level = 0.05, power = 0.8)
+pwr.f2.test(u = 5, f2 = 0.15, sig.level = 0.05, power = 0.8)
 
 # For multiple regression
 pwr.f2.test(u = num_predictors, f2 = your_f2, sig.level = 0.05, power = 0.80)
@@ -341,3 +341,26 @@ pwr.f2.test(u = num_predictors, f2 = your_f2, sig.level = 0.05, power = 0.80)
 ```         
 > eta2_to_f2(0.515) >> 1.061856
 ```
+
+> assuming medium f2: pwr.f2.test(u = 5, f2 = 0.15, sig.level = 0.05, power = 0.8) \>\>\>v = 85.21
+>
+> looking at language effect rather than emotion effect. \> eta2_to_f2(0.111) \> 0.1248594
+>
+> ```         
+>  pwr.f2.test(u = 3, f2 = 0.1248594, sig.level = 0.05, power = 0.80)       
+>  
+> Multiple regression power calculation                 
+> u = 3               
+> v = 87.32211              
+> f2 = 0.1248594       
+> sig.level = 0.05           
+> power = 0.8
+> ```
+
+assuming i want 90 people.
+
+one person may do 40 min.
+
+let's say \$14 per hour. = 14 for 60min = 2.4 for 10min = 9.6 per 1 person
+
+9.6 \* 90 = \$864
