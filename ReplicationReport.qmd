@@ -100,6 +100,17 @@ Here is the article for each source:
 <instructions>
 Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
+After participants provide informed consent, they will receive an introduction to the task and instructions. 
+Next, they will complete an audio check and a short practice trial to familiarize themselves with the format.
+The main trails start after this. For each trial, they will hear an audio clip once and judge the expressed emotion, 
+selecting from the following options: happy, sad, angry, fearful, neutral, or surprised. The stimulus set will vary across emotional category
+(primarily happiness, anger, and sadness; others are fillers), language (4 languages), speaker (2 females, 2 males), and sentence (3 sentences),
+with each clip lasting approximately 4 seconds. Attention checks will be embedded; participants who fail these checks will have their session
+terminated right away, and compensation will be prorated based on time completed. 
+
+After the main task, participants will complete a brief questionnaire to confirm their background information (including language history) to ensure data quality. 
+Compensation will be approximately $13 per hour. Each session will last approximately 40 minutes. 
+
 
 
 ### Analysis Plan
