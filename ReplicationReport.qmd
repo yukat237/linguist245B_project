@@ -12,37 +12,28 @@ format:
 
 ## Introduction
 
-instructions---[No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.
- These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole. 
- Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection. 
-  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, 
-  the target finding for replication, 
-  and any other essential information.  
-  NO literature review.  
-  write both the intro and the methods in past tense.  
+Conveying and recognizing emotions is an integral part of human communication.
+Psychologists have studied this topic cross-culturally to explore humans' ability to recognize emotional displays independently of culture
+and learning-- but primarily through facial expressions, with comparatively less focus on vocal emotion. 
+Given this, Pell et al. (2009) investigated the universality of emotion recognition in human speech.
 
-Conveying and recognizing emotions is an integral part of human communication. Psychologists have 
-been researching on this matter cross-cultrally to explore human's ability in recognizing displays
-independent of cuture and learning, however mainly from facial expression, while not so much in vocal emotion. 
-Given this, Pell et al. (2009) explores the "universality" of emotion recognition in human speech.
+They tested whether Argentine Spanish speakers could recognize speaker emotions in foreign languages: English, German, and Arabic 
+in addition to their native language, Argentine Spanish. All stimuli were pseudo-sentences validated by native speakers to 
+effectively convey the intended emotion. The task was simple: participants listened to each audio item and selected the perceived emotion
+from seven choices: anger (enojo), disgust (repugnancia), fear (miedo), sadness (tristeza), joy (alegría), surprise (sorpresa), and neutral (neutralidad).
 
-They investigated whether Argentine Spanish speakers can recognize speaker emotions in foreign lanuguages: English, German, and Arabic,
- in addition to their native language Argentine Spanish. 
- The stimuli they heard were all in psuedo-sentences, 
- which were validated by native speakers that they successfully display the intended emotion.
- The task was very simple-- they heard each audio item, and gussed the intended emotion from 7 choices: anger (enojo), disgust (repugnancia), fear (miedo), sadness (tristeza), joy (alegrıa), and neutral (neutralidad).
- Results showed that overall each emotion was recognized accurately: 64% in Spanish, 59% in Arabic, 58% in English, and 56% in German.
- Also, using ANOVA and post hoc Tukey's comparisions, 
- they showed that the participants performed significantly better in their native language than each of the other lanugages, which suggests the "in-group advantage" of emotional recognition.
-Regarding the emotion difference, although there was no overall significant difference, they found interactions with language--
- "joy" items were recognized significantly more accurately in Spanish (89%) than in Arabic (59%) or German (57%), both of which also outperformed English (32%).
-"Anger" was recognized more accurately in Spanish (81%) and German (77%) than in English (67%) or Arabic (66%).
-"Sadness" was recognized with the least accuracy in Spanish (51%) which differed significantly from Arabic (77%), English (74%), and German (65%).
-These interaction patterns in Anger and Sad align very closely with the reported accuracy of emotion recognition by native speakers for each language set, which may suggest that 
-these effects are item-dependent. 
+Results showed that each emotion was generally recognized above chance: 64% accuracy in Spanish, 59% in Arabic, 58% in English, and 56% in German.
+Using ANOVA and post hoc Tukey comparisons, the authors also found that participants performed significantly better in their native language
+than in the foreign languages, suggesting an "in-group advantage" in emotional recognition. 
+As for individual emotions, while there was no main effect of emotion, they did find interactions with language.
+“Joy” was recognized significantly more accurately in Spanish (89%) than in Arabic (59%) or German (57%), both of which outperformed English (32%).
+“Anger” was more accurately recognized in Spanish (81%) and German (77%) compared to English (67%) and Arabic (66%).
+Interestingly, “sadness” was recognized with the least accuracy in Spanish (51%), which differed significantly from
+Arabic (77%), English (74%), and German (65%). These patterns for anger and sadness closely mirrored the reported recognition rates
+by native speakers of each language, which may suggest that these effects are item-dependent.
 
-In the present replication study, I aim to mainly replicate the universality and the in-group advantage of the emotion recognition, using different datasets and participants. 
-
+In the present replication study, I aim to replicate both the universality and in-group advantage of emotion recognition
+using different datasets and participant groups.
 
 ## Methods
 
