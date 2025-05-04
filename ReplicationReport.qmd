@@ -39,11 +39,6 @@ using different datasets and participant groups.
 
 ### Power Analysis
 
-<instructions>
-Original effect size, 
-power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.
-Considerations of feasibility for selecting planned sample size.
-
 Although Pell et al. (2009) did not directly report Cohen’s d, they provided F-values from a 4 (Language) × 5 (Emotion) ANOVA.
 They reported a main effect of Language on vocal emotion recognition scores, F(3, 180) = 7.49, p < .0001;
 a significant main effect of Emotion, F(4, 240) = 63.59, p < .0001; and a significant Language × Emotion interaction,
@@ -55,22 +50,17 @@ with the same alpha and power levels indicates a required sample size of approxi
 
 ### Planned Sample
 
-<instructions>
-Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any.
+Participants will be recruited through Prolific. They will be preselected based on their language background: native English speakers
+currently living in the U.S., with no more than two years of Spanish education and no/minimal exposure to any other languages.
+This includes avoiding exposure to non-English media—such as games, songs, shows, or animations—that involve spoken content in other languages.
 
-Participants will be recruited from Prolifics.
-They are preselected by their language background: English native speaker, currently physically living in US, no more than 2 years of Spanish, no/minimal exposure to any other languages other than English, including no exposures to entertianments, such as non-English games, songs, shows, animations, that involves exposures to its spoken languages.
-
-Given the power analyses, I plan to aim for 90 sample size. 
-Study termination will be to stop at n = 100; the buffer is coming from data drop in case participants did show descripancies in the self-reported language background and Prolific profiles, which happen a lot on Prolific.
-If participants failed in attention checks within the study, they will be immidiately exited and its data is xcluded from the study. Compensation will be paid only upto that time.
-
+Based on the power analyses, I plan to aim for a sample size of 90. The study will terminate once n = 100 is reached,
+which allows a buffer to account for potential data exclusion. This buffer is necessary because discrepancies between participants’ self-reported
+language backgrounds and their Prolific profiles are common. Participants who fail any attention checks during the study will be immediately exited,
+and their data will be excluded. Compensation will only be provided up to the point of exit.
 
 
 ### Materials
-
-<instructions>
-All materials - can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
 I will use completely different datasets from the original articles.
 The test languages are:
