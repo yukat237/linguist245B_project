@@ -64,16 +64,16 @@ and their data will be excluded. Compensation will only be provided up to the po
 
 I will use completely different datasets from the original articles.
 The test languages are:
-- Canadian French
-- Japanese
-- Thai 
-- Greek
+  - Canadian French
+  - Japanese
+  - Thai 
+  - Greek
 The materials for each language are all open source that is either downloadable freely or access by request.
-Here is the article for each source:
-- CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402).
-- HCUDB2: Hiroshima City University (2024): Hiroshima City University Japanese Emotional Speech Corpus (HCUDB). Speech Resources Consortium, National Institute of Informatics. (dataset). https://doi.org/10.32130/src.HCUDB
-- THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0.
-- AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
+Here are the articles for each source:
+  - CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402).
+  - HCUDB2: Hiroshima City University (2024): Hiroshima City University Japanese Emotional Speech Corpus (HCUDB). Speech Resources Consortium, National Institute of Informatics. (dataset). https://doi.org/10.32130/src.HCUDB
+  - THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0.
+  - AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
 
 
 ### Procedure	
