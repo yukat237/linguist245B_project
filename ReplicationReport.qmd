@@ -110,7 +110,15 @@ Since this is part of a bigger study that involves comparisons with speech langu
 
 #1: the stimuli are datasets created by ASR field researchers who aim to develop better emotion recognition systems.
 This is the novel part of the current study-- in the past, psychologists used thier own datasets that are not easily accessible; however, the datasets
-used in this study are publically available
+used in this study are publically available and all the stimulli and their creation processes are open.
+
+#2: Since the speech language model portion of the study uses English as its "native language" (i.e., the model is pretrained by English only, and will 
+be fine-tuned by English emotional datasets), I am recruiting English monolingual speakers. 
+
+#3: Since the main goal of the study is to compare the behaviors of humans and a speech model, this human portion of the study does not test with English 
+datasets, which is different from the original study where they also asked them to judge emotions of their native language.
+
+#4: the original article only used ANOVA. In this study, I plan to analyze using linear-mixed models to account for random effects better than ANOVA.
 
 
 ### Methods Addendum (Post Data Collection)
