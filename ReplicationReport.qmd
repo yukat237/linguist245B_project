@@ -71,15 +71,12 @@ The test languages are:
 The materials for each language are all open source that is either downloadable freely or access by request.
 Here are the articles for each source:
   - CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402).
-  - HCUDB2: Hiroshima City University (2024): Hiroshima City University Japanese Emotional Speech Corpus (HCUDB). Speech Resources Consortium, National Institute of Informatics. (dataset). https://doi.org/10.32130/src.HCUDB
+  - JVNV: Detai Xin, Junfeng Jiang, Shinnosuke Takamichi, Yuki Saito, Akiko Aizawa, Hiroshi Saruwatari, "JVNV: A Corpus of Japanese Emotional Speech with Verbal Content and Nonverbal Expressions," arXiv preprint 2310.06072, Oct. 2023.
   - THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0.
   - AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
 
 
 ### Procedure	
-
-<instructions>
-Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
 
 After participants provide informed consent, they will receive an introduction to the task and instructions. 
 Next, they will complete an audio check and a short practice trial to familiarize themselves with the format.
@@ -105,11 +102,15 @@ Can also quote directly, though it is less often spelled out effectively for an 
 
 ### Differences from Original Study
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
+Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.
+The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
 
+Since this is part of a bigger study that involves comparisons with speech language models performance, I will 1)use different datasets for stimuli,
+2)recruite participants with different language background with different recruitment method, 3)use slightly different condition design, 4)apply another statistics to reflect random effects better the original article.
 
-
-
+#1: the stimuli are datasets created by ASR field researchers who aim to develop better emotion recognition systems.
+This is the novel part of the current study-- in the past, psychologists used thier own datasets that are not easily accessible; however, the datasets
+used in this study are publically available
 
 
 ### Methods Addendum (Post Data Collection)
