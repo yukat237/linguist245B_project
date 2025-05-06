@@ -96,7 +96,14 @@ Compensation will be approximately $13 per hour. Each session will last approxim
 Can also quote directly, though it is less often spelled out effectively for an analysis strategy section. 
  The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
 
-**Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+Key analyses:
+1) Whether performances are above chance-level (universality)
+Accuracy rate per participant (%) will be calculated, and the overall mean accuracy for each language will be compared to the chance rate (i.e., 1/6 = about 0.16).
+2) Whether there are differences in accuracy between emotions (in-group advantage)
+I plan to run the mixed-effects logistic regression, using lme4 package on R.
+The main interest is: Accuracy~Emotion*Language + random effects, where different random effects structures will be tested to find the best fit.
+Random effects include: subject, item, and speaker gender.
+The Emotion factor include three for the main analysis: sadness, anger, and happiness, as these are the only emotions tested equally across all the langauges.
 
 
 
