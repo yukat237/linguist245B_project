@@ -29,26 +29,40 @@
     const instructions = {
       type: jsPsychInstructions,
       pages: [
-        '<h1>Welcome to the emotion recognition study!</h1>',
-        '<p>You will hear speech clips in different languages.</p>',
+        '<h1>Welcome to the emotion recognition test!</h1>',
+        '<p>Find out your vocal emotion recognition ability!</p>',
+        '<p>In this test, you will hear speech clips in different languages.</p>',
         '<p>You will hear each clip once. Judge the speaker\'s emotion.</p>',
-        '<p>If unsure, make your best guess!</p>',
-        '<p>Press "Next" to begin.</p>'
+        '<p>If unsure, just make your best guess!</p>',
+        '<p>In the end, we will give you a score of how accurate you were, as well as how much time you spent.</p>',
+        '<p>See if you could beat native speakers of each language! </p>',
+        '<p> Good luck! Press "Next" to begin. </p>'
       ],
       show_clickable_nav: true
     };
     timeline.push(instructions);
 
     const audioFiles = [
-      'stim/test_stim/AESDD_anger_a20 (6).wav',
-      'stim/test_stim/AESDD_happy_h02 (6).wav',
-      'stim/test_stim/CaFE_anger_notintense_12-C-1-6.wav',
-      'stim/test_stim/CaFE_Sad_notintense_01-T-1-1.wav',
-      'stim/test_stim/JVNV_F2_sad_regular_60.wav',
-      'stim/test_stim/JVNV_happy_M1_happy_regular_01.wav',
-      'stim/test_stim/THAI_frustrated_s001_clip_actor002_script1_1_5a.flac',
-      'stim/test_stim/THAI_happy_s005_clip_actor010_script2_2_3a.flac'
-    ];
+    "jp_surprise__F2_surprise_regular_03.wav",
+    "jp_sad__F2_sad_regular_02.wav",
+    "jp_happy__F1_happy_regular_01.wav",
+    "jp_fear__M2_fear_regular_01.wav",
+    "jp_angry__M1_anger_regular_03.wav",
+    "greek_sad__s12 (2).wav",
+    "greek_happy__h10 (1).wav",
+    "greek_fear__f12 (4).wav",
+    "greek_angry__a14 (3).wav",
+    "french_surprise__10-S-2-4.wav",
+    "french_sad__03-T-2-3.wav",
+    "french_neutral__08-N-1-2.wav",
+    "french_happy__03-J-2-2.wav",
+    "french_fear__05-P-2-2.wav",
+    "french_angry__01-C-2-4.wav",
+    "thai_angry__s008_clip_actor016_script3_2_2b.wav",
+    "thai_happy__s001_clip_actor002_script1_2_3b.wav",
+    "thai_neutral__s013_clip_actor026_script3_2_1b.wav",
+    "thai_sad__s001_clip_actor002_script2_2_4b.wav"
+  ];
 
     const preload = {
       type: jsPsychPreload,
@@ -56,7 +70,7 @@
     };
     timeline.push(preload);
 
-    const emotions = ['Happy', 'Sad', 'Angry', 'Frustrated', 'Fear', 'Disgust', 'Neutral'];
+    const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
 
     // Main trials
     audioFiles.forEach(function(audioFile) {
