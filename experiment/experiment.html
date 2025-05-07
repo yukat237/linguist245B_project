@@ -92,7 +92,7 @@
             button.addEventListener('click', async () => {
               button.disabled = true;
               const context = jsPsych.pluginAPI.audioContext();
-              const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(jsPsych.currentTrial().resolved_file);
+              const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(jsPsych.getCurrentTrial().resolved_file);
               const source = context.createBufferSource();
               source.buffer = audioBuffer;
               source.connect(context.destination);
