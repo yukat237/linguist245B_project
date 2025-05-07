@@ -42,7 +42,7 @@
     };
     timeline.push(instructions);
 
-    const audioFiles = [
+    let audioFiles = [
     "stim/test_stim2/jp_surprise__F2_surprise_regular_03.wav",
     "stim/test_stim2/jp_sad__F2_sad_regular_02.wav",
     "stim/test_stim2/jp_happy__F1_happy_regular_01.wav",
@@ -63,6 +63,10 @@
     "stim/test_stim2/thai_neutral__s013_clip_actor026_script3_2_1b.wav",
     "stim/test_stim2/thai_sad__s001_clip_actor002_script2_2_4b.wav"
   ];
+  
+  // Shuffle the audioFiles array
+  audioFiles = jsPsych.randomization.shuffle(audioFiles);
+  
 
     const preload = {
       type: jsPsychPreload,
@@ -104,7 +108,7 @@
         type: jsPsychHtmlButtonResponse,
         stimulus: '<p>Which emotion did the speaker express?</p>',
         choices: emotions,
-        margin_vertical: '20px', // Add space between buttons
+        margin_vertical: '20px', 
         button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
         data: {stimulus_file: audioFile}
       };
@@ -112,8 +116,7 @@
       timeline.push(playAudio);
       timeline.push(emotionChoice);
     });
-
-    const save_data = {
+t       const save_data = {
       type: jsPsychPipe,
       action: "save",
       experiment_id: "eSR841l7tfeH",
@@ -130,7 +133,6 @@
     timeline.push(completion);
 
     jsPsych.run(timeline);
-
-  </script>
+	</script>
 </body>
 </html>
