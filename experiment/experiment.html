@@ -3,28 +3,29 @@
 <head>
   <title>Emotion Recognition Study</title>
   <!-- Load jsPsych -->
-  <script src="https://unpkg.com/jspsych@7.3.3"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
-  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
-  <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" />
+  <script src='https://unpkg.com/jspsych@7.3.3'></script>
+  <script src='https://unpkg.com/@jspsych/plugin-instructions@1.1.4'></script>
+  <script src='https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2'></script>
+  <script src='https://unpkg.com/@jspsych/plugin-preload@1.1.2'></script>
+  <script src='https://unpkg.com/@jspsych-contrib/plugin-pipe'></script>
+  <link href='https://unpkg.com/jspsych@7.3.3/css/jspsych.css' rel='stylesheet'/>
 </head>
 <body>
   <script>
+    // Initialize jsPsych
     const jsPsych = initJsPsych({
       show_progress_bar: true,
       override_safe_mode: true,
-      on_finish: function() {
-        jsPsych.data.displayData();
-      }
+      on_finish: function() { jsPsych.data.displayData(); }
     });
 
+    // Subject ID and data filename
     const subject_id = jsPsych.randomization.randomID(10);
     const filename = `${subject_id}.csv`;
 
     const timeline = [];
 
+    // Instructions
     const instructions = {
       type: jsPsychInstructions,
       pages: [
@@ -35,48 +36,46 @@
         '<p>If unsure, just make your best guess!</p>',
         '<p>In the end, we will give you a score of how accurate you were, as well as how much time you spent.</p>',
         '<p>See if you could beat native speakers of each language!</p>',
-        '<p>Good luck! Press "Next" to begin.</p>'
+        '<p>Good luck! Press \"Next\" to begin.</p>'
       ],
       show_clickable_nav: true
     };
     timeline.push(instructions);
 
+    // Audio file list
     let audioFiles = [
-      "stim/test_stim2/jp_surprise__F2_surprise_regular_03.wav",
-      "stim/test_stim2/jp_sad__F2_sad_regular_02.wav",
-      "stim/test_stim2/jp_happy__F1_happy_regular_01.wav",
-      "stim/test_stim2/jp_fear__M2_fear_regular_01.wav",
-      "stim/test_stim2/jp_angry__M1_anger_regular_03.wav",
-      "stim/test_stim2/greek_sad__s12 (2).wav",
-      "stim/test_stim2/greek_happy__h10 (1).wav",
-      "stim/test_stim2/greek_fear__f12 (4).wav",
-      "stim/test_stim2/greek_angry__a14 (3).wav",
-      "stim/test_stim2/french_surprise__10-S-2-4.wav",
-      "stim/test_stim2/french_sad__03-T-2-3.wav",
-      "stim/test_stim2/french_neutral__08-N-1-2.wav",
-      "stim/test_stim2/french_happy__03-J-2-2.wav",
-      "stim/test_stim2/french_fear__05-P-2-2.wav",
-      "stim/test_stim2/french_angry__01-C-2-4.wav",
-      "stim/test_stim2/thai_angry__s008_clip_actor016_script3_2_2b.wav",
-      "stim/test_stim2/thai_happy__s001_clip_actor002_script1_2_3b.wav",
-      "stim/test_stim2/thai_neutral__s013_clip_actor026_script3_2_1b.wav",
-      "stim/test_stim2/thai_sad__s001_clip_actor002_script2_2_4b.wav"
+      'stim/test_stim2/jp_surprise__F2_surprise_regular_03.wav',
+      'stim/test_stim2/jp_sad__F2_sad_regular_02.wav',
+      'stim/test_stim2/jp_happy__F1_happy_regular_01.wav',
+      'stim/test_stim2/jp_fear__M2_fear_regular_01.wav',
+      'stim/test_stim2/jp_angry__M1_anger_regular_03.wav',
+      'stim/test_stim2/greek_sad__s12 (2).wav',
+      'stim/test_stim2/greek_happy__h10 (1).wav',
+      'stim/test_stim2/greek_fear__f12 (4).wav',
+      'stim/test_stim2/greek_angry__a14 (3).wav',
+      'stim/test_stim2/french_surprise__10-S-2-4.wav',
+      'stim/test_stim2/french_sad__03-T-2-3.wav',
+      'stim/test_stim2/french_neutral__08-N-1-2.wav',
+      'stim/test_stim2/french_happy__03-J-2-2.wav',
+      'stim/test_stim2/french_fear__05-P-2-2.wav',
+      'stim/test_stim2/french_angry__01-C-2-4.wav',
+      'stim/test_stim2/thai_angry__s008_clip_actor016_script3_2_2b.wav',
+      'stim/test_stim2/thai_happy__s001_clip_actor002_script1_2_3b.wav',
+      'stim/test_stim2/thai_neutral__s013_clip_actor026_script3_2_1b.wav',
+      'stim/test_stim2/thai_sad__s001_clip_actor002_script2_2_4b.wav'
     ];
-
-    // Shuffle audio files
     audioFiles = jsPsych.randomization.shuffle(audioFiles);
 
-    const preload = {
-      type: jsPsychPreload,
-      audio: audioFiles
-    };
+    // Preload audio
+    const preload = { type: jsPsychPreload, audio: audioFiles };
     timeline.push(preload);
 
-    const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
+    const emotions = ['Happy','Sad','Angry','Fear','Surprise','Neutral'];
 
-    // Create timeline_variables from audio file list
+    // Build timeline variables
     const audioTrials = audioFiles.map(file => ({ stimulus_file: file }));
 
+    // Trial procedure with resolved file fix
     const trial_procedure = {
       timeline: [
         {
@@ -84,24 +83,24 @@
           stimulus: '<p>Click the button below to listen to the audio.</p>',
           choices: ['Play Audio'],
           response_ends_trial: false,
+          on_start: (trial) => {
+            // Capture the actual filename string
+            trial.resolved_file = trial.stimulus_file;
+          },
           on_load: function() {
             const button = document.querySelector('.jspsych-btn');
             button.addEventListener('click', async () => {
               button.disabled = true;
               const context = jsPsych.pluginAPI.audioContext();
-              const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(jsPsych.timelineVariable('stimulus_file'));
+              const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(jsPsych.currentTrial().resolved_file);
               const source = context.createBufferSource();
               source.buffer = audioBuffer;
               source.connect(context.destination);
               source.start();
-              source.onended = () => {
-                jsPsych.finishTrial();
-              };
+              source.onended = () => { jsPsych.finishTrial(); };
             });
           },
-          data: {
-            stimulus_file: jsPsych.timelineVariable('stimulus_file')
-          }
+          data: { stimulus_file: jsPsych.timelineVariable('stimulus_file') }
         },
         {
           type: jsPsychHtmlButtonResponse,
@@ -109,24 +108,24 @@
           choices: emotions,
           margin_vertical: '20px',
           button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-          data: {
-            stimulus_file: jsPsych.timelineVariable('stimulus_file')
-          }
+          data: { stimulus_file: jsPsych.timelineVariable('stimulus_file') }
         }
       ],
       timeline_variables: audioTrials
     };
     timeline.push(trial_procedure);
 
+    // Save data
     const save_data = {
       type: jsPsychPipe,
-      action: "save",
-      experiment_id: "eSR841l7tfeH",
+      action: 'save',
+      experiment_id: 'eSR841l7tfeH',
       filename: filename,
       data_string: () => jsPsych.data.get().csv()
     };
     timeline.push(save_data);
 
+    // Completion screen
     const completion = {
       type: jsPsychHtmlButtonResponse,
       stimulus: '<h2>Thank you!</h2><p>The experiment is complete.</p>',
@@ -134,6 +133,7 @@
     };
     timeline.push(completion);
 
+    // Run!
     jsPsych.run(timeline);
   </script>
 </body>
