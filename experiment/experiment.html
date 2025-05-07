@@ -16,9 +16,6 @@
     const jsPsych = initJsPsych({
       show_progress_bar: true,
       override_safe_mode: true,
-      on_finish: function() {
-        jsPsych.data.displayData();
-      }
     });
 
     const subject_id = jsPsych.randomization.randomID(10);
@@ -119,7 +116,7 @@
     const save_data = {
       type: jsPsychPipe,
       action: "save",
-      experiment_id: "eSR841l7tfeH",
+      experiment_id: subject_id,
       filename: filename,
       data_string: ()=>jsPsych.data.get().csv()
     };
