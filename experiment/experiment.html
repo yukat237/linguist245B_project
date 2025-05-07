@@ -32,7 +32,7 @@
         '<p>You will hear each clip once. Judge the speaker\'s emotion.</p>',
         '<p>If unsure, just make your best guess!</p>',
         '<p>In the end, we will give you a score of how accurate you were, as well as how much time you spent.</p>',
-        '<p>See if you could beat native speakers of each language! </p>',
+        '<p>See if you can do better than native speakers of each language! </p>',
         '<p> Good luck! Press "Next" to begin. </p>'
       ],
       show_clickable_nav: true
@@ -74,6 +74,11 @@
 
     // Main trials
     audioFiles.forEach(function(audioFile) {
+      //parse to get lang & corr emotions
+      const base = audioFile.split('/').pop();                     // e.g. "jp_surprise__F2_…"
+      const [lang, emo] = base.split('__')[0].split('_');          // ["jp","surprise"]
+      const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
+
 
       const playAudio = {
         type: jsPsychHtmlButtonResponse,
@@ -106,12 +111,49 @@
         choices: emotions,
         margin_vertical: '20px',
         button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-        data: {stimulus_file: audioFile}
+        data: {
+          stimulus_file: audioFile,
+          language: lang,
+          correct_response: correctEmotion,
+          trial_part: 'choice'
+        },
+        on_finish: function(data) {
+          const chosen = emotions[data.response];
+          data.correct = chosen === data.correct_response;
+        }
       };
 
-      timeline.push(playAudio);
-      timeline.push(emotionChoice);
+      timeline.push(playAudio, emotionChoice);
     });
+
+    const summary = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function() {
+        const all = jsPsych.data.get().filter({trial_part:'choice'});
+        const total = all.count(),
+              correct = all.filter({correct:true}).count();
+        const langs = [...new Set(all.values().map(d=>d.language))];
+        let html = `<h2>Your Results</h2>
+                    <p><strong>Overall:</strong> ${correct}/${total} correct 
+                      (${Math.round(correct/total*100)}%)</p>`;
+
+        langs.forEach(lang=>{
+          const subset = all.filter({language:lang});
+          const t = subset.count(),
+                c = subset.filter({correct:true}).count();
+          html += `<p><strong>${lang.toUpperCase()}:</strong> ${c}/${t} correct 
+                    (${Math.round(c/t*100)}%)</p>`;
+        });
+
+        return html + '<p>Press Continue to finish.</p>';
+      },
+      choices: ['Continue']
+    };
+
+timeline.push(summary);
+
+
+
 
     const save_data = {
       type: jsPsychPipe,
@@ -124,7 +166,7 @@
 
     const completion = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: '<h2>Thank you!</h2><p>The experiment is complete.</p>',
+      stimulus: '<h2>Thank you!</h2><p>The study is complete.</p>',
       choices: ['Finish']
     };
     timeline.push(completion);
