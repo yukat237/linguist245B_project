@@ -79,52 +79,59 @@
     // Main trials
     audioFiles.forEach(function(audioFile) {
 
-      const playAudio = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>Click the button below to listen to the audio.</p>',
-        choices: ['Play Audio'],
-        on_start: function(trial) {
-          trial.response_ends_trial = false;
+      const trial_procedure = {
+      timeline: [
+        {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<p>Click the button below to listen to the audio.</p>',
+          choices: ['Play Audio'],
+          response_ends_trial: false,
+          on_load: function() {
+            const button = document.querySelector('.jspsych-btn');
+            button.addEventListener('click', async () => {
+              button.disabled = true;
+              const context = jsPsych.pluginAPI.audioContext();
+              const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(jsPsych.timelineVariable('stimulus_file'));
+              const source = context.createBufferSource();
+              source.buffer = audioBuffer;
+              source.connect(context.destination);
+              source.start();
+              source.onended = () => {
+                jsPsych.finishTrial();
+              };
+            });
+          },
+          data: {
+            stimulus_file: jsPsych.timelineVariable('stimulus_file')
+          }
         },
-        on_load: function() {
-          const button = document.querySelector('.jspsych-btn');
-          button.addEventListener('click', async () => {
-            button.disabled = true; // Prevent double-click
-            const context = jsPsych.pluginAPI.audioContext();
-            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
-            const source = context.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(context.destination);
-            source.start();
-            source.onended = () => {
-              jsPsych.finishTrial();
-            };
-          });
-        },
-        data: {stimulus_file: audioFile}
-      };
+        {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<p>Which emotion did the speaker express?</p>',
+          choices: emotions,
+          margin_vertical: '20px',
+          button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+          data: {
+            stimulus_file: jsPsych.timelineVariable('stimulus_file')
+          }
+        }
+      ],
+      timeline_variables: audioTrials
+    };
 
-      const emotionChoice = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>Which emotion did the speaker express?</p>',
-        choices: emotions,
-        margin_vertical: '20px', 
-        button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-        data: {stimulus_file: audioFile}
-      };
+    timeline.push(trial_procedure);
 
-      timeline.push(playAudio);
-      timeline.push(emotionChoice);
-    });
-t       const save_data = {
+    // Save data
+    const save_data = {
       type: jsPsychPipe,
       action: "save",
       experiment_id: "eSR841l7tfeH",
       filename: filename,
-      data_string: ()=>jsPsych.data.get().csv()
+      data_string: () => jsPsych.data.get().csv()
     };
     timeline.push(save_data);
 
+    // Completion screen
     const completion = {
       type: jsPsychHtmlButtonResponse,
       stimulus: '<h2>Thank you!</h2><p>The experiment is complete.</p>',
@@ -133,6 +140,6 @@ t       const save_data = {
     timeline.push(completion);
 
     jsPsych.run(timeline);
-	</script>
+  </script>
 </body>
 </html>
