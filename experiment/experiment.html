@@ -35,7 +35,7 @@
         '<p>You will hear each clip once. Judge the speaker\'s emotion. </p>',
         '<p>If unsure, just make your best guess!</p>',
         '<p>In the end, we will give you a score of how accurate you were, as well as how much time you spent.</p>',
-        '<p>See if you can do better than native speakers of each language!</p>',
+        '<p>Native speakers usually achieve 80–100% accuracy——see if you can do just as well in all the languages!</p>',
         '<p>Good luck!</p>',
         '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working.</p>',
         '<p>Are you ready? When you are, click on the "Next" to begin. </p>'
@@ -78,6 +78,9 @@
     timeline.push(preload);
 
     const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
+
+    // to track time
+    const expStartTime = performance.now();
 
     // Main trials
     audioFiles.forEach(function(audioFile) {
@@ -195,7 +198,17 @@ timeline.push(languageBackground);
                     (${Math.round(c/t*100)}%)</p>`;
         });
 
-        return html + '<p>Press Continue to finish.</p>';
+        const elapsedMs = performance.now() - expStartTime;
+        const elapsedSec = Math.round(elapsedMs/1000);
+        const minutes = Math.floor(elapsedSec/60);
+        const seconds = elapsedSec % 60;
+        const timeString = minutes > 0
+          ? `${minutes} min ${seconds} sec`
+          : `${seconds} sec`;
+        
+        html += `<p><strong>Time spent:</strong> ${timeString}</p>`;
+        html += `<p>Press Continue to finish.</p>`;
+        return html;
       },
       choices: ['Continue']
     };
