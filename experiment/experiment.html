@@ -157,6 +157,35 @@
 
     timeline.push(summary);
 
+// Questionnaire
+const languageBackground = {
+  type: jsPsychSurveyHtmlForm,
+  preamble: `
+    <h2>Questionnaire</h2>
+    <p>Please answer the following questions a little bit about you and this study!</p>
+  `,
+  html: `
+    <p>1. What is your native language?<br>
+      <input name="native_language" type="text" required>
+    </p>
+    <p>2. How many years have you studied your native language?<br>
+      <input name="native_language_years" type="number" min="0" required>
+    </p>
+    <p>3. Please list any additional languages you speak (comma separated):<br>
+      <input name="other_languages" type="text">
+    </p>
+    <p>4. For each additional language, indicate your proficiency (e.g., beginner, intermediate, advanced):<br>
+      <input name="other_proficiency" type="text">
+    </p>
+    <p>5. Describe any minimal exposures to other languages (e.g., through media, games):<br>
+      <textarea name="other_exposure" rows="3"></textarea>
+    </p>
+  `,
+  button_label: "Continue"
+};
+
+timeline.push(languageBackground);
+
 
 
 
