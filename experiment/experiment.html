@@ -143,7 +143,7 @@ const languageBackground = {
   type: jsPsychSurveyHtmlForm,
   preamble: `
     <h2>Questionnaire</h2>
-    <p>Before seeing the results, please answer the following questions!</p>,
+    <p>Before seeing the results, please answer the following questions!</p>
     <p>(Please answer honestly! Any of your answers will not at all affect your payment or your status on Prolific!)</p>
   `,
   html: `
@@ -158,7 +158,7 @@ const languageBackground = {
     </p>
    
     <p> Have you studied any other languages by yourself or taking classes? Please list the languages (comma separated) <br>
-      <input name="other_languages" type="text" required>
+      <input name="other_languages" type="text">
     </p>
     <p> If you entered any languages in the above question, please describe 1)how long, 2)in what way, and 3)your proficiency, for each language you listed:<br>
        <textarea name="other_languages_desc" rows="2"></textarea>
@@ -174,9 +174,6 @@ const languageBackground = {
 };
 
 timeline.push(languageBackground);
-
-
-
 
 
     const summary = {
@@ -227,7 +224,7 @@ timeline.push(languageBackground);
 
     const completion = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: '<h2>Thank you!</h2><p>The study is complete.</p>',
+      stimulus: '<h2>Thank you!</h2><p>The study is complete. You can close the window after clicking the Finish button below. </p>',
       choices: ['Finish']
     };
     timeline.push(completion);
