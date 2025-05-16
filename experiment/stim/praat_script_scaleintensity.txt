@@ -1,0 +1,58 @@
+#################################
+#
+# scale intensity - step 2 scale each item
+#
+#################################
+
+form target
+	comment target intensity?
+	integer targetInt 70
+	
+	comment Clear objects?
+	boolean cleanup 0
+
+endform
+
+#clean if checked
+if cleanup = 1
+	select all
+	Remove
+endif
+
+#main-----
+dir$ = "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/final_stim"
+outDir$ = "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/final_stim_scaled"
+
+soundStringID = Create Strings as file list: "soundList", dir$ + "/*"
+n = Get number of strings
+
+
+
+
+for k to n
+
+	selectObject: soundStringID
+	soundName$ = Get string: k
+	soundID = Read from file: dir$ + "/" + soundName$
+
+	Scale intensity: targetInt
+	
+	# Check to see if it clips
+	max = Get absolute extremum... 0 0 Sinc70
+	if max >= 1
+		print 'soundName$' was clipped 'newline$'
+	endif
+
+	##check if the file is thai or not
+	lang$ = left$(soundName$,4)
+
+	if lang$ == "thai"
+		Save as WAV file: outDir$ + "/" + soundName$ - ".flac" + "_intscaled.wav"
+	else
+		Save as WAV file: outDir$ + "/" + soundName$ - ".wav" + "_intscaled.wav"
+	endif
+	
+
+endfor
+
+exitScript: "done!"

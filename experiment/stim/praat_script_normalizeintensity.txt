@@ -1,0 +1,36 @@
+###=====================================
+# 
+# scale intensity - step 1 know the means
+#
+# results-- range: 62 to 79 dB
+###=====================================
+
+select all
+Remove
+
+#directory
+dir$ = "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/final_stim"
+outDir$ = "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/final_stim_scaled"
+
+soundStringID = Create Strings as file list: "soundList", dir$ + "/*"
+n = Get number of strings
+
+
+for i to n
+	selectObject: soundStringID
+	soundName$ = Get string: i
+	
+	soundID = Read from file: dir$ + "/" + soundName$
+	
+	meanInt = Get intensity (dB)
+	
+	print 'soundName$''tab$''meanInt''newline$'
+
+endfor
+
+
+
+
+
+
+exitScript: "done!"
