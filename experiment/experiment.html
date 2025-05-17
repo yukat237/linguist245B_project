@@ -341,14 +341,12 @@ timeline.unshift(consent);
   'attentioncheck_sad.mp3',
   'attentioncheck_surprise.mp3'
 ]; 
-  const numMain = audioFiles.length;
-  const checkPositions = [
-    Math.floor(numMain / 4),
-    Math.floor(numMain / 2),
-    Math.floor((3 * numMain) / 4)
+  const totalMain = audioFiles.length;
+  const attnPoints = [
+    Math.floor(totalMain / 4),
+    Math.floor(totalMain / 2),
+    Math.floor(3 * totalMain / 4)
   ];
-
-
 
 
   // shuffle audios for every run
@@ -366,56 +364,69 @@ timeline.unshift(consent);
     const expStartTime = performance.now();
 
     // Main trials
-    audioFiles.forEach(function(audioFile, index) {
-  // …your existing parse/playAudio/emotionChoice setup…
-  timeline.push(playAudio, emotionChoice);
+    audioFiles.forEach(function(audioFile, idx) {
+  // --- insert attention check if idx matches ---
+  const attnIdx = attnPoints.indexOf(idx);
+  if (attnIdx !== -1) {
+    const attnFile = attentionCheckFiles[attnIdx];
+    // play‐audio for attention check
+    const playAudioAttn = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p>Click the button below to listen to the audio.</p>',
+      choices: ['Play Audio'],
+      on_start: trial => { trial.response_ends_trial = false; },
+      on_load: () => {
+        const button = document.querySelector('.jspsych-btn');
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          const context = jsPsych.pluginAPI.audioContext();
+          const buffer = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
+          const src = context.createBufferSource();
+          src.buffer = buffer;
+          src.connect(context.destination);
+          src.start();
+          src.onended = () => jsPsych.finishTrial();
+        });
+      },
+      data: { stimulus_file: attnFile }
+    };
+    // determine correct emotion from filename
+    const emoKey = attnFile.split('/').pop().split('_')[1].split('.')[0];
+    const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
 
-  // after each main trial, check if we’re at 1/4, 1/2, or 3/4
-  checkPositions.forEach(function(pos, idx) {
-    if (index + 1 === pos) {
-      const file = attentionCheckFiles[idx];
-      // play phase
-      const checkPlay = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>Click to listen to the attention-check audio.</p>',
-        choices: ['Play Audio'],
-        on_start(trial) { trial.response_ends_trial = false; },
-        on_load() {
-          const btn = document.querySelector('.jspsych-btn');
-          btn.addEventListener('click', async () => {
-            btn.disabled = true;
-            const ctx = jsPsych.pluginAPI.audioContext();
-            const buf = await jsPsych.pluginAPI.getAudioBuffer(file);
-            const src = ctx.createBufferSource();
-            src.buffer = buf;
-            src.connect(ctx.destination);
-            src.start();
-            src.onended = () => jsPsych.finishTrial();
-          });
-        },
-        data: { stimulus_file: file, trial_part: 'attention_play' }
-      };
-      // response phase
-      const checkChoice = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>Which emotion did that express?</p>',
-        choices: emotions,
-        margin_vertical: '20px',
-        button_html: '<button class="jspsych-btn" style="margin:10px;">%choice%</button>',
-        data: {
-          stimulus_file: file,
-          correct_response: ['Fear','Sad','Surprise'][idx],
-          trial_part: 'attention_choice'
-        },
-        on_finish(data) {
-          const chosen = emotions[data.response];
-          data.correct = chosen === data.correct_response;
+    // emotion‐choice for attention check
+    const emotionChoiceAttn = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p>Which emotion did the speaker express?</p>',
+      choices: emotions,
+      margin_vertical: '20px',
+      button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+      data: {
+        stimulus_file: attnFile,
+        correct_response: correctEmotion,
+        trial_part: 'attention_check'
+      },
+      on_finish: function(data) {
+        const chosen = emotions[data.response];
+        data.correct = chosen === data.correct_response;
+        if (!data.correct) {
+          jsPsych.endExperiment(
+            'The experiment ended early because you failed the attention check. ' +
+            "You'll still be compensated for the time you spent. Thank you for your participation. " +
+            'You can now close the browser tab.'
+          );
         }
-      };
-      timeline.push(checkPlay, checkChoice);
-    }
-  });
+      }
+    };
+    timeline.push(playAudioAttn, emotionChoiceAttn);
+  }
+
+  // --- now the original main trial for audioFile ---
+  // (exactly as you had it: playAudio + emotionChoice for each audioFile,
+  // with trial_part: 'choice' so these get filtered into your summary)
+  // your existing code goes here unchanged…
 });
+
 
 
 
