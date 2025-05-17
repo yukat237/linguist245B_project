@@ -365,67 +365,107 @@ timeline.unshift(consent);
 
     // Main trials
     audioFiles.forEach(function(audioFile, idx) {
-  // --- insert attention check if idx matches ---
-  const attnIdx = attnPoints.indexOf(idx);
-  if (attnIdx !== -1) {
-    const attnFile = attentionCheckFiles[attnIdx];
-    // play‐audio for attention check
-    const playAudioAttn = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: '<p>Click the button below to listen to the audio.</p>',
-      choices: ['Play Audio'],
-      on_start: trial => { trial.response_ends_trial = false; },
-      on_load: () => {
-        const button = document.querySelector('.jspsych-btn');
-        button.addEventListener('click', async () => {
-          button.disabled = true;
-          const context = jsPsych.pluginAPI.audioContext();
-          const buffer = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
-          const src = context.createBufferSource();
-          src.buffer = buffer;
-          src.connect(context.destination);
-          src.start();
-          src.onended = () => jsPsych.finishTrial();
-        });
-      },
-      data: { stimulus_file: attnFile }
-    };
-    // determine correct emotion from filename
-    const emoKey = attnFile.split('/').pop().split('_')[1].split('.')[0];
-    const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
 
-    // emotion‐choice for attention check
-    const emotionChoiceAttn = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: '<p>Which emotion did the speaker express?</p>',
-      choices: emotions,
-      margin_vertical: '20px',
-      button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-      data: {
-        stimulus_file: attnFile,
-        correct_response: correctEmotion,
-        trial_part: 'attention_check'
-      },
-      on_finish: function(data) {
-        const chosen = emotions[data.response];
-        data.correct = chosen === data.correct_response;
-        if (!data.correct) {
-          jsPsych.endExperiment(
-            'The experiment ended early because you failed the attention check. ' +
-            "You'll still be compensated for the time you spent. Thank you for your participation. " +
-            'You can now close the browser tab.'
-          );
-        }
+// 1) Attention check at ¼, ½, ¾
+const attnIdx = attnPoints.indexOf(idx);
+if (attnIdx !== -1) {
+  const attnFile = attentionCheckFiles[attnIdx];
+  // -- playAudioAttn (unchanged) --
+  const playAudioAttn = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>Click the button below to listen to the audio.</p>',
+    choices: ['Play Audio'],
+    on_start: trial => { trial.response_ends_trial = false; },
+    on_load: () => {
+      const button = document.querySelector('.jspsych-btn');
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        const ctx = jsPsych.pluginAPI.audioContext();
+        const buf = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start();
+        src.onended = () => jsPsych.finishTrial();
+      });
+    },
+    data: { stimulus_file: attnFile }
+  };
+  // -- emotionChoiceAttn (unchanged) --
+  const emoKey = attnFile.split('_')[1].split('.')[0];
+  const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
+  const emotionChoiceAttn = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>Which emotion did the speaker express?</p>',
+    choices: emotions,
+    margin_vertical: '20px',
+    button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+    data: {
+      stimulus_file: attnFile,
+      correct_response: correctEmotion,
+      trial_part: 'attention_check'
+    },
+    on_finish: data => {
+      const chosen = emotions[data.response];
+      if (chosen !== data.correct_response) {
+        jsPsych.endExperiment(
+          'The experiment ended early because you failed the attention check. ' +
+          "You'll still be compensated for the time you spent. Thank you for your participation. " +
+          'You can now close the browser tab.'
+        );
       }
-    };
-    timeline.push(playAudioAttn, emotionChoiceAttn);
-  }
+    }
+  };
+  timeline.push(playAudioAttn, emotionChoiceAttn);
+}
 
-  // --- now the original main trial for audioFile ---
-  // (exactly as you had it: playAudio + emotionChoice for each audioFile,
-  // with trial_part: 'choice' so these get filtered into your summary)
-  // your existing code goes here unchanged…
-});
+// 2) **Main trial** (exactly your original code :contentReference[oaicite:2]{index=2}:contentReference[oaicite:3]{index=3})
+const base = audioFile.split('/').pop();                       
+const [lang, emo] = base.split('__')[0].split('_');            
+const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
+
+const playAudio = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: '<p>Click the button below to listen to the audio.</p>',
+  choices: ['Play Audio'],
+  on_start: trial => { trial.response_ends_trial = false; },
+  on_load: () => {
+    const button = document.querySelector('.jspsych-btn');
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      const ctx = jsPsych.pluginAPI.audioContext();
+      const buf = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start();
+      src.onended = () => jsPsych.finishTrial();
+    });
+  },
+  data: { stimulus_file: audioFile }
+};
+
+const emotionChoice = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: '<p>Which emotion did the speaker express?</p>',
+  choices: emotions,
+  margin_vertical: '20px',
+  button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+  data: {
+    stimulus_file: audioFile,
+    language: lang,
+    correct_response: correctEmotion,
+    trial_part: 'choice'
+  },
+  on_finish: data => {
+    const chosen = emotions[data.response];
+    data.correct = chosen === data.correct_response;
+  }
+};
+
+timeline.push(playAudio, emotionChoice);
+
+});  // end forEach
 
 
 
