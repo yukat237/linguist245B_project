@@ -25,30 +25,35 @@
 
     const timeline = [];
 
-    const consent = {
+//consent
+const consentText = `
+  <h3>Informed Consent for [Study Title]</h3>
+  <p>You are being invited to participate in a research study ...</p>
+  <p>[Rest of your form here, with as many <p>…</p> or <ul>…</ul> as you need]</p>
+  <p>If you have questions, contact [email] …</p>
+`;
+
+//consent
+const consent = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `
-    <div style="max-width:800px; max-height:600px; overflow:auto; margin: auto;">
-      <object data="consentform.pdf" type="application/pdf" width="100%" height="600px">
-        <p>Your browser doesn’t support embedded PDFs.
-        <a href="consentform.pdf" target="_blank">Download the consent form</a>.</p>
-      </object>
+    <div style="max-width:800px; max-height:600px; overflow-y:auto; 
+                border:1px solid #ccc; padding:1em; margin:auto;">
+      ${consentText}
     </div>
     <p style="text-align:center; margin-top:1em;">
-      By clicking “I Agree,” you confirm that you have read the consent form and agree to participate.
+      By clicking “I Agree,” you confirm that you have read the above and agree to participate.
     </p>
   `,
   choices: ['I Agree', 'I Do Not Agree'],
   button_html: '<button class="jspsych-btn" style="margin: 0 10px;">%choice%</button>',
   on_finish: function(data){
-    // if they don’t agree, end the experiment
     if(data.response === 1){
-      jsPsych.endExperiment('You chose not to consent. Thank you for your time.');
+      jsPsych.endExperiment('You chose not to consent. Thank you.');
     }
   }
 };
-    timeline.unshift(consent);
-
+timeline.unshift(consent);
 
 
     const instructions = {
