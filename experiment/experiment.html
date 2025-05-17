@@ -13,18 +13,43 @@
 </head>
 <body>
   <script>
-    //for testing purpose
-    const skipMainTrials = true;
-
+  
     const jsPsych = initJsPsych({
       show_progress_bar: true,
       override_safe_mode: true,
     });
 
     const subject_id = jsPsych.randomization.randomID(10);
+
     const filename = `${subject_id}.csv`;
 
     const timeline = [];
+
+    const consent = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="max-width:800px; max-height:600px; overflow:auto; margin: auto;">
+      <object data="consentform.pdf" type="application/pdf" width="100%" height="600px">
+        <p>Your browser doesn’t support embedded PDFs.
+        <a href="consentform.pdf" target="_blank">Download the consent form</a>.</p>
+      </object>
+    </div>
+    <p style="text-align:center; margin-top:1em;">
+      By clicking “I Agree,” you confirm that you have read the consent form and agree to participate.
+    </p>
+  `,
+  choices: ['I Agree', 'I Do Not Agree'],
+  button_html: '<button class="jspsych-btn" style="margin: 0 10px;">%choice%</button>',
+  on_finish: function(data){
+    // if they don’t agree, end the experiment
+    if(data.response === 1){
+      jsPsych.endExperiment('You chose not to consent. Thank you for your time.');
+    }
+  }
+};
+    timeline.unshift(consent);
+
+
 
     const instructions = {
       type: jsPsychInstructions,
