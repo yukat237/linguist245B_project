@@ -367,10 +367,6 @@ timeline.unshift(consent);
     // to track time
     const expStartTime = performance.now();
 
-// ========== DEBUG FLAG ==========
-const runMainStimuli = false; 
-// =================================
-
 
     // Main trials
     audioFiles.forEach(function(audioFile, idx) {
@@ -401,7 +397,8 @@ if (attnIdx !== -1) {
     data: { stimulus_file: attnFile }
   };
   // -- emotionChoiceAttn (unchanged) --
-  const emoKey = attnFile.split('_')[1].split('.')[0];
+  const fileN = attnFile.split('/').pop();
+  const emoKey = fileN.split('_')[1].split('.')[0];
   const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
   const emotionChoiceAttn = {
     type: jsPsychHtmlButtonResponse,
