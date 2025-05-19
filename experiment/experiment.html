@@ -26,7 +26,7 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = true; // <= skip all main stim if TRUE
+    const TEST_MODE = false; // <= skip all main stim if TRUE
     //---------//
 
 //consent
@@ -339,6 +339,26 @@ timeline.unshift(consent);
     "stim/final_stim_scaled/thai_sad__s013_clip_actor026_script2_2_4b_intscaled.wav",
     "stim/final_stim_scaled/thai_sad__s013_clip_actor026_script3_2_4b_intscaled.wav"
   ];
+
+  // Apply commenting out rules tp limit stimuli num!!!!!------------
+  audioFiles = audioFiles.filter(file => {
+    // 1) Thai: drop any file with “thai_” + “script3”
+    if (/thai_.*script3/.test(file)) return false;
+
+    // 2) Japanese: drop any file where the two digits after "regular_" are “03”
+    if (/japanese_.*regular_03__/.test(file)) return false;
+
+    // 3) Greek: drop any file with “_a14 ” before the bracket
+    if (/greek_.*14\s*\(/.test(file)) return false;
+
+    // 4) French: drop any file whose last digit before “_intscaled.wav” is “4”
+    if (/french_.*-\d-4_intscaled\.wav$/.test(file)) return false;
+
+    // otherwise keep it
+    return true;
+  });
+
+
 
   const attentionCheckFiles = [
   'stim/final_stim_scaled/attentioncheck_fear.mp3',
