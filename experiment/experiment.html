@@ -484,22 +484,23 @@ const languageBackground = {
   preamble: `
     <h2>Questionnaire</h2>
     <p>Before seeing your scores, please answer the following questions!</p>
+    <p>There are only 6 questions. Please type "NA" if not applicable. </p>
     <p> <strong> 
       <br>
-      Please answer honestly! <br>
-      
+      Please answer honestly!    
       <br>
-      None of your responses will affect your payment or your Prolific status in anyway. <br>
-      
+      None of your responses will affect your payment or your Prolific status in anyway. 
+      <br>
+      <br>
       </strong>
       </p>
   `,
   html: `
-    <p> Do you have any guesses for the languages you heard? Please list if you have any: <br>
-      <input name="language_guesses" type="text">
+    <p> <br> Do you have any guesses for the languages you heard? Please list if you have any: <br>
+      <input name="language_guesses" type="text" required>
     </p>
     <p> Were there any technological difficulities? (e.g., did not hear some audios, could not click the button you wanted) <br>
-      <textarea name="tech_difficulity" rows="2"></textarea>
+      <textarea name="tech_difficulity" rows="2" style = "width:50%" required></textarea>
     </p>
     <p>How distracted were you during the study?<br>
     <label><input type="radio" name="distraction" value="Not at all" required> Not at all</label><br>
@@ -510,17 +511,16 @@ const languageBackground = {
     </p>
 
    
-    <p> Have you studied any languages by yourself or taken classes? Please list the languages<br>
-      <input name="other_languages" type="text">
+    <p> 
+      <br><br>
+      Have you studied any languages by yourself or taken classes? If so, please list the 1) language(s), 2)how long, and 3)in what way: <br>
+      <textarea name="other_languages" rows="2" style = "width:50%" required></textarea>
     </p>
-    <p> If you entered any languages in the above question, please describe 1)how long, 2)in what way, and 3)your proficiency, for each language you listed:<br>
-      <textarea name="other_languages_desc" rows="2"></textarea>
+    <p> Are you regularly exposed to non-native languages through media, such as games, shows, movies, anime, songs, etc.? If so, please list the language(s) and frequency: <br>
+      <textarea name="media_exposures" rows="2" style = "width:50%" required></textarea>
     </p>
-    <p> Describe any exposures to your non-native languages through media, games, shows, anime:<br>
-      <textarea name="lang_exposures" rows="2"></textarea>
-    </p>
-    <p> Does/did your family speak any languages to you? If so, please list the language(s) and who:<br>
-      <textarea name="other_exposure" rows="3" style = "width:80%"></textarea>
+    <p> Does/did your family speak any languages to you? If so, please list the language(s) and who: <br>
+      <textarea name="family_exposure" rows="2" style = "width:50%" required></textarea>
     </p>
   `,
   button_label: "Complete survey and view my scores"
