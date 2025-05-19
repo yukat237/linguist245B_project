@@ -422,7 +422,9 @@ if (attnIdx !== -1) {
       }
     }
   };
+  if (!TEST_MODE) {
   timeline.push(playAudioAttn, emotionChoiceAttn);
+  }
 }
 
 // 2) **Main trial** (exactly your original code :contentReference[oaicite:2]{index=2}:contentReference[oaicite:3]{index=3})
@@ -482,7 +484,15 @@ const languageBackground = {
   preamble: `
     <h2>Questionnaire</h2>
     <p>Before seeing your scores, please answer the following questions!</p>
-    <p> <strong> Please answer honestly! None of your responses will affect your payment or your Prolific status in anyway. </strong> </p>
+    <p> <strong> 
+      <br>
+      Please answer honestly! <br>
+      
+      <br>
+      None of your responses will affect your payment or your Prolific status in anyway. <br>
+      
+      </strong>
+      </p>
   `,
   html: `
     <p> Do you have any guesses for the languages you heard? Please list if you have any: <br>
@@ -500,20 +510,20 @@ const languageBackground = {
     </p>
 
    
-    <p> Have you studied any other languages by yourself or taking classes? Please list the languages (comma separated) <br>
+    <p> Have you studied any languages by yourself or taken classes? Please list the languages<br>
       <input name="other_languages" type="text">
     </p>
     <p> If you entered any languages in the above question, please describe 1)how long, 2)in what way, and 3)your proficiency, for each language you listed:<br>
-       <textarea name="other_languages_desc" rows="2"></textarea>
+      <textarea name="other_languages_desc" rows="2"></textarea>
     </p>
-    <p> Describe any minimal exposures to other languages (e.g., through media, games, shows):<br>
+    <p> Describe any exposures to your non-native languages through media, games, shows, anime:<br>
       <textarea name="lang_exposures" rows="2"></textarea>
     </p>
-    <p> Does/did your family speak any languages to you? If so, please describe. :<br>
-      <textarea name="other_exposure" rows="3"></textarea>
+    <p> Does/did your family speak any languages to you? If so, please list the language(s) and who:<br>
+      <textarea name="other_exposure" rows="3" style = "width:80%"></textarea>
     </p>
   `,
-  button_label: "Continue"
+  button_label: "Complete survey and view my scores"
 };
 
 timeline.push(languageBackground);
