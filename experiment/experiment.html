@@ -104,7 +104,7 @@ timeline.unshift(consent);
         '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
         '<p>Native speakers usually achieve 80–100% accuracy——see if you can do just as well in all the languages!</p>',
         '<p>Good luck!</p>',
-        '<p>Are you ready? When you are, click on the "Next" to begin. </p>'
+        '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. Please be patient if it takes a littel longer.</p>'
       ],
       show_clickable_nav: true
     };
@@ -360,7 +360,9 @@ timeline.unshift(consent);
       type: jsPsychPreload,
       audio: audioFiles.concat(attentionCheckFiles)
     };
+    if (!TEST_MODE){
     timeline.push(preload);
+    }
 
     const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
 
