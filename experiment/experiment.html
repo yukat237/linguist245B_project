@@ -25,6 +25,10 @@
 
     const timeline = [];
 
+    //DEBUGGING//
+    const TEST_MODE = true; // <= skip all main stim if TRUE
+    //---------//
+
 //consent
 const consentText = `
   <h3 style="text-align:center;">STANFORD UNIVERSITY</h3>
@@ -363,6 +367,11 @@ timeline.unshift(consent);
     // to track time
     const expStartTime = performance.now();
 
+// ========== DEBUG FLAG ==========
+const runMainStimuli = false; 
+// =================================
+
+
     // Main trials
     audioFiles.forEach(function(audioFile, idx) {
 
@@ -462,9 +471,9 @@ const emotionChoice = {
     data.correct = chosen === data.correct_response;
   }
 };
-
+if (!TEST_MODE){
 timeline.push(playAudio, emotionChoice);
-
+}
 });  // end forEach
 
 
@@ -475,19 +484,24 @@ const languageBackground = {
   type: jsPsychSurveyHtmlForm,
   preamble: `
     <h2>Questionnaire</h2>
-    <p>Before seeing the results, please answer the following questions!</p>
-    <p>(Please answer honestly! Any of your answers will not at all affect your payment or your status on Prolific!)</p>
+    <p>Before seeing your scores, please answer the following questions!</p>
+    <p> <strong> Please answer honestly! None of your responses will affect your payment or your Prolific status in anyway. </strong> </p>
   `,
   html: `
-    <p> Do you have any guesses for the languages you heard? Please list you have any: <br>
+    <p> Do you have any guesses for the languages you heard? Please list if you have any: <br>
       <input name="language_guesses" type="text">
     </p>
     <p> Were there any technological difficulities? (e.g., did not hear some audios, could not click the button you wanted) <br>
       <textarea name="tech_difficulity" rows="2"></textarea>
     </p>
-    <p> How distracted were you during the study? Please describe. <br>
-      <textarea name="distraction" rows="2"></textarea>
+    <p>How distracted were you during the study?<br>
+    <label><input type="radio" name="distraction" value="Not at all" required> Not at all</label><br>
+    <label><input type="radio" name="distraction" value="A little" required> A little</label><br>
+    <label><input type="radio" name="distraction" value="Somewhat" required> Somewhat</label><br>
+    <label><input type="radio" name="distraction" value="Quite a bit" required> Quite a bit</label><br>
+    <label><input type="radio" name="distraction" value="Very" required> Very</label>
     </p>
+
    
     <p> Have you studied any other languages by yourself or taking classes? Please list the languages (comma separated) <br>
       <input name="other_languages" type="text">
@@ -542,7 +556,9 @@ timeline.push(languageBackground);
       choices: ['Continue']
     };
 
+    if (!TEST_MODE){
     timeline.push(summary);
+    }
 
 
     const save_data = {
@@ -552,7 +568,9 @@ timeline.push(languageBackground);
       filename: filename,
       data_string: ()=>jsPsych.data.get().csv()
     };
+    if (!TEST_MODE){
     timeline.push(save_data);
+    }
 
     const completion = {
       type: jsPsychHtmlButtonResponse,
