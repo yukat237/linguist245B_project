@@ -26,7 +26,7 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = false; // <= skip all main stim if TRUE
+    const TEST_MODE = false; // <== skip all main stim if TRUE
     //---------//
 
 //consent
@@ -382,9 +382,6 @@ timeline.unshift(consent);
 
     const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
 
-    // to track time
-    const expStartTime = performance.now();
-
 
     // Main trials
     audioFiles.forEach(function(audioFile, idx) {
@@ -583,15 +580,7 @@ timeline.push(languageBackground);
                     (${Math.round(c/t*100)}%)</p>`;
         });
 
-        const elapsedMs = performance.now() - expStartTime;
-        const elapsedSec = Math.round(elapsedMs/1000);
-        const minutes = Math.floor(elapsedSec/60);
-        const seconds = elapsedSec % 60;
-        const timeString = minutes > 0
-          ? `${minutes} min ${seconds} sec`
-          : `${seconds} sec`;
         
-        html += `<p><strong>Time spent:</strong> ${timeString}</p>`;
         html += `<p>Press Continue to finish.</p>`;
         return html;
       },
