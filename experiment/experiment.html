@@ -26,29 +26,24 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = false; // <== skip all main stim if TRUE
+    const TEST_MODE = true; // <== skip all main stim if TRUE
     //---------//
 
 
     const prolificIDPage = {
       type: jsPsychSurveyHtmlForm,
       preamble: `
-        <h2>Please enter your Prolific ID</h2>
-        <p>Paste the Prolific ID from your Prolific dashboard below to begin the study.</p>
+        <p>Please paste the Prolific ID:</p>
       `,
       html: `
         <p>
-          <label for="prolific_id">Prolific ID:</label>
+          <label for="prolific_id">Your Prolific ID:</label>
           <input id="prolific_id" name="prolific_id" type="text" required />
         </p>
       `,
-      button_label: 'Next',
-      on_finish: function(data){
-        // parse the JSON responses and save as a top‐level property
-        const resp = JSON.parse(data.responses).prolific_id;
-        jsPsych.data.addProperties({ prolific_id: resp });
-      }
+      button_label: 'Next'
     };
+    timeline.push(prolificIDPage)
 
 //consent
 const consentText = `
@@ -103,9 +98,7 @@ const consent = {
   }
 };
 
-
-timeline.unshift(prolificIDPage);
-timeline.unshift(consent);
+timeline.push(consent);
 
 
 
