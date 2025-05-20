@@ -440,7 +440,8 @@ if (attnIdx !== -1) {
     type: jsPsychHtmlButtonResponse,
     stimulus: '<p>Which emotion did the speaker express?</p>',
     choices: emotions,
-    margin_vertical: '80px',
+    prompt: '<div style="height:100px;"></div>', 
+    margin_vertical: '20px',
     button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
     data: {
       stimulus_file: attnFile,
@@ -502,7 +503,8 @@ const emotionChoice = {
   type: jsPsychHtmlButtonResponse,
   stimulus: '<p>Which emotion did the speaker express?</p>',
   choices: emotions,
-  margin_vertical: '80px',
+  prompt: '<div style="height:100px;"></div>',  
+  margin_vertical: '20px',
   button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
   data: {
     stimulus_file: audioFile,
