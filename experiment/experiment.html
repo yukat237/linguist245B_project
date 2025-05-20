@@ -418,6 +418,7 @@ if (attnIdx !== -1) {
   const fileN = attnFile.split('/').pop();
   const emoKey = fileN.split('_')[1].split('.')[0];
   const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
+  
   const emotionChoiceAttn = {
     type: jsPsychHtmlButtonResponse,
     stimulus: '<p>Which emotion did the speaker express?</p>',
@@ -429,17 +430,26 @@ if (attnIdx !== -1) {
       correct_response: correctEmotion,
       trial_part: 'attention_check'
     },
-    on_finish: data => {
+    on_finish: function(data) {
       const chosen = emotions[data.response];
-      if (chosen !== data.correct_response) {
-        jsPsych.endExperiment(
-          'The experiment ended early because you failed the attention check. ' +
-          "You'll still be compensated for the time you spent. Thank you for your participation. " +
-          'You can now close the browser tab.'
-        );
+      data.correct = chosen === data.correct_response;
+      jsPsych.data.write(data); // ensure data is saved for this trial
+
+      // Add a warning message if incorrect
+      if (!data.correct) {
+        timeline.push({
+          type: jsPsychHtmlButtonResponse,
+          stimulus: `
+            <p><strong>That was an attention check.</strong></p>
+            <p>Please pay close attention for the rest of the task.</p>
+          `,
+          choices: ['Continue'],
+          on_finish: () => {}
+        });
       }
     }
   };
+
   if (!TEST_MODE) {
   timeline.push(playAudioAttn, emotionChoiceAttn);
   }
