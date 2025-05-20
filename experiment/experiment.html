@@ -77,7 +77,7 @@ const consent = {
   button_html: '<button class="jspsych-btn" style="margin: 0 10px;">%choice%</button>',
   on_finish: function(data){
     if(data.response === 1){
-      jsPsych.endExperiment('You chose not to consent. Thank you.');
+      jsPsych.endExperiment('As you have indicated that you do not consent to participate in this study, please return this submission on Prolific by selecting the Stop without Completing button.');
     }
   }
 };
@@ -393,7 +393,7 @@ timeline.unshift(consent);
 const attnIdx = attnPoints.indexOf(idx);
 if (attnIdx !== -1) {
   const attnFile = attentionCheckFiles[attnIdx];
-  // -- playAudioAttn (unchanged) --
+  // -- playAudioAttn --
   const playAudioAttn = {
     type: jsPsychHtmlButtonResponse,
     stimulus: '<p>Click the button below to listen to the audio.</p>',
@@ -414,7 +414,7 @@ if (attnIdx !== -1) {
     },
     data: { stimulus_file: attnFile }
   };
-  // -- emotionChoiceAttn (unchanged) --
+  // -- emotionChoiceAttn  --
   const fileN = attnFile.split('/').pop();
   const emoKey = fileN.split('_')[1].split('.')[0];
   const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
@@ -455,7 +455,7 @@ if (attnIdx !== -1) {
   }
 }
 
-// 2) **Main trial** (exactly your original code :contentReference[oaicite:2]{index=2}:contentReference[oaicite:3]{index=3})
+// 2) **Main trial** 
 const base = audioFile.split('/').pop();                       
 const [lang, emo] = base.split('__')[0].split('_');            
 const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
