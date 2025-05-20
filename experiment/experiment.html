@@ -102,9 +102,9 @@ timeline.unshift(consent);
         '<p>If unsure, just make your best guess!</p>',
         '<p>In the end, we will give you a score of how accurate you were.</p>',
         '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
-        '<p>Native speakers usually achieve 80–100% accuracy——see if you can do just as well in all the languages!</p>',
+        '<p>Native speakers usually achieve 80–100% accuracy—see if you can do just as well in all the languages!</p>',
         '<p>Good luck!</p>',
-        '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. Please be patient if it takes a littel longer.</p>'
+        '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. <br> Please be patient if it takes a little longer.</p>'
       ],
       show_clickable_nav: true
     };
@@ -348,7 +348,7 @@ timeline.unshift(consent);
     // 2) Japanese: drop any file where the two digits after "regular_" are “03”
     if (/japanese_.*regular_03__/.test(file)) return false;
 
-    // 3) Greek: drop any file with “_a14 ” before the bracket
+    // 3) Greek: drop any file with “14” before the bracket
     if (/greek_.*14\s*\(/.test(file)) return false;
 
     // 4) French: drop any file whose last digit before “_intscaled.wav” is “4”
@@ -375,6 +375,10 @@ timeline.unshift(consent);
 
   // shuffle audios for every run
   audioFiles = jsPsych.randomization.shuffle(audioFiles);
+
+  // checking how many stim!
+  console.log(`Using ${audioFiles.length} main stimuli after filtering`);
+
 
     const preload = {
       type: jsPsychPreload,
