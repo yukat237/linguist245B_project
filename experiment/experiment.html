@@ -46,7 +46,7 @@ const prolificID = {
   data: { trial_part: 'prolific_id' },
   on_finish: function(data) {
     // parse out a top‐level column so it's easy to read in the CSV
-    const resp = JSON.parse(data.responses);
+    const resp = JSON.parse(data.response);
     data.prolific_id = resp.prolific_id;
   }
 };
@@ -108,7 +108,7 @@ const consent = {
   }
 };
 
-timeline.push(consent)
+
 
 
 
@@ -128,7 +128,9 @@ timeline.push(consent)
       ],
       show_clickable_nav: true
     };
-    timeline.push(instructions);
+   
+    timeline.unshift(consent);
+    timeline.unshift(prolificID);
 
     
   let audioFiles = [
