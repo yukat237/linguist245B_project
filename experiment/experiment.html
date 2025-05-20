@@ -29,6 +29,31 @@
     const TEST_MODE = false; // <== skip all main stim if TRUE
     //---------//
 
+
+// Prolific ID entry 
+const prolificID = {
+  type: jsPsychSurveyHtmlForm,
+  preamble: '<h2>Prolific ID</h2><p>Please enter your Prolific ID:</p>',
+  html: `
+    <p>
+      <label for="prolific_id">
+        Prolific ID:
+        <input name="prolific_id" type="text" required>
+      </label>
+    </p>
+  `,
+  button_label: 'Continue',
+  data: { trial_part: 'prolific_id' },
+  on_finish: function(data) {
+    // parse out a top‐level column so it's easy to read in the CSV
+    const resp = JSON.parse(data.responses);
+    data.prolific_id = resp.prolific_id;
+  }
+};
+
+
+
+
 //consent
 const consentText = `
   <h3 style="text-align:center;">STANFORD UNIVERSITY</h3>
@@ -82,6 +107,8 @@ const consent = {
   }
 };
 timeline.unshift(consent);
+timeline.unshift(prolificID);
+
 
 
     const instructions = {
