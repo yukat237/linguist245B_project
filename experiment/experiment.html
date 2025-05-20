@@ -618,7 +618,7 @@ timeline.push(languageBackground);
       filename: filename,
       data_string: ()=>jsPsych.data.get().csv()
     };
-    if (TEST_MODE){
+    if (!TEST_MODE){
     timeline.push(save_data);
     }
 
