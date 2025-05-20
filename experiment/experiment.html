@@ -30,29 +30,25 @@
     //---------//
 
 
-// Prolific ID entry 
-const prolificID = {
-  type: jsPsychSurveyHtmlForm,
-  preamble: '<h2>Prolific ID</h2><p>Please enter your Prolific ID:</p>',
-  html: `
-    <p>
-      <label for="prolific_id">
-        Prolific ID:
-        <input name="prolific_id" type="text" required>
-      </label>
-    </p>
-  `,
-  button_label: 'Continue',
-  data: { trial_part: 'prolific_id' },
-  on_finish: function(data) {
-    // parse out a top‐level column so it's easy to read in the CSV
-    const resp = JSON.parse(data.response);
-    data.prolific_id = resp.prolific_id;
-  }
-};
-
-
-
+    const prolificIDPage = {
+      type: jsPsychSurveyHtmlForm,
+      preamble: `
+        <h2>Please enter your Prolific ID</h2>
+        <p>Paste the Prolific ID from your Prolific dashboard below to begin the study.</p>
+      `,
+      html: `
+        <p>
+          <label for="prolific_id">Prolific ID:</label>
+          <input id="prolific_id" name="prolific_id" type="text" required />
+        </p>
+      `,
+      button_label: 'Next',
+      on_finish: function(data){
+        // parse the JSON responses and save as a top‐level property
+        const resp = JSON.parse(data.responses).prolific_id;
+        jsPsych.data.addProperties({ prolific_id: resp });
+      }
+    };
 
 //consent
 const consentText = `
@@ -107,8 +103,9 @@ const consent = {
   }
 };
 
+
+timeline.unshift(prolificIDPage);
 timeline.unshift(consent);
-timeline.unshift(prolificID);
 
 
 
