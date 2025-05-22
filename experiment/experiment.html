@@ -26,7 +26,7 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = true; // <== skip all main stim if true
+    const TEST_MODE = false; // <== skip all main stim if true
     //---------//
 
 
@@ -613,7 +613,7 @@ timeline.push(languageBackground);
       choices: ['Continue']
     };
 
-    if (TEST_MODE){
+    if (!TEST_MODE){
     timeline.push(summary);
     }
 
