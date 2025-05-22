@@ -26,7 +26,7 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = false; // <== skip all main stim if TRUE
+    const TEST_MODE = true; // <== skip all main stim if true
     //---------//
 
 
@@ -108,7 +108,7 @@ timeline.push(consent);
         '<h1>Welcome to the emotion recognition test!</h1>',
         '<p>Find out your vocal emotion recognition ability!</p>',
         '<p>In this test, you will hear speech clips in different languages.</p>',
-        '<p>You will hear each clip once. Judge the speaker\'s emotion. </p>',
+        '<p>You will hear each clip only once. Judge the speaker\'s emotion. </p>',
         '<p>If unsure, just make your best guess!</p>',
         '<p>In the end, we will give you a score of how accurate you were.</p>',
         '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
@@ -598,8 +598,12 @@ timeline.push(languageBackground);
           const subset = all.filter({language:lang});
           const t = subset.count(),
                 c = subset.filter({correct:true}).count();
-          html += `<p><strong>${lang.toUpperCase()}:</strong> ${c}/${t} correct 
-                    (${Math.round(c/t*100)}%)</p>`;
+
+          const label = lang === 'french'
+            ? 'Canadian French'
+            : lang.toUpperCase();
+          html += `<p><strong>${label}:</strong> ${c}/${t} correct 
+              (${Math.round(c/t*100)}%)</p>`;
         });
 
         
@@ -609,7 +613,7 @@ timeline.push(languageBackground);
       choices: ['Continue']
     };
 
-    if (!TEST_MODE){
+    if (TEST_MODE){
     timeline.push(summary);
     }
 
