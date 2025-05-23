@@ -453,25 +453,30 @@ if (attnIdx !== -1) {
       data.correct = chosen === data.correct_response;
       jsPsych.data.write(data); // ensure data is saved for this trial
 
-      // Add a warning message if incorrect
-      if (!data.correct) {
-        timeline.push({
-          type: jsPsychHtmlButtonResponse,
-          stimulus: `
-          <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
-            <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
-            <p>Please pay close attention for the rest of the task.</p>
-          </div>
-          `,
-          choices: ['Continue'],
-          on_finish: () => {}
-        });
       }
     }
   };
 
+  const warningMsg = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+      <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
+      <p>Please pay close attention for the rest of the task.</p>
+    </div>`,
+  choices: ['Continue'],
+  /* show only if the *previous* trial (the choice you just made)
+     was an attention-check and marked incorrect                        */
+  conditional_function: () => {
+    const last = jsPsych.data.get().last(1).values()[0];
+    return last.trial_part === 'attention_check' && !last.correct;
+  }
+};
+
+
+
   if (TEST_MODE) {
-  timeline.push(playAudioAttn, emotionChoiceAttn);
+  timeline.push(playAudioAttn, emotionChoiceAttn, warningMsg);
   }
 }
 

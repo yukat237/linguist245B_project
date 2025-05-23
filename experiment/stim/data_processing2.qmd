@@ -6,7 +6,7 @@ editor: visual
 
 ## Task
 
-Adding other batch of files.
+Adding another batch of files.
 
 ## Greek
 
@@ -82,8 +82,76 @@ for (letter in names(emotion_folders)) {
 task: add speaker 3, 5, 8, 10’s sentences 1, 5, 6 (cus currently only has 2 3 4)
 
 ```{r}
-#| echo: false
-2 * 2
+#here is the idea
+# 0) set your source + target directories
+source_dir <- "C:/Users/yuka/Desktop/QP1/CaFE_48k"
+target_dir <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/additional_items_temploc"
+
+# 1) which emotion folders (in French), and the subfolder we want
+emotion_folders <- c("Colère", "Joie", "Neutre", "Peur", "Surprise", "Tristesse")
+subfolder      <- "Fort"
+
+# 2) mapping from French‐letter to English prefix
+prefix_map <- c(
+  C = "angry__",    # Colere
+  J = "happy__",    # Joie
+  N = "neutral__",  # Neutre
+  P = "fear__",     # Peur
+  S = "surprise__", # Surprise
+  T = "sad__"       # Tristesse
+)
+
+# 3) which speakers & sentences to keep
+include_speakers <- c("03","05","08","10")
+include_sentences <- c("1","5","6")
+
+# 4) walk through each emotion
+for (emo in emotion_folders) {
+  emo_dir <- file.path(source_dir, emo, subfolder)
+  if (!dir.exists(emo_dir)) next
+  
+  # list all .wav files
+  wavs <- list.files(emo_dir, pattern="\\.wav$", full.names=TRUE)
+  
+  for (src in wavs) {
+    fn <- basename(src)                 # e.g. "03-C-2-5.wav"
+    parts <- strsplit(tools::file_path_sans_ext(fn), "-", fixed=TRUE)[[1]]
+    # expect exactly 4 parts: speaker, letter, "2", sentence
+    if (length(parts) != 4) next
+    speaker <- parts[1]
+    letter  <- parts[2]
+    mid     <- parts[3]
+    sent    <- parts[4]
+    
+    # filter by speaker, by the fixed "2", and by sentence
+    if (!(speaker %in% include_speakers)) next
+    if (mid != "2")                      next
+    if (!(sent %in% include_sentences)) next
+    
+    # look up the right prefix
+    if (!(letter %in% names(prefix_map))) next
+    eng_pref <- prefix_map[letter]
+    
+    # build new name and copy
+    new_fn <- paste0("french_", eng_pref, fn)
+    file.copy(src,
+              file.path(target_dir, new_fn),
+              overwrite = TRUE)
+  }
+}
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+## Japanese
+
+task: add alll the other regular sentences for each emotion from all speakers. (meaning, cut all of them first on praat.
+
+```{r}
+
+```
+
+After all these, normalize intensities. (again, Praat)
+
+Then add these new files in to the experiment.html code.
+
+Set a new rule to get a list of files so that one person sees only a set amount of sounds.
