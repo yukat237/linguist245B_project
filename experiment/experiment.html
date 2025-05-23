@@ -81,7 +81,7 @@ const consentText = `
 const consent = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `
-    <div style="font-size:0.5em; max-width:800px; max-height:600px; overflow-y:auto; 
+    <div style="font-size:0.7em; max-width:800px; max-height:600px; overflow-y:auto; 
                 border:1px solid #ccc; padding:1em; margin:auto;">
       ${consentText}
     </div>
@@ -470,7 +470,7 @@ if (attnIdx !== -1) {
     }
   };
 
-  if (!TEST_MODE) {
+  if (TEST_MODE) {
   timeline.push(playAudioAttn, emotionChoiceAttn);
   }
 }
