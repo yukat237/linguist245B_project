@@ -454,7 +454,6 @@ if (attnIdx !== -1) {
       jsPsych.data.write(data); // ensure data is saved for this trial
 
       }
-    }
   };
 
   const warningMsg = {
@@ -470,10 +469,8 @@ if (attnIdx !== -1) {
   conditional_function: () => {
     const last = jsPsych.data.get().last(1).values()[0];
     return last.trial_part === 'attention_check' && !last.correct;
-  }
-};
-
-
+    }
+  };
 
   if (TEST_MODE) {
   timeline.push(playAudioAttn, emotionChoiceAttn, warningMsg);
