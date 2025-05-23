@@ -471,6 +471,8 @@ if (attnIdx !== -1) {
       .last(1)
       .values()[0];
     // only show if it exists and was marked incorrect
+    console.log('⟵ WARNING CHECK, lastAttn.correct =', lastAttn && lastAttn.correct);
+    
     return lastAttn ? lastAttn.correct === false : false;
     }
   };
