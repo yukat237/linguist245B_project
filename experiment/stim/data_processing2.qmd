@@ -1,0 +1,89 @@
+---
+title: "data processing 2"
+format: html
+editor: visual
+---
+
+## Task
+
+Adding other batch of files.
+
+## Greek
+
+task: speaker 1-4, add all emotions' 17 sentences (bc 10, 12, 14 already exist)
+
+```{r}
+# ==== 0) SET YOUR PATHS ====
+source_dir <- "C:/Users/yuka/Desktop/QP1/AESDD"
+target_dir <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/additional_items_temploc"
+
+
+# ==== 1) CONFIGURATION ====
+# which sub-folders to use:
+emotion_folders <- list(
+  a = "anger",
+  f = "fear",
+  h = "happiness",
+  s = "sadness"
+)
+# corresponding prefixes:
+emotion_prefix <- list(
+  a = "angry__",
+  f = "fear__",
+  h = "happy__",
+  s = "sad__"
+)
+
+# sentences to skip, speakers to keep
+exclude_sentences <- c(10, 12, 14)
+include_speakers  <- 1:4
+
+# ==== 2) PROCESS ====
+for (letter in names(emotion_folders)) {
+  folder_path <- file.path(source_dir, emotion_folders[[letter]])
+  if (!dir.exists(folder_path)) next
+
+  # list everything, then pick only .wav
+  all_files <- list.files(folder_path, full.names = TRUE)
+  wavs <- all_files[tolower(tools::file_ext(all_files)) == "wav"]
+
+  for (wav in wavs) {
+    fname      <- basename(wav)                        # "s05 (2).wav"
+    no_ext     <- tools::file_path_sans_ext(fname)     # "s05 (2)"
+    n          <- nchar(no_ext)
+
+    # must be exactly 7 chars: 1 + 2 digits + " " + "(" + digit + ")"
+    if (n != 7)                  next
+    if (substr(no_ext, 1, 1)     != letter) next       # right emotion code
+    if (substr(no_ext, 4, 4)     != " ")    next       # space
+    if (substr(no_ext, 5, 5)     != "(")    next
+    if (substr(no_ext, 7, 7)     != ")")    next
+
+    # parse sentence: chars 2–3
+    sent_num    <- as.integer(substr(no_ext, 2, 3))
+    if (is.na(sent_num) || sent_num %in% exclude_sentences) next
+
+    # parse speaker: char 6
+    speaker_num <- as.integer(substr(no_ext, 6, 6))
+    if (is.na(speaker_num) || !(speaker_num %in% include_speakers)) next
+
+    # build new name & copy
+    new_name <- paste0("greek_", emotion_prefix[[letter]], fname)
+    file.copy(wav,
+              file.path(target_dir, new_name),
+              overwrite = TRUE)
+  }
+}
+
+```
+
+## Canadian French
+
+task: add speaker 3, 5, 8, 10’s sentences 1, 5, 6 (cus currently only has 2 3 4)
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
