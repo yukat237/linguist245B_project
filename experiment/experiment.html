@@ -431,7 +431,7 @@ if (attnIdx !== -1) {
     },
     data: { stimulus_file: attnFile }
   };
-  // -- emotionChoiceAttn  --
+  // emotionChoiceAttn 
   const fileN = attnFile.split('/').pop();
   const emoKey = fileN.split('_')[1].split('.')[0];
   const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
@@ -458,8 +458,10 @@ if (attnIdx !== -1) {
         timeline.push({
           type: jsPsychHtmlButtonResponse,
           stimulus: `
-            <p><strong>That was an attention check, the response you selected was incorrect. </strong></p>
+          <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+            <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
             <p>Please pay close attention for the rest of the task.</p>
+          </div>
           `,
           choices: ['Continue'],
           on_finish: () => {}
@@ -473,7 +475,7 @@ if (attnIdx !== -1) {
   }
 }
 
-// 2) **Main trial** 
+// 2) Main trial!!
 const base = audioFile.split('/').pop();                       
 const [lang, emo] = base.split('__')[0].split('_');            
 const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
@@ -520,7 +522,8 @@ const emotionChoice = {
 if (!TEST_MODE){
 timeline.push(playAudio, emotionChoice);
 }
-});  // end forEach
+});  
+// end forEach
 
 
 
@@ -583,6 +586,7 @@ const languageBackground = {
 timeline.push(languageBackground);
 
 
+// Score
     const summary = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function() {
@@ -618,6 +622,7 @@ timeline.push(languageBackground);
     }
 
 
+    //data saving
     const save_data = {
       type: jsPsychPipe,
       action: "save",
@@ -629,6 +634,8 @@ timeline.push(languageBackground);
     timeline.push(save_data);
     }
 
+
+    // final page
     const completion = {
       type: jsPsychHtmlButtonResponse,
       stimulus: '<h2>Thank you!</h2><p>The study is complete. <br> Here is the completion code: C17CXQRX <br>You can close the window after clicking the Finish button below. </p>',
