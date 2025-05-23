@@ -464,7 +464,7 @@ if (attnIdx !== -1) {
       <p>Please pay close attention for the rest of the task.</p>
     </div>`,
   choices: ['Continue'],                     
-  conditional_function: () {
+  conditional_function: () => {
     const lastAttn = jsPsych.data
       .get()
       .filter({trial_part: 'attention_check'})
