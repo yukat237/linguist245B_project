@@ -454,6 +454,8 @@ if (attnIdx !== -1) {
     },
     on_finish: function(data) {
       const chosen = emotions[data.response];
+      console.log(chosen);
+      console.log(data.correct_response);
       data.correct = chosen === data.correct_response;
       jsPsych.data.write(data); // ensure data is saved for this trial
 
@@ -469,7 +471,7 @@ if (attnIdx !== -1) {
           `,
           choices: ['Continue'],
           on_finish: () => {}
-        });        
+        });
     }
   }
 };
