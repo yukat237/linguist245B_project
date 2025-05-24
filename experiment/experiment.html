@@ -449,7 +449,7 @@ if (attnIdx !== -1) {
     button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
     data: {
       stimulus_file: attnFile,
-      correct_response: corrEmotion,
+      correct_response: correctEmotion,
       trial_part: 'attention_check'
     },
     on_finish: function(data) {
@@ -457,33 +457,26 @@ if (attnIdx !== -1) {
       data.correct = chosen === data.correct_response;
       jsPsych.data.write(data); // ensure data is saved for this trial
 
-      }
-  };
-
-const warningMsgConditional = {
-  timeline: [
-    {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: `
-        <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
-          <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
-          <p>Please pay close attention for the rest of the task.</p>
-        </div>`,
-      choices: ['Continue']
+// Add a warning message if incorrect
+      if (!data.correct) {
+        timeline.push({
+          type: jsPsychHtmlButtonResponse,
+          stimulus: `
+          <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+            <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
+            <p>Please pay close attention for the rest of the task.</p>
+          </div>
+          `,
+          choices: ['Continue'],
+          on_finish: () => {}
+        });        
     }
-  ],
-  conditional_function: () => {
-    const lastAttn = jsPsych.data.get()
-      .filter({trial_part: 'attention_check'})
-      .last(1)
-      .values()[0];
-    return Boolean(lastAttn) && lastAttn.correct === false;
   }
 };
 
-timeline.push(playAudioAttn, emotionChoiceAttn, warningMsgConditional);
+timeline.push(playAudioAttn, emotionChoiceAttn);
 
-  
+}
 
 // 2) Main trial!!
 const base = audioFile.split('/').pop();                       
@@ -532,7 +525,7 @@ const emotionChoice = {
 if (!TEST_MODE){
 timeline.push(playAudio, emotionChoice);
 }
-};  
+});  
 // end forEach
 
 
