@@ -438,7 +438,7 @@ if (attnIdx !== -1) {
   // emotionChoiceAttn 
   const fileN = attnFile.split('/').pop();
   const emoKey = fileN.split('_')[1].split('.')[0];
-  const corrEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
+  const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
   
   const emotionChoiceAttn = {
     type: jsPsychHtmlButtonResponse,
