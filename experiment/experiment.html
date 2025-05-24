@@ -81,8 +81,8 @@ const consentText = `
 const consent = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `
-    <p style="font-size:0.5em; text-align:center; margin-top:1em; padding: 1em">
-      Note: The consent form below is designed to cover multiple studies, and therefore includes references to a communication "partner." However, this is not applicable to the current study you are about to participate in. <br>
+    <p style="font-size:0.6em; text-align:center; margin-top:1em; padding: 1em">
+      Note: The consent form below is designed to cover multiple studies, and therefore includes references to a communication "partner." <br> However, this is not applicable to the current study you are about to participate in. <br>
       Please disregard any statements referring to group work or partners. All other information in the consent form applies to this study.
     </p>
     <div style="font-size:0.7em; max-width:800px; max-height:600px; overflow-y:auto; 
@@ -460,31 +460,30 @@ if (attnIdx !== -1) {
       }
   };
 
-  const warningMsg = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: `
-    <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
-      <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
-      <p>Please pay close attention for the rest of the task.</p>
-    </div>`,
-  choices: ['Continue'],                     
+const warningMsgConditional = {
+  timeline: [
+    {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+          <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
+          <p>Please pay close attention for the rest of the task.</p>
+        </div>`,
+      choices: ['Continue']
+    }
+  ],
   conditional_function: () => {
-    const lastAttn = jsPsych.data
-      .get()
+    const lastAttn = jsPsych.data.get()
       .filter({trial_part: 'attention_check'})
       .last(1)
       .values()[0];
-    // only show if it exists and was marked incorrect
-    console.log('⟵ WARNING CHECK, lastAttn.correct =', lastAttn && lastAttn.correct);
-    
     return Boolean(lastAttn) && lastAttn.correct === false;
-    }
-  };
+  }
+};
 
- 
-  timeline.push(playAudioAttn, emotionChoiceAttn, warningMsg);
+timeline.push(playAudioAttn, emotionChoiceAttn, warningMsgConditional);
+
   
-}
 
 // 2) Main trial!!
 const base = audioFile.split('/').pop();                       
