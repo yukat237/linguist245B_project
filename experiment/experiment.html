@@ -81,6 +81,10 @@ const consentText = `
 const consent = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `
+    <p style="font-size:0.5em; text-align:center; margin-top:1em; padding: 1em">
+      Note: The consent form below is designed to cover multiple studies, and therefore includes references to a communication "partner." However, this is not applicable to the current study you are about to participate in. <br>
+      Please disregard any statements referring to group work or partners. All other information in the consent form applies to this study.
+    </p>
     <div style="font-size:0.7em; max-width:800px; max-height:600px; overflow-y:auto; 
                 border:1px solid #ccc; padding:1em; margin:auto;">
       ${consentText}
