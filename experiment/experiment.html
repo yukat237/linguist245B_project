@@ -26,7 +26,7 @@
     const timeline = [];
 
     //DEBUGGING//
-    const TEST_MODE = true; // <== skip all main stim if true
+    const TEST_MODE = false; // <== skip all main stim if true
     //---------//
 
 
@@ -45,88 +45,89 @@
     };
     timeline.push(prolificIDPage)
 
-//consent
-const consentText = `
-  <h3 style="text-align:center;">STANFORD UNIVERSITY</h3>
-  <h2 style="text-align:center; margin-top:0;">Research Consent Form</h2>
+  //consent contents
+  const consentText = `
+    <h3 style="text-align:center;">STANFORD UNIVERSITY</h3>
+    <h2 style="text-align:center; margin-top:0;">Research Consent Form</h2>
 
-  <p><strong>Protocol Director:</strong> Robert Hawkins</p>
-  <p><strong>Protocol Title:</strong> Communication and social cognition in natural audiovisual contexts</p>
-  <p><strong>IRB#:</strong> 77226</p>
+    <p><strong>Protocol Director:</strong> Robert Hawkins</p>
+    <p><strong>Protocol Title:</strong> Communication and social cognition in natural audiovisual contexts</p>
+    <p><strong>IRB#:</strong> 77226</p>
 
-  <p><strong>DESCRIPTION:</strong> You are invited to participate in a research study about language and communication. The purpose of the research is to understand how you interact and communicate with other people in naturalistic settings as a fluent English speaker. This research will be conducted through the Prolific platform, including participants from the US, UK, and Canada. If you decide to participate in this research, you will play a communication game in a group with one or more partners.</p>
+    <p><strong>DESCRIPTION:</strong> You are invited to participate in a research study about language and communication. The purpose of the research is to understand how you interact and communicate with other people in naturalistic settings as a fluent English speaker. This research will be conducted through the Prolific platform, including participants from the US, UK, and Canada. If you decide to participate in this research, you will play a communication game in a group with one or more partners.</p>
 
-  <p><strong>TIME INVOLVEMENT:</strong> The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.</p>
+    <p><strong>TIME INVOLVEMENT:</strong> The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.</p>
 
-  <p><strong>RISKS AND BENEFITS:</strong> You may become frustrated if your partner gets distracted, or experience discomfort if other participants in your group send text that is inappropriate for the task. We ask you to please be respectful of other participants you might be interacting with to mitigate these risks. You may also experience discomfort when being asked to discuss or challenge emotionally salient political beliefs. Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. This study advances our scientific understanding of how people communicate and collaborate in naturalistic settings. This study may lead to further insights about what can go wrong in teamwork, suggest potential interventions to overcome these barriers, and help to develop assistive technologies that collaborate with human partners. We cannot and do not guarantee or promise that you will receive any benefits from this study.</p>
+    <p><strong>RISKS AND BENEFITS:</strong> You may become frustrated if your partner gets distracted, or experience discomfort if other participants in your group send text that is inappropriate for the task. We ask you to please be respectful of other participants you might be interacting with to mitigate these risks. You may also experience discomfort when being asked to discuss or challenge emotionally salient political beliefs. Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. This study advances our scientific understanding of how people communicate and collaborate in naturalistic settings. This study may lead to further insights about what can go wrong in teamwork, suggest potential interventions to overcome these barriers, and help to develop assistive technologies that collaborate with human partners. We cannot and do not guarantee or promise that you will receive any benefits from this study.</p>
 
-  <p><strong>PAYMENTS:</strong> You will receive payment in the amount advertised on Prolific. If you do not complete this study, you will receive prorated payment based on the time that you have spent. Additionally, you may be eligible for bonus payments as described in the instructions.</p>
+    <p><strong>PAYMENTS:</strong> You will receive payment in the amount advertised on Prolific. If you do not complete this study, you will receive prorated payment based on the time that you have spent. Additionally, you may be eligible for bonus payments as described in the instructions.</p>
 
-  <p><strong>PARTICIPANT’S RIGHTS:</strong> If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled. The alternative is not to participate. You have the right to refuse to answer particular questions. The results of this research study may be presented at scientific or professional meetings or published in scientific journals. Your individual privacy will be maintained in all published and written data resulting from the study. In accordance with scientific norms, the data from this study may be used or shared with other researchers for future research (after removing personally identifying information) without additional consent from you.</p>
+    <p><strong>PARTICIPANT’S RIGHTS:</strong> If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled. The alternative is not to participate. You have the right to refuse to answer particular questions. The results of this research study may be presented at scientific or professional meetings or published in scientific journals. Your individual privacy will be maintained in all published and written data resulting from the study. In accordance with scientific norms, the data from this study may be used or shared with other researchers for future research (after removing personally identifying information) without additional consent from you.</p>
 
-  <p><strong>CONTACT INFORMATION:</strong><br>
-    <strong>Questions:</strong><br>
-     If you have any questions, concerns, or complaints about this research, its procedures, risks, and benefits, contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu, 217-549-6923).<br>
-     <strong>Independent Contact:</strong><br>
-     If you are not satisfied with how this study is being conducted, or if you have concerns, complaints, or general questions about the research or your rights as a participant, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306. Please save or print a copy of this page for your records.
-  </p>
-
-  <p style="text-align:center; font-style:italic; margin-top:1em;">
-    If you agree to participate in this research, please click “I Agree” to continue.
-  </p>
-`;
-
-
-//consent
-const consent = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: `
-    <p style="font-size:0.6em; text-align:center; margin-top:1em; padding: 1em">
-      Note: The consent form below is designed to cover multiple studies, and therefore includes references to a communication "partner." <br> However, this is not applicable to the current study you are about to participate in. <br>
-      Please disregard any statements referring to group work or partners. All other information in the consent form applies to this study.
+    <p><strong>CONTACT INFORMATION:</strong><br>
+      <strong>Questions:</strong><br>
+      If you have any questions, concerns, or complaints about this research, its procedures, risks, and benefits, contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu, 217-549-6923).<br>
+      <strong>Independent Contact:</strong><br>
+      If you are not satisfied with how this study is being conducted, or if you have concerns, complaints, or general questions about the research or your rights as a participant, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306. Please save or print a copy of this page for your records.
     </p>
-    <div style="font-size:0.7em; max-width:800px; max-height:600px; overflow-y:auto; 
-                border:1px solid #ccc; padding:1em; margin:auto;">
-      ${consentText}
-    </div>
-    <p style="text-align:center; margin-top:1em; padding: 1em">
-      By clicking “I Agree,” you confirm that you have read the above and agree to participate.
+
+    <p style="text-align:center; font-style:italic; margin-top:1em;">
+      If you agree to participate in this research, please click “I Agree” to continue.
     </p>
-  `,
-  choices: ['I Agree', 'I Do Not Agree'],
-  button_html: '<button class="jspsych-btn" style="margin: 0 10px;">%choice%</button>',
-  on_finish: function(data){
-    if(data.response === 1){
-      jsPsych.endExperiment('As you have indicated that you do not consent to participate in this study, please return this submission on Prolific by selecting the Stop without Completing button.');
+  `;
+
+
+  //consent formatting
+  const consent = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <p style="font-size:0.6em; text-align:center; margin-top:1em; padding: 1em">
+        Note: The consent form below is designed to cover multiple studies, and therefore includes references to a communication "partner." <br> However, this is not applicable to the current study you are about to participate in. <br>
+        Please disregard any statements referring to group work or partners. All other information in the consent form applies to this study.
+      </p>
+      <div style="font-size:0.7em; max-width:800px; max-height:600px; overflow-y:auto; 
+                  border:1px solid #ccc; padding:1em; margin:auto;">
+        ${consentText}
+      </div>
+      <p style="text-align:center; margin-top:1em; padding: 1em">
+        By clicking “I Agree,” you confirm that you have read the above and agree to participate.
+      </p>
+    `,
+    choices: ['I Agree', 'I Do Not Agree'],
+    button_html: '<button class="jspsych-btn" style="margin: 0 10px;">%choice%</button>',
+    on_finish: function(data){
+      if(data.response === 1){
+        jsPsych.endExperiment('As you have indicated that you do not consent to participate in this study, please return this submission on Prolific by selecting the Stop without Completing button.');
+      }
     }
-  }
-};
+  };
 
-timeline.push(consent);
+  timeline.push(consent);
 
-
-
-    const instructions = {
-      type: jsPsychInstructions,
-      pages: [
-        '<h1>Welcome to the emotion recognition test!</h1>',
-        '<p>Find out your vocal emotion recognition ability!</p>',
-        '<p>In this test, you will hear speech clips in different languages.</p>',
-        '<p>You will hear each clip only once. Judge the speaker\'s emotion. </p>',
-        '<p>If unsure, just make your best guess!</p>',
-        '<p>In the end, we will give you a score of how accurate you were.</p>',
-        '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
-        '<p>Native speakers usually achieve 80–100% accuracy—see if you can do just as well in all the languages!</p>',
-        '<p>Good luck!</p>',
-        '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. <br> Please be patient if it takes a little longer.</p>'
-      ],
-      show_clickable_nav: true
-    };
+  // instructions
+  const instructions = {
+    type: jsPsychInstructions,
+    pages: [
+      '<h1>Welcome to the emotion recognition test!</h1>',
+      '<p>Find out your vocal emotion recognition ability!</p>',
+      '<p>In this test, you will hear speech clips in different languages.</p>',
+      '<p>You will hear each clip only once. Judge the speaker\'s emotion. </p>',
+      '<p>If unsure, just make your best guess!</p>',
+      '<p>In the end, we will give you a score of how accurate you were.</p>',
+      '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
+      '<p>Native speakers usually achieve 80–100% accuracy—see if you can do just as well in all the languages!</p>',
+      '<p>Good luck!</p>',
+      '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. <br> Please be patient if it takes a little longer.</p>'
+    ],
+    show_clickable_nav: true
+  }; //end of instructions
    
     
-    timeline.push(instructions);
+  timeline.push(instructions);
 
     
+
+  // list of audio files
   let audioFiles = [
     "stim/final_stim_scaled/french_angry__03-C-2-2_intscaled.wav",
     "stim/final_stim_scaled/french_angry__03-C-2-3_intscaled.wav",
@@ -356,6 +357,7 @@ timeline.push(consent);
     "stim/final_stim_scaled/thai_sad__s013_clip_actor026_script3_2_4b_intscaled.wav"
   ];
 
+
   // Apply commenting out rules tp limit stimuli num!!!!!------------
   audioFiles = audioFiles.filter(file => {
     // 1) Thai: drop any file with “thai_” + “script3”
@@ -372,115 +374,128 @@ timeline.push(consent);
 
     // otherwise keep it
     return true;
-  });
+    }
+  );
 
 
-
+  // attention check file lists
   const attentionCheckFiles = [
-  'stim/final_stim_scaled/attentioncheck_fear.mp3',
-  'stim/final_stim_scaled/attentioncheck_sad.mp3',
-  'stim/final_stim_scaled/attentioncheck_surprise.mp3'
-]; 
+    'stim/final_stim_scaled/attentioncheck_fear.mp3',
+    'stim/final_stim_scaled/attentioncheck_sad.mp3',
+    'stim/final_stim_scaled/attentioncheck_surprise.mp3'
+  ]; 
+
+  //get length of all audio files
   const totalMain = audioFiles.length;
+
+  //get where attention check should be placed
   const attnPoints = [
     Math.floor(totalMain / 4),
     Math.floor(totalMain / 2),
     Math.floor(3 * totalMain / 4)
   ];
 
-
   // shuffle audios for every run
   audioFiles = jsPsych.randomization.shuffle(audioFiles);
 
-  // checking how many stim!
+  // checking how many stim
   console.log(`Using ${audioFiles.length} main stimuli after filtering`);
 
-
-    const preload = {
+  // loading audio files
+  const preload = {
       type: jsPsychPreload,
       audio: audioFiles.concat(attentionCheckFiles)
-    };
-    if (TEST_MODE){
-    timeline.push(preload);
-    }
-
-    const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
-
-
-    // Main trials
-    audioFiles.forEach(function(audioFile, idx) {
-
-// 1) Attention check at ¼, ½, ¾
-const attnIdx = attnPoints.indexOf(idx);
-if (attnIdx !== -1) {
-  const attnFile = attentionCheckFiles[attnIdx];
-  // -- playAudioAttn --
-  const playAudioAttn = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: '<p>Click the button below to listen to the audio.</p>',
-    choices: ['Play Audio'],
-    on_start: trial => { trial.response_ends_trial = false; },
-    on_load: () => {
-      const button = document.querySelector('.jspsych-btn');
-      button.addEventListener('click', async () => {
-        button.disabled = true;
-        const ctx = jsPsych.pluginAPI.audioContext();
-        const buf = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        src.connect(ctx.destination);
-        src.start();
-        src.onended = () => jsPsych.finishTrial();
-      });
-    },
-    data: { stimulus_file: attnFile }
   };
-  // emotionChoiceAttn 
-  const fileN = attnFile.split('/').pop();
-  const emoKey = fileN.split('_')[1].split('.')[0];
-  const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
+
+  //load attention check files
+  timeline.push(preload);
   
-  const emotionChoiceAttn = {
+  //define emotions list (for participants selection)
+  const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Neutral'];
+
+  //define attention check warning message
+  const warningTrial = {
     type: jsPsychHtmlButtonResponse,
-    stimulus: '<p>Which emotion did the speaker express?</p>',
-    choices: emotions,
-    prompt: '<div style="height:100px;"></div>', 
-    margin_vertical: '20px',
-    button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-    data: {
-      stimulus_file: attnFile,
-      correct_response: correctEmotion,
-      trial_part: 'attention_check'
-    },
-    on_finish: function(data) {
-      const chosen = emotions[data.response];
-      console.log(chosen);
-      console.log(data.correct_response);
-      data.correct = chosen === data.correct_response;
-      jsPsych.data.write(data); // ensure data is saved for this trial
+    stimulus: `
+      <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+        <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
+        <p>Please pay close attention for the rest of the task.</p>
+      </div>
+    `,
+    choices: ['Continue']
+  };
 
-// Add a warning message if incorrect
-      if (!data.correct) {
-        timeline.push({
-          type: jsPsychHtmlButtonResponse,
-          stimulus: `
-          <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
-            <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
-            <p>Please pay close attention for the rest of the task.</p>
-          </div>
-          `,
-          choices: ['Continue'],
-          on_finish: () => {}
-        });
-    }
-  }
-};
 
-timeline.push(playAudioAttn, emotionChoiceAttn);
+  // Main trials ----------------------------------------
+  audioFiles.forEach(function(audioFile, idx) {
 
-}
+  // 1) Attention check at ¼, ½, ¾ ---------------
 
-// 2) Main trial!!
+  // prepping index for attention checks
+    const attnIdx = attnPoints.indexOf(idx);
+
+  // If attention index is not -1, 
+    if (attnIdx !== -1) {
+      const attnFile = attentionCheckFiles[attnIdx];
+      
+      // making a function to play attention check audios
+      const playAudioAttn = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>Click the button below to listen to the audio.</p>',
+        choices: ['Play Audio'],
+        on_start: trial => { trial.response_ends_trial = false; },
+        on_load: () => {
+          const button = document.querySelector('.jspsych-btn');
+          button.addEventListener('click', async () => {
+            button.disabled = true;
+            const ctx = jsPsych.pluginAPI.audioContext();
+            const buf = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start();
+            src.onended = () => jsPsych.finishTrial();
+          });
+          },
+        data: { stimulus_file: attnFile }
+      }; // end of playAudioAttn const
+
+      // get filename information to find out the "correct" emotion
+      const fileN = attnFile.split('/').pop();
+      const emoKey = fileN.split('_')[1].split('.')[0];
+      const correctEmotion = emoKey.charAt(0).toUpperCase() + emoKey.slice(1);
+      
+      // make choices for attention check
+      const emotionChoiceAttn = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p>Which emotion did the speaker express?</p>',
+        choices: emotions,
+        prompt: '<div style="height:100px;"></div>', 
+        margin_vertical: '20px',
+        button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+        data: {
+          stimulus_file: attnFile,
+          correct_response: correctEmotion,
+          trial_part: 'attention_check'
+        },
+        on_finish: function(data) {
+          const chosen = emotions[data.response];
+          console.log(chosen);
+          console.log(data.correct_response);
+          data.correct = chosen === data.correct_response;
+          jsPsych.data.write(data);          
+        }
+      }; //end of emotionChoiceAttn
+
+      timeline.push(playAudioAttn, emotionChoiceAttn);
+
+    } // end of "if (attnIdx !== -1)"
+
+
+
+
+
+// 2) Main trial items -----------------------
 const base = audioFile.split('/').pop();                       
 const [lang, emo] = base.split('__')[0].split('_');            
 const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
@@ -523,12 +538,12 @@ const emotionChoice = {
     const chosen = emotions[data.response];
     data.correct = chosen === data.correct_response;
   }
-};
-if (!TEST_MODE){
-timeline.push(playAudio, emotionChoice);
-}
-});  
-// end forEach
+  };
+  if (!TEST_MODE){
+  timeline.push(playAudio, emotionChoice);
+      }// end of "if not test mode, push timl"
+  }// end of function(audioFile, idx) {}
+);// end forEach
 
 
 
