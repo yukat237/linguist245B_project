@@ -487,7 +487,34 @@
         }
       }; //end of emotionChoiceAttn
 
-      timeline.push(playAudioAttn, emotionChoiceAttn);
+      // debugging purpose:
+      console.log(`This is what it gets by jsPsych.data.get(): ${jsPsych.data.get()}`);
+
+
+      // warning message if res is not correct
+      const warningMsgConditional = {
+        timeline: [
+          {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: `
+              <div style="font-size:1.8em; line-height:1.4; text-align:center; color:#c00;">
+                <p><strong>That was an attention check, the response you selected was incorrect.</strong></p>
+                <p>Please pay close attention for the rest of the task.</p>
+              </div>`,
+            choices: ['Continue']
+          }
+        ],
+        conditional_function: () => {
+          const lastAttn = jsPsych.data.get()
+            .filter({trial_part: 'attention_check'})
+            .last(1)
+            .values()[0];
+          return Boolean(lastAttn) && lastAttn.correct === false;
+        }
+      }; // end of warningMsgConditional
+
+      timeline.push(playAudioAttn, emotionChoiceAttn, warningMsgConditional);
+
 
     } // end of "if (attnIdx !== -1)"
 
