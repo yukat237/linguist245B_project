@@ -517,180 +517,188 @@
 
 
     } // end of "if (attnIdx !== -1)"
+  // end of attention check
 
+  // 2) Main trial items -------------------------
+    // get correct emotion 
+    const base = audioFile.split('/').pop();                       
+    const [lang, emo] = base.split('__')[0].split('_');            
+    const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
 
-
-
-
-// 2) Main trial items -----------------------
-const base = audioFile.split('/').pop();                       
-const [lang, emo] = base.split('__')[0].split('_');            
-const correctEmotion = emo.charAt(0).toUpperCase() + emo.slice(1);
-
-const playAudio = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: '<p>Click the button below to listen to the audio.</p>',
-  choices: ['Play Audio'],
-  on_start: trial => { trial.response_ends_trial = false; },
-  on_load: () => {
-    const button = document.querySelector('.jspsych-btn');
-    button.addEventListener('click', async () => {
-      button.disabled = true;
-      const ctx = jsPsych.pluginAPI.audioContext();
-      const buf = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-      src.start();
-      src.onended = () => jsPsych.finishTrial();
-    });
-  },
-  data: { stimulus_file: audioFile }
-};
-
-const emotionChoice = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: '<p>Which emotion did the speaker express?</p>',
-  choices: emotions,
-  prompt: '<div style="height:100px;"></div>',  
-  margin_vertical: '20px',
-  button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
-  data: {
-    stimulus_file: audioFile,
-    language: lang,
-    correct_response: correctEmotion,
-    trial_part: 'choice'
-  },
-  on_finish: data => {
-    const chosen = emotions[data.response];
-    data.correct = chosen === data.correct_response;
-  }
-  };
-  if (!TEST_MODE){
-  timeline.push(playAudio, emotionChoice);
-      }// end of "if not test mode, push timl"
-  }// end of function(audioFile, idx) {}
-);// end forEach
-
-
-
-
-// Questionnaire
-const languageBackground = {
-  type: jsPsychSurveyHtmlForm,
-  preamble: `
-    <h2>Questionnaire</h2>
-    <p>Before seeing your scores, please answer the following questions!</p>
-    <p>There are only 6 questions. Please type "NA" if not applicable. </p>
-    <p> <strong> 
-      <br>
-      Please answer honestly!    
-      <br>
-      None of your responses will affect your payment or your Prolific status in anyway. 
-      <br>
-      <br>
-      </strong>
-      </p>
-  `,
-  html: `
-    <p> <br> Do you have any guesses for the languages you heard? Please list if you have any: <br>
-      <input name="language_guesses" type="text" required>
-    </p>
-    <p> Were there any technological difficulities? (e.g., did not hear some audios, could not click the button you wanted) <br>
-      <textarea name="tech_difficulity" rows="2" style = "width:50%" required></textarea>
-    </p>
-    <p>How distracted were you during the study?<br>
-    <label><input type="radio" name="distraction" value="Not at all" required> Not at all</label><br>
-    <label><input type="radio" name="distraction" value="A little" required> A little</label><br>
-    <label><input type="radio" name="distraction" value="Somewhat" required> Somewhat</label><br>
-    <label><input type="radio" name="distraction" value="Quite a bit" required> Quite a bit</label><br>
-    <label><input type="radio" name="distraction" value="Very" required> Very</label>
-    </p>
-
-   
-    <p> 
-      <br><br>
-      Have you studied any languages by yourself or taken classes? If so, please list the 1) language(s), 2)how long, and 3)in what way: <br>
-      <textarea name="other_languages" rows="2" style = "width:50%" required></textarea>
-    </p>
-    <p> Are you regularly exposed to non-native languages through media, such as games, shows, movies, anime, songs, etc.? If so, please list the language(s) and frequency: <br>
-      <textarea name="media_exposures" rows="2" style = "width:50%" required></textarea>
-    </p>
-    <p> Does/did your family speak any languages to you? If so, please list the language(s) and who: <br>
-      <textarea name="family_exposure" rows="2" style = "width:50%" required></textarea>
-    </p>
-
-
-    <p> 
-      <br><br> 
-      (optional) Do you have any comments/concerns about this study? <br>
-      <textarea name="comments" rows="2" style = "width:50%"></textarea>
-    </p>
-  `,
-  button_label: "Complete survey and view my scores"
-};
-
-timeline.push(languageBackground);
-
-
-// Score
-    const summary = {
+    // playing audio
+    const playAudio = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: function() {
-        const all = jsPsych.data.get().filter({trial_part:'choice'});
-        const total = all.count(),
-              correct = all.filter({correct:true}).count();
-        const langs = [...new Set(all.values().map(d=>d.language))];
-        let html = `<h2>Your Results</h2>
-                    <p><strong>Overall:</strong> ${correct}/${total} correct 
-                      (${Math.round(correct/total*100)}%)</p>`;
-
-        langs.forEach(lang=>{
-          const subset = all.filter({language:lang});
-          const t = subset.count(),
-                c = subset.filter({correct:true}).count();
-
-          const label = lang === 'french'
-            ? 'Canadian French'
-            : lang.toUpperCase();
-          html += `<p><strong>${label}:</strong> ${c}/${t} correct 
-              (${Math.round(c/t*100)}%)</p>`;
+      stimulus: '<p>Click the button below to listen to the audio.</p>',
+      choices: ['Play Audio'],
+      on_start: trial => { trial.response_ends_trial = false; },
+      on_load: () => {
+        const button = document.querySelector('.jspsych-btn');
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          const ctx = jsPsych.pluginAPI.audioContext();
+          const buf = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          src.connect(ctx.destination);
+          src.start();
+          src.onended = () => jsPsych.finishTrial();
         });
-
-        
-        html += `<p>Press Continue to finish.</p>`;
-        return html;
       },
-      choices: ['Continue']
-    };
+      data: { stimulus_file: audioFile }
+    }; //end of play audio
 
-    if (!TEST_MODE){
-    timeline.push(summary);
-    }
-
-
-    //data saving
-    const save_data = {
-      type: jsPsychPipe,
-      action: "save",
-      experiment_id: 'eSR841l7tfeH',
-      filename: filename,
-      data_string: ()=>jsPsych.data.get().csv()
-    };
-    if (!TEST_MODE){
-    timeline.push(save_data);
-    }
-
-
-    // final page
-    const completion = {
+    // emotion choice screen
+    const emotionChoice = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: '<h2>Thank you!</h2><p>The study is complete. <br> Here is the completion code: C17CXQRX <br>You can close the window after clicking the Finish button below. </p>',
-      choices: ['Finish']
-    };
-    timeline.push(completion);
+      stimulus: '<p>Which emotion did the speaker express?</p>',
+      choices: emotions,
+      prompt: '<div style="height:100px;"></div>',  
+      margin_vertical: '20px',
+      button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+      data: {
+        stimulus_file: audioFile,
+        language: lang,
+        correct_response: correctEmotion,
+        trial_part: 'choice'
+      },
+      on_finish: data => {
+        const chosen = emotions[data.response];
+        data.correct = chosen === data.correct_response;
+      }
+    }; //end of emotionChoice 
+    
+    if (!TEST_MODE){
+      timeline.push(playAudio, emotionChoice);
+      }// end of "if not test mode, push timl"
 
-    jsPsych.run(timeline);
+  }// end of function(audioFile, idx) {
+  );// end of forEach
+
+
+  // Questionnaire
+  const languageBackground = {
+    type: jsPsychSurveyHtmlForm,
+    preamble: `
+      <h2>Questionnaire</h2>
+      <p>Before seeing your scores, please answer the following questions!</p>
+      <p>There are only 6 questions. Please type "NA" if not applicable. </p>
+      <p> <strong> 
+        <br>
+        Please answer honestly!    
+        <br>
+        None of your responses will affect your payment or your Prolific status in anyway. 
+        <br>
+        <br>
+        </strong>
+        </p>
+    `,
+    html: `
+      <p> <br> Do you have any guesses for the languages you heard? Please list if you have any: <br>
+        <input name="language_guesses" type="text" required>
+      </p>
+      <p> Were there any technological difficulities? (e.g., did not hear some audios, could not click the button you wanted) <br>
+        <textarea name="tech_difficulity" rows="2" style = "width:50%" required></textarea>
+      </p>
+      <p>How distracted were you during the study?<br>
+      <label><input type="radio" name="distraction" value="Not at all" required> Not at all</label><br>
+      <label><input type="radio" name="distraction" value="A little" required> A little</label><br>
+      <label><input type="radio" name="distraction" value="Somewhat" required> Somewhat</label><br>
+      <label><input type="radio" name="distraction" value="Quite a bit" required> Quite a bit</label><br>
+      <label><input type="radio" name="distraction" value="Very" required> Very</label>
+      </p>
+
+    
+      <p> 
+        <br><br>
+        Have you studied any languages by yourself or taken classes? If so, please list the 1) language(s), 2)how long, and 3)in what way: <br>
+        <textarea name="other_languages" rows="2" style = "width:50%" required></textarea>
+      </p>
+      <p> Are you regularly exposed to non-native languages through media, such as games, shows, movies, anime, songs, etc.? If so, please list the language(s) and frequency: <br>
+        <textarea name="media_exposures" rows="2" style = "width:50%" required></textarea>
+      </p>
+      <p> Does/did your family speak any languages to you? If so, please list the language(s) and who: <br>
+        <textarea name="family_exposure" rows="2" style = "width:50%" required></textarea>
+      </p>
+
+
+      <p> 
+        <br><br> 
+        (optional) Do you have any comments/concerns about this study? <br>
+        <textarea name="comments" rows="2" style = "width:50%"></textarea>
+      </p>
+    `,
+    button_label: "Complete survey and view my scores"
+  }; //end of languageBackground
+
+  //push language Background
+  timeline.push(languageBackground);
+
+
+  // Score screen
+  const summary = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function() {
+      const all = jsPsych.data.get().filter({trial_part:'choice'});
+      const total = all.count(),
+            correct = all.filter({correct:true}).count();
+      const langs = [...new Set(all.values().map(d=>d.language))];
+      let html = `<h2>Your Results</h2>
+                  <p><strong>Overall:</strong> ${correct}/${total} correct 
+                    (${Math.round(correct/total*100)}%)</p>`;
+
+      langs.forEach(lang=>{
+        const subset = all.filter({language:lang});
+        const t = subset.count(),
+              c = subset.filter({correct:true}).count();
+
+        const label = lang === 'french'
+          ? 'Canadian French'
+          : lang.toUpperCase();
+        html += `<p><strong>${label}:</strong> ${c}/${t} correct 
+            (${Math.round(c/t*100)}%)</p>`;
+      });
+      
+      html += `<p>Press Continue to finish.</p>`;
+      return html;
+    }, //end of stimulus:function(){
+
+    choices: ['Continue']
+
+  }; //end of summary
+
+  //push if not test mode
+  if (!TEST_MODE){
+  timeline.push(summary);
+  }
+
+
+  //data saving
+  const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: 'eSR841l7tfeH',
+    filename: filename,
+    data_string: ()=>jsPsych.data.get().csv()
+    };
+
+  //push if NOT test mode
+  if (!TEST_MODE){
+    timeline.push(save_data);
+  }
+
+
+  // final page
+  const completion = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<h2>Thank you!</h2><p>The study is complete. <br> Here is the completion code: C17CXQRX <br>You can close the window after clicking the Finish button below. </p>',
+    choices: ['Finish']
+  };
+  // push final page
+  timeline.push(completion);
+
+
+  //run the whole thing
+  jsPsych.run(timeline);
 
   </script>
 </body>
