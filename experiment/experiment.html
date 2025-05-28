@@ -9,6 +9,7 @@
   <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.3"></script> <!-- For Survey -->
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> <!-- For DataPipe -->
+  <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.3"></script>
   <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" />
 </head>
 <body>
@@ -17,7 +18,25 @@
     const jsPsych = initJsPsych({
       show_progress_bar: true,
       override_safe_mode: true,
-    });
+      on_data_update: data => {
+      // only look at main-choice trials
+      if (data.trial_part === 'choice') {
+        if (data.response === null) {
+          noRespCount++;
+        } else {
+          noRespCount = 0;
+        }
+        if (noRespCount >= 5) {
+          jsPsych.endExperiment(`
+            <h2>Session Ended</h2>
+            <p>You skipped 5 trials in a row.<br>
+            Your partial credit code is: <strong>PARTIAL123</strong></p>
+          `);
+        }
+      }//end of if data trial_part
+      }//end of data update
+      }//end of init
+      );//end of init
 
     const subject_id = jsPsych.randomization.randomID(10);
 
@@ -440,23 +459,11 @@
       
       // making a function to play attention check audios
       const playAudioAttn = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: '<p>Click the button below to listen to the audio.</p>',
-        choices: ['Play Audio'],
-        on_start: trial => { trial.response_ends_trial = false; },
-        on_load: () => {
-          const button = document.querySelector('.jspsych-btn');
-          button.addEventListener('click', async () => {
-            button.disabled = true;
-            const ctx = jsPsych.pluginAPI.audioContext();
-            const buf = await jsPsych.pluginAPI.getAudioBuffer(attnFile);
-            const src = ctx.createBufferSource();
-            src.buffer = buf;
-            src.connect(ctx.destination);
-            src.start();
-            src.onended = () => jsPsych.finishTrial();
-          });
-          },
+        type: jsPsychAudioKeyboardResponse,
+        stimulus: attnFile,              // your attention‐check file URL
+        choices: "NO_KEYS",              // no response via keyboard
+        trial_ends_after_audio: true,    
+        response_ends_trial: true,
         data: { stimulus_file: attnFile }
       }; // end of playAudioAttn const
 
@@ -470,6 +477,8 @@
         type: jsPsychHtmlButtonResponse,
         stimulus: '<p>Which emotion did the speaker express?</p>',
         choices: emotions,
+        trial_duration: 10000,     // 10 000 ms = 10 s
+        response_ends_trial: true, // end as soon as they click—or when time’s up
         prompt: '<div style="height:100px;"></div>', 
         margin_vertical: '20px',
         button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
@@ -527,23 +536,11 @@
 
     // playing audio
     const playAudio = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: '<p>Click the button below to listen to the audio.</p>',
-      choices: ['Play Audio'],
-      on_start: trial => { trial.response_ends_trial = false; },
-      on_load: () => {
-        const button = document.querySelector('.jspsych-btn');
-        button.addEventListener('click', async () => {
-          button.disabled = true;
-          const ctx = jsPsych.pluginAPI.audioContext();
-          const buf = await jsPsych.pluginAPI.getAudioBuffer(audioFile);
-          const src = ctx.createBufferSource();
-          src.buffer = buf;
-          src.connect(ctx.destination);
-          src.start();
-          src.onended = () => jsPsych.finishTrial();
-        });
-      },
+      type: jsPsychAudioKeyboardResponse,
+      stimulus: audioFile,             // your main audio URL
+      choices: "NO_KEYS",
+      trial_ends_after_audio: true,
+      response_ends_trial: true,
       data: { stimulus_file: audioFile }
     }; //end of play audio
 
@@ -552,6 +549,8 @@
       type: jsPsychHtmlButtonResponse,
       stimulus: '<p>Which emotion did the speaker express?</p>',
       choices: emotions,
+      trial_duration: 10000,     // 10 000 ms = 10 s
+      response_ends_trial: true, // end as soon as they click—or when time’s up
       prompt: '<div style="height:100px;"></div>',  
       margin_vertical: '20px',
       button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
