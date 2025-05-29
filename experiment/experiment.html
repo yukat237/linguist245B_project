@@ -1460,24 +1460,116 @@
   "stim/final_stim_scaled/thai_sad__s013_clip_actor026_script3_2_4b_intscaled.wav"
 ];
 
-  // Apply commenting out rules tp limit stimuli num!!!!!------------
-  audioFiles = audioFiles.filter(file => {
-    // 1) Thai: drop any file with “thai_” + “script3”
-    if (/thai_.*script3/.test(file)) return false;
-
-    // 2) Japanese: drop any file where the two digits after "regular_" are “03”
-    if (/japanese_.*regular_03__/.test(file)) return false;
-
-    // 3) Greek: drop any file with “14” before the bracket
-    if (/greek_.*14\s*\(/.test(file)) return false;
-
-    // 4) French: drop any file whose last digit before “_intscaled.wav” is “4”
-    if (/french_.*-\d-4_intscaled\.wav$/.test(file)) return false;
-
-    // otherwise keep it
-    return true;
+	// -----------------shuffle items and pick randomly-------------------------// 
+  //first: helper function to parse path into { lang, emotion, speaker, sentence, file } ---
+  function parseFileInfo(path) {
+    const file = path.split('/').pop();
+    const [lang, emoAndRest] = file.split('_', 2);
+    let emotion, speaker, sentence;
+    if (lang === 'french') {
+      // french_angry__03-C-2-4_intscaled.wav
+      const m = file.match(/^french_(\w+)__(\d+)-.*-(\d+)_intscaled/);
+      [ , emotion, speaker, sentence ] = m;
     }
-  );
+    else if (lang === 'japanese') {
+      // japanese_angry__F1_anger_regular_04__cut_intscaled.wav
+      const m = file.match(/^japanese_(\w+)__([FM]\d)_\w+_regular_(\d{2})__cut_intscaled/);
+      [ , emotion, speaker, sentence ] = m;
+    }
+    else if (lang === 'thai') {
+      // thai_happy__actor004_…_script2_…_intscaled.wav
+      const m = file.match(/^thai_(\w+)__.*_(actor\d{3})_.*_script(\d)_.*_intscaled/);
+      [ , emotion, speaker, sentence ] = m;
+    }
+    else if (lang === 'greek') {
+      // greek_happy__h12 (4)_intscaled.wav
+      const m = file.match(/^greek_(\w+)__\w(\d+) \((\d+)\)_intscaled/);
+      [ , emotion, sentence, speaker ] = m;
+    }
+    return { lang, emotion, speaker, sentence, path };
+  }
+
+  //group all files by language
+  const info = audioFiles.map(parseFileInfo);
+  const byLang = group => info.filter(f => f.lang === group);
+
+  //generic shuffler + sampleWithoutReplacement from jsPsych utils
+  const { shuffle, sampleWithoutReplacement } = jsPsych.randomization;
+
+  //1) French: one random sentence per emotion×speaker (6×4=24)
+  function sampleFrench() {
+    const out = [];
+    const french = byLang('french');
+    const emotions = ['happy','sad','angry','surprise','neutral','fear'];
+    const speakers = ['03','05','08','10'];
+    emotions.forEach(emo => {
+      speakers.forEach(spk => {
+        const pool = french.filter(f => f.emotion===emo && f.speaker===spk);
+        out.push(shuffle(pool)[0].path);
+      });
+    });
+    return out;
+  }
+
+  //2) Japanese: for each of 5 emotions, pick 4 distinct sentences (one per speaker)
+  function sampleJapanese() {
+    const out = [];
+    const jap = byLang('japanese');
+    const emotions = ['happy','sad','angry','surprise','fear'];
+    const speakers = ['F1','F2','M1','M2'];
+    emotions.forEach(emo => {
+      // all sentence IDs for this emotion
+      const allSents = Array.from(new Set(
+        jap.filter(f => f.emotion===emo).map(f => f.sentence)
+      ));
+      // pick 4 different sentence IDs
+      const picks = sampleWithoutReplacement(allSents, 4);
+      // one per speaker
+      speakers.forEach((spk,i) => {
+        const file = jap.find(f => f.emotion===emo && f.speaker===spk && f.sentence===picks[i]);
+        out.push(file.path);
+      });
+    });
+    return out;
+  }
+
+  //3) Thai: one random sentence per emotion×speaker (4×4=16) 
+  function sampleThai() {
+    const out = [];
+    const thai = byLang('thai');
+    const emotions = ['happy','sad','angry','neutral'];
+    const speakers = ['actor002','actor004','actor016','actor026'];
+    emotions.forEach(emo => {
+      speakers.forEach(spk => {
+        const pool = thai.filter(f => f.emotion===emo && f.speaker===spk);
+        out.push(shuffle(pool)[0].path);
+      });
+    });
+    return out;
+  }
+
+  //4) Greek: one random sentence per emotion×speaker (4×4=16)
+  function sampleGreek() {
+    const out = [];
+    const greek = byLang('greek');
+    const emotions = ['happy','sad','angry','fear'];
+    const speakers = ['1','2','3','4'];  // bracket IDs
+    emotions.forEach(emo => {
+      speakers.forEach(spk => {
+        const pool = greek.filter(f => f.emotion===emo && f.speaker===spk);
+        out.push(shuffle(pool)[0].path);
+      });
+    });
+    return out;
+  }
+
+  //overwrite audioFiles with exactly 24+20+16+16 = 76 items
+  audioFiles = [
+    ...sampleFrench(),
+    ...sampleJapanese(),
+    ...sampleThai(),
+    ...sampleGreek()
+  ];
 
 
   // attention check file lists
