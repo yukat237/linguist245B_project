@@ -30,7 +30,7 @@
           jsPsych.endExperiment(`
             <h2>Session Ended</h2>
             <p>You skipped 5 trials in a row.<br>
-            Your partial credit code is: <strong>C17CXQRX</strong></p>
+            Your completion code is: <strong>C17CXQRX</strong></p>
           `);
         }
       }//end of if data trial_part
@@ -127,16 +127,17 @@
   const instructions = {
     type: jsPsychInstructions,
     pages: [
-      '<h1>Welcome to the emotion recognition test!</h1>',
-      '<p>Find out your vocal emotion recognition ability!</p>',
-      '<p>In this test, you will hear speech clips in different languages.</p>',
-      '<p>You will hear each clip only once. Judge the speaker\'s emotion. </p>',
-      '<p>If unsure, just make your best guess!</p>',
-      '<p>In the end, we will give you a score of how accurate you were.</p>',
-      '<p>Now, please make sure you are wearing headphones/earphones, and that the speaker is working. Click on the "Next" once you are done. </p>',
-      '<p>Native speakers usually achieve 80–100% accuracy—see if you can do just as well in all the languages!</p>',
-      '<p>Good luck!</p>',
-      '<p>Are you ready? When you are, click on the "Next" to begin. <br> <strong>Note:</strong> The next page may take a moment to load all the sounds. <br> Please be patient if it takes a little longer.</p>'
+    '<h1>Welcome to the Emotion Recognition Test!</h1>',
+    '<p>Discover your ability to recognize emotions in speech!</p>',
+    '<p>In this test, you will hear speech clips in various languages.</p>',
+    '<p>You will hear each clip only ONCE. Your task is to judge the speaker\'s emotion.</p>',
+    '<p>If you’re unsure, just make your best guess!</p>',
+    '<p><strong>Important:</strong> You will have ONLY 10 SECONDS to select an emotion. <br> If you don’t choose within that time, the test will automatically move to the next clip.<br>If you miss too many clips in a row, the test will end right away and your payment may be reduced accordingly—so please be sure to select an option, even if you are unsure!</p>',
+    '<p>At the end, you’ll receive a score showing how accurately you recognized the emotions.</p>',
+    '<p>Now, please ensure you are wearing headphones or earphones and that your audio is working. When you’re ready, click “Next.”</p>',
+    '<p>Native speakers usually score between 80–100%—see how well you do across different languages!</p>',
+    '<p>Good luck!</p>',
+    '<p>Ready to begin? Click “Next” to start.<br><strong>Note:</strong> The next page may take a moment to load all the audio clips—please be patient if it takes a few seconds. The first audio will play immediately, so please stay focused! </p>'
     ],
     show_clickable_nav: true
   }; //end of instructions
