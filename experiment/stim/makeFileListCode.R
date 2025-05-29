@@ -31,7 +31,7 @@ js_code <- paste0(
 
 # -----------------------------------------------------------------
 # Print to console
-cat(js_code)
+#cat(js_code)
 
 # OPTIONAL (Windows only): copy directly to clipboard
-# writeClipboard(js_code)
+writeClipboard(js_code)

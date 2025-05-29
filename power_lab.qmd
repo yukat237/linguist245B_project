@@ -364,3 +364,5 @@ one person may do 40 min.
 let's say \$14 per hour. = 14 for 60min = 2.4 for 10min = 9.6 per 1 person
 
 9.6 \* 90 = \$864
+
+but In case some people are not qualified, run 100 and stop?

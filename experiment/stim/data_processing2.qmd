@@ -144,9 +144,71 @@ for (emo in emotion_folders) {
 
 ## Japanese
 
-task: add alll the other regular sentences for each emotion from all speakers. (meaning, cut all of them first on praat.
+task: add alll the other regular sentences for each emotion from all speakers. (meaning, cut all of them first on praat. (here now– Praat cannot load all 720 items at one time so doing by emotion, starting from anger)
 
 ```{r}
+# 0) set your source + target directories
+source_root <- "C:/Users/yuka/Desktop/QP1/jvnv_ver1/jvnv_v1"
+target_dir  <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/jp_raw2"
+
+if (!dir.exists(target_dir)) {
+  dir.create(target_dir, recursive = TRUE)
+}
+
+# 1) speakers and emotions
+speakers   <- c("F1", "F2", "M1", "M2")
+skip_emo   <- "disgust"
+valid_em   <- c("anger", "fear", "happy", "sad", "surprise")  # folder names
+prefix_map <- c(
+  anger    = "angry__",
+  happy    = "happy__",
+  fear     = "fear__",
+  surprise = "surprise__",
+  sad      = "sad__"
+)
+
+# 2) which sentence numbers to keep
+keep_range <- 4:40
+
+# 3) traverse
+for (spk in speakers) {
+  spk_dir <- file.path(source_root, spk)
+  if (!dir.exists(spk_dir)) next
+
+  # find all emotion subfolders except "disgust"
+  emos <- list.dirs(spk_dir, full.names = FALSE, recursive = FALSE)
+  emos <- setdiff(emos, skip_emo)
+
+  for (emo in emos) {
+    if (!(emo %in% valid_em)) next
+
+    reg_dir <- file.path(spk_dir, emo, "regular")
+    if (!dir.exists(reg_dir)) next
+
+    # list .wav files
+    wavs <- list.files(reg_dir, pattern = "\\.wav$", full.names = TRUE)
+    for (src in wavs) {
+      fn <- basename(src)                             # e.g. "F1_anger_regular_04.wav"
+      parts <- strsplit(tools::file_path_sans_ext(fn), "_", fixed = TRUE)[[1]]
+      # expect: parts = c(speaker, emotion, "regular", sent_str)
+      if (length(parts) != 4) next
+
+      emo_tag <- parts[2]
+      sent_str <- parts[4]
+      sent_num <- as.integer(sent_str)                # "04" -> 4
+
+      # filter by sentence range
+      if (is.na(sent_num) || !(sent_num %in% keep_range)) next
+
+      # rename & copy
+      prefix <- prefix_map[emo_tag]
+      new_fn <- paste0("japanese_", prefix, fn)
+      file.copy(src,
+                file.path(target_dir, new_fn),
+                overwrite = TRUE)
+    }
+  }
+}
 
 ```
 
