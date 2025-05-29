@@ -1462,35 +1462,55 @@
 
 	// -----------------shuffle items and pick randomly-------------------------// 
   //first: helper function to parse path into { lang, emotion, speaker, sentence, file } ---
-  function parseFileInfo(path) {
-    const file = path.split('/').pop();
-    const [lang, emoAndRest] = file.split('_', 2);
-    let emotion, speaker, sentence;
-    if (lang === 'french') {
-      // french_angry__03-C-2-4_intscaled.wav
-      const m = file.match(/^french_(\w+)__(\d+)-.*-(\d+)_intscaled/);
-      [ , emotion, speaker, sentence ] = m;
-    }
-    else if (lang === 'japanese') {
-      // japanese_angry__F1_anger_regular_04__cut_intscaled.wav
-      const m = file.match(/^japanese_(\w+)__([FM]\d)_\w+_regular_(\d{2})__cut_intscaled/);
-      [ , emotion, speaker, sentence ] = m;
-    }
-    else if (lang === 'thai') {
-      // thai_happy__actor004_…_script2_…_intscaled.wav
-      const m = file.match(/^thai_(\w+)__.*_(actor\d{3})_.*_script(\d)_.*_intscaled/);
-      [ , emotion, speaker, sentence ] = m;
-    }
-    else if (lang === 'greek') {
-      // greek_happy__h12 (4)_intscaled.wav
-      const m = file.match(/^greek_(\w+)__\w(\d+) \((\d+)\)_intscaled/);
-      [ , emotion, sentence, speaker ] = m;
-    }
-    return { lang, emotion, speaker, sentence, path };
+// --- helper: parse path into { lang, emotion, speaker, sentence, path } or null if unparseable ---
+function parseFileInfo(path) {
+  const file = path.split('/').pop();
+  const lang = file.split('_')[0];
+  let m, emotion, speaker, sentence;
+
+  if (lang === 'french') {
+    // e.g. french_angry__03-C-2-4_intscaled.wav
+    m = file.match(/^french_(\w+)__(\d+)-.*-(\d+)_intscaled/);
+  }
+  else if (lang === 'japanese') {
+    // now matches any filler between speaker and sentence, then the 2-digit sentence just before "__cut_intscaled"
+    // e.g. japanese_happy__F1_xyz_04__cut_intscaled.wav
+    m = file.match(
+      /^japanese_(\w+)__([FM]\d)(?:_[^_]+)*_(\d{2})__cut_intscaled/
+    );
+  }
+  else if (lang === 'thai') {
+    // e.g. thai_happy__actor004_xyz_script2_…_intscaled.wav
+    m = file.match(
+      /^thai_(\w+)__.*_(actor\d{3})_.*_script(\d)_.*_intscaled/
+    );
+  }
+  else if (lang === 'greek') {
+    // e.g. greek_happy__h12 (4)_intscaled.wav
+    m = file.match(
+      /^greek_(\w+)__\w(\d+)\s*\((\d+)\)_intscaled/
+    );
   }
 
-  //group all files by language
-  const info = audioFiles.map(parseFileInfo);
+  if (!m) {
+    console.warn(`Could not parse filename (“${file}”), skipping it.`);  
+    return null;
+  }
+
+  [, emotion, speaker, sentence] = m;
+  return { lang, emotion, speaker, sentence, path };
+}
+
+// --- rebuild `info` but drop any nulls so you don’t try to iterate over them ---
+const info = audioFiles
+  .map(parseFileInfo)
+  .filter(item => item !== null);
+
+// …then the rest of your byLang(), sampleFrench(), sampleJapanese(), etc. stays exactly the same.
+
+
+  //group all files by language 
+  // const info = audioFiles.map(parseFileInfo); <-- commented out
   const byLang = group => info.filter(f => f.lang === group);
 
   //generic shuffler + sampleWithoutReplacement from jsPsych utils
