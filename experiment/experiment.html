@@ -1462,134 +1462,89 @@
 
 	// -----------------shuffle items and pick randomly-------------------------// 
   //first: helper function to parse path into { lang, emotion, speaker, sentence, file } ---
-// --- helper: parse path into { lang, emotion, speaker, sentence, path } or null if unparseable ---
-function parseFileInfo(path) {
-  const file = path.split('/').pop();
-  const lang = file.split('_')[0];
-  let m, emotion, speaker, sentence;
-
-  if (lang === 'french') {
-    // e.g. french_angry__03-C-2-4_intscaled.wav
-    m = file.match(/^french_(\w+)__(\d+)-.*-(\d+)_intscaled/);
+// 1) utility to shuffle an array in place
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  else if (lang === 'japanese') {
-    // now matches any filler between speaker and sentence, then the 2-digit sentence just before "__cut_intscaled"
-    // e.g. japanese_happy__F1_xyz_04__cut_intscaled.wav
-    m = file.match(
-      /^japanese_(\w+)__([FM]\d)(?:_[^_]+)*_(\d{2})__cut_intscaled/
-    );
-  }
-  else if (lang === 'thai') {
-    // e.g. thai_happy__actor004_xyz_script2_…_intscaled.wav
-    m = file.match(
-      /^thai_(\w+)__.*_(actor\d{3})_.*_script(\d)_.*_intscaled/
-    );
-  }
-  else if (lang === 'greek') {
-    // e.g. greek_happy__h12 (4)_intscaled.wav
-    m = file.match(
-      /^greek_(\w+)__\w(\d+)\s*\((\d+)\)_intscaled/
-    );
-  }
-
-  if (!m) {
-    console.warn(`Could not parse filename (“${file}”), skipping it.`);  
-    return null;
-  }
-
-  [, emotion, speaker, sentence] = m;
-  return { lang, emotion, speaker, sentence, path };
+  return array;
 }
 
-// --- rebuild `info` but drop any nulls so you don’t try to iterate over them ---
-const info = audioFiles
-  .map(parseFileInfo)
-  .filter(item => item !== null);
+// 2) parse each filename into its metadata
+const fileMeta = audioFiles.map(fn => {
+  const meta = { filename: fn };
+  meta.lang    = fn.split('_')[0];                              // 'french', 'japanese', etc.
+  meta.emotion = fn.split('__')[0].split('_')[1];               // between first "_" and "__"
 
-// …then the rest of your byLang(), sampleFrench(), sampleJapanese(), etc. stays exactly the same.
-
-
-  //group all files by language 
-  // const info = audioFiles.map(parseFileInfo); <-- commented out
-  const byLang = group => info.filter(f => f.lang === group);
-
-  //generic shuffler + sampleWithoutReplacement from jsPsych utils
-  const { shuffle, sampleWithoutReplacement } = jsPsych.randomization;
-
-  //1) French: one random sentence per emotion×speaker (6×4=24)
-  function sampleFrench() {
-    const out = [];
-    const french = byLang('french');
-    const emotions = ['happy','sad','angry','surprise','neutral','fear'];
-    const speakers = ['03','05','08','10'];
-    emotions.forEach(emo => {
-      speakers.forEach(spk => {
-        const pool = french.filter(f => f.emotion===emo && f.speaker===spk);
-        out.push(shuffle(pool)[0].path);
-      });
-    });
-    return out;
+  if (meta.lang === 'french') {
+    // e.g. "french_happy__03-...-4_intscaled.wav"
+    const [, spkr, sent] = fn.match(/__([0-9]{2})-[^-]*-([0-9])_/) || [];
+    meta.speaker  = spkr;
+    meta.sentence = sent;
+  }
+  else if (meta.lang === 'japanese') {
+    // e.g. "japanese_fear__F2_fear_regular_05__cut_intscaled.wav"
+    const [, spkr, sent] = fn.match(/__([FM]\d)_[^_]+_regular_([0-9]{2})__/) || [];
+    meta.speaker  = spkr;
+    meta.sentence = sent;
+  }
+  else if (meta.lang === 'thai') {
+    // e.g. "thai_neutral__s008_clip_actor016_script2_2_1b_intscaled.wav"
+    const [, spkr, sent] = fn.match(/actor(\d+)_script(\d)_/) || [];
+    meta.speaker  = spkr;
+    meta.sentence = sent;
+  }
+  else if (meta.lang === 'greek') {
+    // e.g. "greek_happy__h12 (4)_intscaled.wav"
+    const [, sent, spkr] = fn.match(/__\w(\d+)\s*\((\d+)\)_/) || [];
+    meta.speaker  = spkr;
+    meta.sentence = sent;
   }
 
-  //2) Japanese: for each of 5 emotions, pick 4 distinct sentences (one per speaker)
-  function sampleJapanese() {
-    const out = [];
-    const jap = byLang('japanese');
-    const emotions = ['happy','sad','angry','surprise','fear'];
-    const speakers = ['F1','F2','M1','M2'];
-    emotions.forEach(emo => {
-      // all sentence IDs for this emotion
-      const allSents = Array.from(new Set(
-        jap.filter(f => f.emotion===emo).map(f => f.sentence)
-      ));
-      // pick 4 different sentence IDs
-      const picks = sampleWithoutReplacement(allSents, 4);
-      // one per speaker
-      speakers.forEach((spk,i) => {
-        const file = jap.find(f => f.emotion===emo && f.speaker===spk && f.sentence===picks[i]);
-        out.push(file.path);
-      });
-    });
-    return out;
-  }
+  return meta;
+});
 
-  //3) Thai: one random sentence per emotion×speaker (4×4=16) 
-  function sampleThai() {
-    const out = [];
-    const thai = byLang('thai');
-    const emotions = ['happy','sad','angry','neutral'];
-    const speakers = ['actor002','actor004','actor016','actor026'];
-    emotions.forEach(emo => {
-      speakers.forEach(spk => {
-        const pool = thai.filter(f => f.emotion===emo && f.speaker===spk);
-        out.push(shuffle(pool)[0].path);
-      });
-    });
-    return out;
-  }
+// 3) generic sampler for one language
+function sampleForLang({ lang, emotions, speakers }) {
+  const out = [];
+  emotions.forEach(em => {
+    // all files of this lang+emotion
+    const candidates = fileMeta.filter(f => f.lang === lang && f.emotion === em);
+    // gather unique sentence IDs
+    const allSents = Array.from(new Set(candidates.map(f => f.sentence)));
+    // pick as many sentence IDs as speakers
+    const pickSents = shuffle(allSents).slice(0, speakers.length);
 
-  //4) Greek: one random sentence per emotion×speaker (4×4=16)
-  function sampleGreek() {
-    const out = [];
-    const greek = byLang('greek');
-    const emotions = ['happy','sad','angry','fear'];
-    const speakers = ['1','2','3','4'];  // bracket IDs
-    emotions.forEach(emo => {
-      speakers.forEach(spk => {
-        const pool = greek.filter(f => f.emotion===emo && f.speaker===spk);
-        out.push(shuffle(pool)[0].path);
-      });
+    speakers.forEach((spkr, i) => {
+      const sent = pickSents[i];
+      const match = candidates.find(f =>
+        f.speaker  === spkr.toString() &&
+        f.sentence === sent.toString()
+      );
+      if (match) out.push(match.filename);
     });
-    return out;
-  }
+  });
+  return out;
+}
 
-  //overwrite audioFiles with exactly 24+20+16+16 = 76 items
-  audioFiles = [
-    ...sampleFrench(),
-    ...sampleJapanese(),
-    ...sampleThai(),
-    ...sampleGreek()
-  ];
+// 4) do each language block
+const frenchSample    = sampleForLang({ lang: 'french',    emotions: ['happy','sad','angry','surprise','neutral','fear'],   speakers: ['03','05','08','10'] });
+const japaneseSample  = sampleForLang({ lang: 'japanese',  emotions: ['happy','sad','angry','surprise','fear'],              speakers: ['F1','F2','M1','M2'] });
+const thaiSample      = sampleForLang({ lang: 'thai',      emotions: ['happy','sad','angry','neutral'],                  speakers: ['002','004','016','026'] });
+const greekSample     = sampleForLang({ lang: 'greek',     emotions: ['happy','sad','angry','fear'],                     speakers: ['1','2','3','4'] });
+
+// 5) override for your one-session selection
+audioFiles = [
+  ...frenchSample,
+  ...japaneseSample,
+  ...thaiSample,
+  ...greekSample
+];
+
+// now audioFiles.length should be 6×4 + 5×4 + 4×4 + 4×4 = 76
+console.log('final count:', audioFiles.length);
+
 
 
   // attention check file lists
