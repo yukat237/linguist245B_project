@@ -1463,78 +1463,82 @@
 	// -----------------shuffle items and pick randomly-------------------------// 
   //first: helper function to parse path into { lang, emotion, speaker, sentence, file } ---
 // 1) utility to shuffle an array in place
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+// 1) helper to get just the basename (no path)
+function getBase(fn) {
+  return fn.substring(fn.lastIndexOf('/') + 1);
 }
 
-// 2) parse each filename into its metadata
+// 2) build a metadata table we can sample from
 const fileMeta = audioFiles.map(fn => {
-  const meta = { filename: fn };
-  meta.lang    = fn.split('_')[0];                              // 'french', 'japanese', etc.
-  meta.emotion = fn.split('__')[0].split('_')[1];               // between first "_" and "__"
+  const base = getBase(fn);
+  // split "french_angry__03-C-2-1_intscaled.wav" → ["french_angry","03-C-2-1_intscaled.wav"]
+  const [langEmo, rest] = base.split('__');
+  const [lang, emotion] = langEmo.split('_');
+  let speaker = null, sentence = null;
 
-  if (meta.lang === 'french') {
-    // e.g. "french_happy__03-...-4_intscaled.wav"
-    const [, spkr, sent] = fn.match(/__([0-9]{2})-[^-]*-([0-9])_/) || [];
-    meta.speaker  = spkr;
-    meta.sentence = sent;
+  if (lang === 'french') {
+    // rest = "03-C-2-1_intscaled.wav"
+    //  group1 = "03", group2 = "1"
+    const m = rest.match(/^(\d{2})-[A-Z]-\d+-([0-9]+)_/);
+    if (m) [speaker, sentence] = [m[1], m[2]];
   }
-  else if (meta.lang === 'japanese') {
-    // e.g. "japanese_fear__F2_fear_regular_05__cut_intscaled.wav"
-    const [, spkr, sent] = fn.match(/__([FM]\d)_[^_]+_regular_([0-9]{2})__/) || [];
-    meta.speaker  = spkr;
-    meta.sentence = sent;
+  else if (lang === 'japanese') {
+    // rest = "F2_fear_regular_05__cut_intscaled.wav"
+    //  group1 = "F2", group2 = "05"
+    const m = rest.match(/^([FM]\d)_[^_]+_regular_(\d{2})__/);
+    if (m) [speaker, sentence] = [m[1], m[2]];
   }
-  else if (meta.lang === 'thai') {
-    // e.g. "thai_neutral__s008_clip_actor016_script2_2_1b_intscaled.wav"
-    const [, spkr, sent] = fn.match(/actor(\d+)_script(\d)_/) || [];
-    meta.speaker  = spkr;
-    meta.sentence = sent;
+  else if (lang === 'thai') {
+    // rest = "s008_clip_actor016_script2_2_1b_intscaled.wav"
+    //  group1 = "016", group2 = "2"
+    const m = rest.match(/actor(\d+)_script(\d)_/);
+    if (m) [speaker, sentence] = [m[1], m[2]];
   }
-  else if (meta.lang === 'greek') {
-    // e.g. "greek_happy__h12 (4)_intscaled.wav"
-    const [, sent, spkr] = fn.match(/__\w(\d+)\s*\((\d+)\)_/) || [];
-    meta.speaker  = spkr;
-    meta.sentence = sent;
+  else if (lang === 'greek') {
+    // rest = "h12 (4)_intscaled.wav"
+    //  group1 = "12" (sentence), group2 = "4" (speaker)
+    const m = rest.match(/^h(\d+)\s*\((\d+)\)_/);
+    if (m) [sentence, speaker] = [m[1], m[2]];
   }
 
-  return meta;
+  return { fn, lang, emotion, speaker, sentence };
 });
 
-// 3) generic sampler for one language
-function sampleForLang({ lang, emotions, speakers }) {
-  const out = [];
-  emotions.forEach(em => {
-    // all files of this lang+emotion
-    const candidates = fileMeta.filter(f => f.lang === lang && f.emotion === em);
-    // gather unique sentence IDs
-    const allSents = Array.from(new Set(candidates.map(f => f.sentence)));
-    // pick as many sentence IDs as speakers
-    const pickSents = shuffle(allSents).slice(0, speakers.length);
-
-    speakers.forEach((spkr, i) => {
-      const sent = pickSents[i];
-      const match = candidates.find(f =>
-        f.speaker  === spkr.toString() &&
-        f.sentence === sent.toString()
-      );
-      if (match) out.push(match.filename);
-    });
-  });
-  return out;
+// 3) shuffle helper
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
-// 4) do each language block
-const frenchSample    = sampleForLang({ lang: 'french',    emotions: ['happy','sad','angry','surprise','neutral','fear'],   speakers: ['03','05','08','10'] });
-const japaneseSample  = sampleForLang({ lang: 'japanese',  emotions: ['happy','sad','angry','surprise','fear'],              speakers: ['F1','F2','M1','M2'] });
-const thaiSample      = sampleForLang({ lang: 'thai',      emotions: ['happy','sad','angry','neutral'],                  speakers: ['002','004','016','026'] });
-const greekSample     = sampleForLang({ lang: 'greek',     emotions: ['happy','sad','angry','fear'],                     speakers: ['1','2','3','4'] });
+// 4) generic sampler
+function sampleForLang({ lang, emotions, speakers }) {
+  const picks = [];
+  emotions.forEach(em => {
+    const cand = fileMeta.filter(f => f.lang === lang && f.emotion === em);
+    // unique sentence IDs
+    const sents = Array.from(new Set(cand.map(f => f.sentence)));
+    // pick N distinct sentences, where N = speakers.length
+    const chosenSents = shuffle(sents).slice(0, speakers.length);
 
-// 5) override for your one-session selection
+    speakers.forEach((sp, i) => {
+      const sent = chosenSents[i];
+      const hit = cand.find(f => f.speaker === sp && f.sentence === sent);
+      if (hit) picks.push(hit.fn);
+    });
+  });
+  return picks;
+}
+
+// 5) do your four languages
+const frenchSample   = sampleForLang({ lang: 'french',   emotions: ['happy','sad','angry','surprise','neutral','fear'],   speakers: ['03','05','08','10'] });
+const japaneseSample = sampleForLang({ lang: 'japanese', emotions: ['happy','sad','angry','surprise','fear'],             speakers: ['F1','F2','M1','M2'] });
+const thaiSample     = sampleForLang({ lang: 'thai',     emotions: ['happy','sad','angry','neutral'],                   speakers: ['002','004','016','026'] });
+const greekSample    = sampleForLang({ lang: 'greek',    emotions: ['happy','sad','angry','fear'],                      speakers: ['1','2','3','4'] });
+
+// 6) override audioFiles
 audioFiles = [
   ...frenchSample,
   ...japaneseSample,
@@ -1542,8 +1546,8 @@ audioFiles = [
   ...greekSample
 ];
 
-// now audioFiles.length should be 6×4 + 5×4 + 4×4 + 4×4 = 76
-console.log('final count:', audioFiles.length);
+console.log('Picked', audioFiles.length, 'files');  // should log 76
+
 
 
 
