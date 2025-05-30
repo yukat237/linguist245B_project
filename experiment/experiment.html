@@ -1464,47 +1464,45 @@
   //first: helper function to parse path into { lang, emotion, speaker, sentence, file } ---
 // 1) utility to shuffle an array in place
 // 1) helper to get just the basename (no path)
+// strip the path, keep just the filename
 function getBase(fn) {
   return fn.substring(fn.lastIndexOf('/') + 1);
 }
 
-// 2) build a metadata table we can sample from
+// 1) build metadata with a 2‐part split on "__"
 const fileMeta = audioFiles.map(fn => {
   const base = getBase(fn);
-  // split "french_angry__03-C-2-1_intscaled.wav" → ["french_angry","03-C-2-1_intscaled.wav"]
-  const [langEmo, rest] = base.split('__');
+  // split *once* on "__" so `rest` still has the second "__…"
+  const [langEmo, rest] = base.split('__', 2);
   const [lang, emotion] = langEmo.split('_');
   let speaker = null, sentence = null;
 
   if (lang === 'french') {
-    // rest = "03-C-2-1_intscaled.wav"
-    //  group1 = "03", group2 = "1"
+    // e.g. "03-C-2-1_intscaled.wav"
     const m = rest.match(/^(\d{2})-[A-Z]-\d+-([0-9]+)_/);
     if (m) [speaker, sentence] = [m[1], m[2]];
   }
   else if (lang === 'japanese') {
-    // rest = "F2_fear_regular_05__cut_intscaled.wav"
-    //  group1 = "F2", group2 = "05"
-    const m = rest.match(/^([FM]\d)_[^_]+_regular_(\d{2})__/);
+    // now rest = "F1_anger_regular_01__cut_intscaled.wav"
+    const m = rest.match(/^([FM]\d)_[^_]+_regular_(\d{2})/);
     if (m) [speaker, sentence] = [m[1], m[2]];
   }
   else if (lang === 'thai') {
     // rest = "s008_clip_actor016_script2_2_1b_intscaled.wav"
-    //  group1 = "016", group2 = "2"
     const m = rest.match(/actor(\d+)_script(\d)_/);
     if (m) [speaker, sentence] = [m[1], m[2]];
   }
   else if (lang === 'greek') {
-    // rest = "h12 (4)_intscaled.wav"
-    //  group1 = "12" (sentence), group2 = "4" (speaker)
-    const m = rest.match(/^h(\d+)\s*\((\d+)\)_/);
+    // rest = "a11 (2)_intscaled.wav", or "h12 (4)_intscaled.wav", etc.
+    // match ANY first letter + digits, then speaker in parens
+    const m = rest.match(/^.(\d+)\s*\((\d+)\)/);
     if (m) [sentence, speaker] = [m[1], m[2]];
   }
 
   return { fn, lang, emotion, speaker, sentence };
 });
 
-// 3) shuffle helper
+// 2) same shuffle + sampler as before
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -1513,32 +1511,27 @@ function shuffle(arr) {
   return arr;
 }
 
-// 4) generic sampler
 function sampleForLang({ lang, emotions, speakers }) {
   const picks = [];
   emotions.forEach(em => {
     const cand = fileMeta.filter(f => f.lang === lang && f.emotion === em);
-    // unique sentence IDs
     const sents = Array.from(new Set(cand.map(f => f.sentence)));
-    // pick N distinct sentences, where N = speakers.length
-    const chosenSents = shuffle(sents).slice(0, speakers.length);
-
+    const chosen = shuffle(sents).slice(0, speakers.length);
     speakers.forEach((sp, i) => {
-      const sent = chosenSents[i];
-      const hit = cand.find(f => f.speaker === sp && f.sentence === sent);
+      const hit = cand.find(f => f.speaker === sp && f.sentence === chosen[i]);
       if (hit) picks.push(hit.fn);
     });
   });
   return picks;
 }
 
-// 5) do your four languages
+// 3) regenerate your four language blocks
 const frenchSample   = sampleForLang({ lang: 'french',   emotions: ['happy','sad','angry','surprise','neutral','fear'],   speakers: ['03','05','08','10'] });
 const japaneseSample = sampleForLang({ lang: 'japanese', emotions: ['happy','sad','angry','surprise','fear'],             speakers: ['F1','F2','M1','M2'] });
 const thaiSample     = sampleForLang({ lang: 'thai',     emotions: ['happy','sad','angry','neutral'],                   speakers: ['002','004','016','026'] });
 const greekSample    = sampleForLang({ lang: 'greek',    emotions: ['happy','sad','angry','fear'],                      speakers: ['1','2','3','4'] });
 
-// 6) override audioFiles
+// 4) override
 audioFiles = [
   ...frenchSample,
   ...japaneseSample,
@@ -1546,7 +1539,12 @@ audioFiles = [
   ...greekSample
 ];
 
-console.log('Picked', audioFiles.length, 'files');  // should log 76
+console.log('french:',   frenchSample.length,   frenchSample); //should be 24
+console.log('japanese:', japaneseSample.length, japaneseSample); //should be 20
+console.log('thai:',     thaiSample.length,     thaiSample);//should be 16
+console.log('greek:',    greekSample.length,    greekSample);//should be 16
+console.log('TOTAL:',    audioFiles.length);  // should be 76
+
 
 
 
