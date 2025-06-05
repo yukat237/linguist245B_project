@@ -217,3 +217,66 @@ After all these, normalize intensities. (again, Praat)
 Then add these new files in to the experiment.html code.
 
 Set a new rule to get a list of files so that one person sees only a set amount of sounds.
+
+## —Results Processing—
+
+```{r}
+getwd()
+
+```
+
+```{r}
+setwd("C:/Users/yuka/Desktop/linguist245B_project/data/temp_data")
+```
+
+```{r}
+data <- read.csv("C:/Users/yuka/Downloads/wecj3vb92g.csv",
+                header = TRUE, sep = ",")
+
+View(data)
+```
+
+The goal df:
+
+response, trial num, stim filename, language, targetEmo, score
+
+To clean up:
+
+-   delete col1, no rt needed
+
+-   delete col2, no raw resp needed
+
+-   delete col3 trial type, this info not needed (but maybe needed to sort out rows)
+
+-   delete col4 trial index, i want trial num eventually, but can add this later once row cleaned up
+
+-   delete col5, no time needed
+
+-   delete col6, no internal node id needed
+
+-   delete col7, this info can be taken from another col, maybe helpful for row clean up
+
+-   delete col8, no infor here
+
+-   delete, col9-13, no info here
+
+-   keep col14. this is file ID
+
+-   keep col15, language
+
+-   keep col16, correct_reponse, this is the target emo
+
+-   delete col17 eventually, helpful to separate out choice vs attention, or maybe for row cleanup
+
+-   keep col18, this is the main resp.
+
+```{r}
+
+
+library(dplyr)
+
+cleandf <- data %>%
+  filter(trial_part == "choice")
+
+
+```

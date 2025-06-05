@@ -1,0 +1,1451 @@
+---
+title: "data processing 2"
+format: html
+editor: visual
+---
+
+## Task
+
+Adding another batch of files.
+
+## Greek
+
+task: speaker 1-4, add all emotions' 17 sentences (bc 10, 12, 14 already exist)
+
+```{r}
+# ==== 0) SET YOUR PATHS ====
+source_dir <- "C:/Users/yuka/Desktop/QP1/AESDD"
+target_dir <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/additional_items_temploc"
+
+
+# ==== 1) CONFIGURATION ====
+# which sub-folders to use:
+emotion_folders <- list(
+  a = "anger",
+  f = "fear",
+  h = "happiness",
+  s = "sadness"
+)
+# corresponding prefixes:
+emotion_prefix <- list(
+  a = "angry__",
+  f = "fear__",
+  h = "happy__",
+  s = "sad__"
+)
+
+# sentences to skip, speakers to keep
+exclude_sentences <- c(10, 12, 14)
+include_speakers  <- 1:4
+
+# ==== 2) PROCESS ====
+for (letter in names(emotion_folders)) {
+  folder_path <- file.path(source_dir, emotion_folders[[letter]])
+  if (!dir.exists(folder_path)) next
+
+  # list everything, then pick only .wav
+  all_files <- list.files(folder_path, full.names = TRUE)
+  wavs <- all_files[tolower(tools::file_ext(all_files)) == "wav"]
+
+  for (wav in wavs) {
+    fname      <- basename(wav)                        # "s05 (2).wav"
+    no_ext     <- tools::file_path_sans_ext(fname)     # "s05 (2)"
+    n          <- nchar(no_ext)
+
+    # must be exactly 7 chars: 1 + 2 digits + " " + "(" + digit + ")"
+    if (n != 7)                  next
+    if (substr(no_ext, 1, 1)     != letter) next       # right emotion code
+    if (substr(no_ext, 4, 4)     != " ")    next       # space
+    if (substr(no_ext, 5, 5)     != "(")    next
+    if (substr(no_ext, 7, 7)     != ")")    next
+
+    # parse sentence: chars 2–3
+    sent_num    <- as.integer(substr(no_ext, 2, 3))
+    if (is.na(sent_num) || sent_num %in% exclude_sentences) next
+
+    # parse speaker: char 6
+    speaker_num <- as.integer(substr(no_ext, 6, 6))
+    if (is.na(speaker_num) || !(speaker_num %in% include_speakers)) next
+
+    # build new name & copy
+    new_name <- paste0("greek_", emotion_prefix[[letter]], fname)
+    file.copy(wav,
+              file.path(target_dir, new_name),
+              overwrite = TRUE)
+  }
+}
+
+```
+
+## Canadian French
+
+task: add speaker 3, 5, 8, 10’s sentences 1, 5, 6 (cus currently only has 2 3 4)
+
+```{r}
+#here is the idea
+# 0) set your source + target directories
+source_dir <- "C:/Users/yuka/Desktop/QP1/CaFE_48k"
+target_dir <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/additional_items_temploc"
+
+# 1) which emotion folders (in French), and the subfolder we want
+emotion_folders <- c("Colère", "Joie", "Neutre", "Peur", "Surprise", "Tristesse")
+subfolder      <- "Fort"
+
+# 2) mapping from French‐letter to English prefix
+prefix_map <- c(
+  C = "angry__",    # Colere
+  J = "happy__",    # Joie
+  N = "neutral__",  # Neutre
+  P = "fear__",     # Peur
+  S = "surprise__", # Surprise
+  T = "sad__"       # Tristesse
+)
+
+# 3) which speakers & sentences to keep
+include_speakers <- c("03","05","08","10")
+include_sentences <- c("1","5","6")
+
+# 4) walk through each emotion
+for (emo in emotion_folders) {
+  emo_dir <- file.path(source_dir, emo, subfolder)
+  if (!dir.exists(emo_dir)) next
+  
+  # list all .wav files
+  wavs <- list.files(emo_dir, pattern="\\.wav$", full.names=TRUE)
+  
+  for (src in wavs) {
+    fn <- basename(src)                 # e.g. "03-C-2-5.wav"
+    parts <- strsplit(tools::file_path_sans_ext(fn), "-", fixed=TRUE)[[1]]
+    # expect exactly 4 parts: speaker, letter, "2", sentence
+    if (length(parts) != 4) next
+    speaker <- parts[1]
+    letter  <- parts[2]
+    mid     <- parts[3]
+    sent    <- parts[4]
+    
+    # filter by speaker, by the fixed "2", and by sentence
+    if (!(speaker %in% include_speakers)) next
+    if (mid != "2")                      next
+    if (!(sent %in% include_sentences)) next
+    
+    # look up the right prefix
+    if (!(letter %in% names(prefix_map))) next
+    eng_pref <- prefix_map[letter]
+    
+    # build new name and copy
+    new_fn <- paste0("french_", eng_pref, fn)
+    file.copy(src,
+              file.path(target_dir, new_fn),
+              overwrite = TRUE)
+  }
+}
+
+```
+
+## Japanese
+
+task: add alll the other regular sentences for each emotion from all speakers. (meaning, cut all of them first on praat. (here now– Praat cannot load all 720 items at one time so doing by emotion, starting from anger)
+
+```{r}
+# 0) set your source + target directories
+source_root <- "C:/Users/yuka/Desktop/QP1/jvnv_ver1/jvnv_v1"
+target_dir  <- "C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/jp_raw2"
+
+if (!dir.exists(target_dir)) {
+  dir.create(target_dir, recursive = TRUE)
+}
+
+# 1) speakers and emotions
+speakers   <- c("F1", "F2", "M1", "M2")
+skip_emo   <- "disgust"
+valid_em   <- c("anger", "fear", "happy", "sad", "surprise")  # folder names
+prefix_map <- c(
+  anger    = "angry__",
+  happy    = "happy__",
+  fear     = "fear__",
+  surprise = "surprise__",
+  sad      = "sad__"
+)
+
+# 2) which sentence numbers to keep
+keep_range <- 4:40
+
+# 3) traverse
+for (spk in speakers) {
+  spk_dir <- file.path(source_root, spk)
+  if (!dir.exists(spk_dir)) next
+
+  # find all emotion subfolders except "disgust"
+  emos <- list.dirs(spk_dir, full.names = FALSE, recursive = FALSE)
+  emos <- setdiff(emos, skip_emo)
+
+  for (emo in emos) {
+    if (!(emo %in% valid_em)) next
+
+    reg_dir <- file.path(spk_dir, emo, "regular")
+    if (!dir.exists(reg_dir)) next
+
+    # list .wav files
+    wavs <- list.files(reg_dir, pattern = "\\.wav$", full.names = TRUE)
+    for (src in wavs) {
+      fn <- basename(src)                             # e.g. "F1_anger_regular_04.wav"
+      parts <- strsplit(tools::file_path_sans_ext(fn), "_", fixed = TRUE)[[1]]
+      # expect: parts = c(speaker, emotion, "regular", sent_str)
+      if (length(parts) != 4) next
+
+      emo_tag <- parts[2]
+      sent_str <- parts[4]
+      sent_num <- as.integer(sent_str)                # "04" -> 4
+
+      # filter by sentence range
+      if (is.na(sent_num) || !(sent_num %in% keep_range)) next
+
+      # rename & copy
+      prefix <- prefix_map[emo_tag]
+      new_fn <- paste0("japanese_", prefix, fn)
+      file.copy(src,
+                file.path(target_dir, new_fn),
+                overwrite = TRUE)
+    }
+  }
+}
+
+```
+
+After all these, normalize intensities. (again, Praat)
+
+Then add these new files in to the experiment.html code.
+
+Set a new rule to get a list of files so that one person sees only a set amount of sounds.
+
+## —Results Processing—
+
+```{r}
+getwd()
+
+```
+
+```{r}
+setwd("C:/Users/yuka/Desktop/linguist245B_project/data/temp_data")
+```
+
+```{r}
+data <- read.csv("C:/Users/yuka/Downloads/wecj3vb92g.csv",
+                header = TRUE, sep = ",")
+
+View(data)
+```
+
+The goal df:
+
+response, trial num, stim filename, language, targetEmo, score
+
+To clean up:
+
+-   delete col1, no rt needed
+
+-   delete col2, no raw resp needed
+
+-   delete col3 trial type, this info not needed (but maybe needed to sort out rows)
+
+-   delete col4 trial index, i want trial num eventually, but can add this later once row cleaned up
+
+-   delete col5, no time needed
+
+-   delete col6, no internal node id needed
+
+-   delete col7, this info can be taken from another col, maybe helpful for row clean up
+
+-   delete col8, no infor here
+
+-   delete, col9-13, no info here
+
+-   keep col14. this is file ID
+
+-   keep col15, language
+
+-   keep col16, correct_reponse, this is the target emo
+
+-   delete col17 eventually, helpful to separate out choice vs attention, or maybe for row cleanup
+
+-   keep col18, this is the main resp.
+
+```{r}
+
+
+library(dplyr)
+library(tibble)
+
+prolID = data[1,2]
+cleandf <- data %>%
+  filter(trial_part == "choice")
+
+cleandf <- cleandf %>% 
+  select(15, 16, 18)
+library(dplyr)
+
+cleandf <- cleandf %>%
+  add_column(ProlID = prolID, .before = 1)
+
+
+
+
+```
+
+Multiple data processing————
+
+```{r}
+library(dplyr)
+library(tibble)
+library(purrr)
+
+# 1) Get all CSV paths
+files <- list.files(
+  path       = "C:/Users/yuka/Desktop/linguist245B_project/data/osfstorage-archive",
+  pattern    = "\\.csv$",
+  full.names = TRUE
+)
+
+# 2) Process and bind them
+big_df <- files %>%
+  # map_df returns a single data frame by row-binding each iteration
+  map_df(function(fpath) {
+    data   <- read.csv(fpath, header = TRUE, sep = ",")
+    prolID <- data[1, 2]  
+
+    data %>%
+      filter(trial_part == "choice") %>%
+      select(2,14,15, 16, 18) %>%
+      add_column(ProlID = prolID, .before = 1)
+  })
+
+# big_df now has all participants’ cleaned data stacked together
+
+####added 14 for more item info
+
+big_df <- big_df %>%
+  mutate(
+    response = recode(
+      response,
+      `0` = "Happy",
+      `1` = "Sad",
+      `2` = "Angry",
+      `3` = "Fear",
+      `4` = "Surprise",
+      `5` = "Neutral"
+    )
+  )
+
+
+
+# Make sure 'correct' is numeric 0/1
+big_df <- big_df %>%
+  mutate(correct = as.integer(as.logical(correct)))
+
+```
+
+```{r}
+########
+# addingspeaker ID and sentence ID
+########
+
+# 1. Make sure dplyr is loaded
+library(dplyr)
+
+# 2. Add speakerID and sentenceID based on stimulus_file
+big_df <- big_df %>%
+  # (a) strip off the common prefix so we can work with just the filename
+  mutate(
+    filename = sub("^stim/final_stim_scaled/", "", stimulus_file)
+  ) %>%
+  # (b) extract speakerID according to language‐specific rules
+  mutate(
+    speakerID = case_when(
+      # ── French: after “__”, take digits before the first “-”
+      language == "french" ~ sub("^.*__(\\d+)-.*$", "\\1", filename),
+      
+      # ── Greek: take the number inside parentheses “(...)”
+      language == "greek"  ~ sub("^.*\\((\\d+)\\).*",      "\\1", filename),
+      
+      # ── Japanese: after the first “__”, take everything up to the next “_”
+      language == "japanese" ~ sub("^.*?__(.*?)_.*$",     "\\1", filename),
+      
+      # ── Thai: find “actor” + exactly 3 digits → that is speakerID
+      language == "thai"   ~ sub("^.*actor(\\d{3}).*$",    "\\1", filename),
+      
+      # ── otherwise: NA
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  # (c) extract sentenceID according to language‐specific rules
+  mutate(
+    sentenceID = case_when(
+      # ── French: take the number immediately before “_intscaled.wav”
+      language == "french" ~ sub("^.*-(\\d+)_intscaled\\.wav$", "\\1", filename),
+      
+      # ── Greek: take the digits immediately before the space + “(”
+      language == "greek"  ~ sub("^.*?([0-9]+)\\s*\\(\\d+\\).*",  "\\1", filename),
+      
+      # ── Japanese: take the digits immediately before “__cut_intscaled.wav”
+      language == "japanese" ~ sub("^.*_(\\d+)__cut_intscaled\\.wav$", "\\1", filename),
+      
+      # ── Thai: find “script” + digits right after → that is sentenceID
+      language == "thai"   ~ sub("^.*script(\\d+).*",       "\\1", filename),
+      
+      # ── otherwise: NA
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  # (d) drop the temporary filename column if you don’t need it
+  select(-filename)
+
+# Now big_df has two new columns: speakerID and sentenceID
+
+
+############ New change
+
+
+big_df <- big_df %>%
+  mutate(
+    sentenceID = case_when(
+      language == "french"   ~ paste0(sentenceID, "f"),
+      language == "thai"     ~ paste0(sentenceID, "t"),
+      language == "greek"    ~ paste0(sentenceID, "g"),
+      language == "japanese" ~ paste0(sentenceID, "j"),
+      TRUE                   ~ sentenceID
+    )
+  )
+
+
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+
+
+df_bar <- big_df %>%
+  group_by(language, correct_response) %>%
+  summarise(mean_acc = mean(correct), .groups = "drop")
+
+ggplot(df_bar, aes(x = correct_response, y = mean_acc, fill = language)) +
+  geom_col(position = position_dodge(width = 0.8)) +
+  labs(
+    x = "Emotion",
+    y = "Mean Accuracy",
+    fill = "Language"
+  ) +
+  theme_minimal()
+
+
+
+```
+
+```{r}
+getwd()
+```
+
+```{r}
+
+```
+
+```         
+```
+
+confusion matrix
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# 1) Count raw frequencies per (language, correct_response, response)
+conf_by_lang <- big_df %>%
+  count(language, correct_response, response, name = "freq")
+
+# 2) (Optional) Add a proportion column within each language & true emotion
+conf_by_lang <- conf_by_lang %>%
+  group_by(language, correct_response) %>%
+  mutate(
+    prop = freq / sum(freq)
+  ) %>%
+  ungroup()
+
+# 3) Pivot to wide format so you get a matrix of (true emotion × chosen emotion) for each language
+#    – Rows: correct_response (true)
+#    – Cols: response (chosen)
+#    – Cell: either freq or prop
+conf_mat_list <- conf_by_lang %>%
+  select(language, correct_response, response, freq) %>%
+  pivot_wider(
+    names_from  = response,
+    values_from = freq,
+    values_fill = 0
+  ) %>%
+  group_by(language) %>%
+  group_split()  # returns a list of data frames, one per language
+
+# Now conf_mat_list[[i]] is a matrix‐like data frame for the i-th language,
+# where the first column is 'language', second is 'correct_response', and
+# the remaining columns are counts for each possible response label.
+
+```
+
+Confusion matrix -nicer-
+
+```{r}
+getwd()
+```
+
+```         
+```
+
+```{r}
+# 0) Install/load necessary packages
+#install.packages(c("knitr", "kableExtra", "purrr"))
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(knitr)
+library(kableExtra)
+
+# Assume you already have `conf_mat_list` as a list of data frames, one per language.
+# Each element has columns: language, correct_response, and one column per possible response.
+
+# For example, conf_mat_list[[1]] might look like:
+#   language correct_response   angry  fear  happy  neutral  sad  surprise
+#   1   French            angry     50    2     3        1    4        0
+#   2   French             fear     1    47     5        2    3        2
+#   …
+
+
+# 1) Prepare a helper that formats one confusion‐matrix DF into a kable
+format_conf_table <- function(cm_df, format = "latex", caption = NULL) {
+  # Remove the 'language' column so rows are just correct_response × responses
+  cm <- cm_df %>% select(-language)
+  
+  # Optionally add a total‐column or row if you’d like:
+  # cm <- cm %>%
+  #   mutate(RowTotal = rowSums(across(-correct_response))) %>%
+  #   bind_rows(
+  #     tibble(
+  #       correct_response = "ColumnTotal",
+  #       map_dbl(across(-correct_response), sum)
+  #     )
+  #   )
+  
+  # Turn it into a kable
+  kbl(cm,
+      format = format,
+      caption = caption,
+      booktabs = TRUE,
+      align = c("l", rep("r", ncol(cm) - 1))
+  ) %>%
+    kable_styling(
+      full_width = FALSE,
+      position   = "center",
+      font_size  = 10
+    ) %>%
+    add_header_above(c(" " = 1, "Predicted Label" = ncol(cm) - 1))
+}
+
+# 2) Loop through conf_mat_list and print each table (or save to file)
+
+# If you want to *print* them all one after another (e.g., in an RMarkdown .Rmd):
+walk(
+  conf_mat_list,
+  ~ {
+    lang_name <- unique(.x$language)  # each df has a single language
+    cap       <- paste0("Confusion matrix (", lang_name, ")")
+    
+    # Print LaTeX (or "html", "markdown", etc.)
+    print(format_conf_table(.x, format = "latex", caption = cap))
+    cat("\n\n")  # add some spacing between tables
+  }
+)
+
+
+
+```
+
+```{r}
+# 3) If instead you want to *save* each as a separate .tex or .html file:
+walk(
+  conf_mat_list,
+  ~ {
+    lang_name <- unique(.x$language)
+    cap       <- paste0("Confusion matrix (", lang_name, ")")
+    tbl       <- format_conf_table(.x, format = "latex", caption = cap)
+    
+    # Write to a .tex file:
+    out_path <- paste0("confusion_matrix_", lang_name, ".tex")
+    cat(as.character(tbl), file = out_path)
+  }
+)
+```
+
+```{r}
+# Load necessary packages (install if you haven’t already)
+# install.packages(c("dplyr", "tidyr", "knitr", "kableExtra"))
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+# ------------------------------------------------------------------------------
+# Assume `conf_mat_list` already exists in your environment. Recall that
+#   conf_mat_list is a list of data frames, one per language, each with columns:
+#     • language           – (repeated) the language name
+#     • correct_response   – the “true” emotion
+#     • <response_1>, …     – counts for each chosen emotion label
+#
+# Below are two ways to turn `conf_mat_list` into nicely formatted tables.
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# OPTION 1: Produce a separate, labeled HTML/Markdown table for each language
+# ------------------------------------------------------------------------------
+
+for (idx in seq_along(conf_mat_list)) {
+  # 1. Pull out the i-th confusion‐matrix data frame
+  cm_df <- conf_mat_list[[idx]] %>%
+    select(-language)        # drop the “language” column, since we’ll title by language
+  
+  # 2. Extract the language name (same on every row)
+  this_lang <- conf_mat_list[[idx]]$language[1]
+  
+  # 3. Print a header, then the table via kable + kableExtra
+  cat("\n\n")
+  cat("## Confusion Matrix for:", this_lang, "\n\n")
+  cm_df %>%
+    kable(
+      format    = "html", 
+      caption   = paste0("Confusion Matrix (counts) — ", this_lang),
+      digits    = 0, 
+      align     = "c"
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width        = FALSE,
+      position          = "center"
+    )
+}
+
+# ------------------------------------------------------------------------------
+# OPTION 2: Combine all languages into one “long” table, with a language column
+# ------------------------------------------------------------------------------
+
+# 1) Bind all rows together into a single data frame
+combined_cm <- bind_rows(conf_mat_list)
+
+# 2) Print as one big table (language + true emotion + counts for each response)
+combined_cm %>%
+  kable(
+    format    = "html",
+    caption   = "Confusion Matrices by Language (counts)",
+    digits    = 0,
+    align     = "c"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width        = FALSE,
+    position          = "center"
+  )
+
+```
+
+printing as a file
+
+```{r}
+# 1) Install/load required packages (if not already)
+# install.packages("gridExtra")
+library(gridExtra)
+library(ggplot2)
+
+# 2) Turn your data frame into a table “grob”
+tg <- tableGrob(combined_cm)
+
+# 3) Save that grob as a PNG file
+#    – Adjust width/height (in inches) and dpi as needed.
+ggsave(
+  filename = "combined_confusion_matrix.png",
+  plot     = tg,
+  width    = 12,    # inches (you can change this)
+  height   = 8,     # inches (you can change this)
+  dpi      = 300    # 300 dpi is good for publication
+)
+
+```
+
+printing with colored cells
+
+```{r}
+# 1) Load required packages (install if needed)
+# install.packages(c("gridExtra", "grid", "dplyr"))
+library(gridExtra)
+library(grid)
+library(dplyr)
+
+# --- Assume `combined_cm` already exists in your workspace from previous steps ---
+# combined_cm should look like this:
+#   language | correct_response | happy | sad | angry | fear | surprise | neutral
+#   ---------------------------------------------------------------------------
+#   French   |     happy        |  15   |  2  |   0   |  1   |    0     |   2
+#   Greek    |     sad          |   1   | 10  |   0   |  3   |    2     |   4
+#   ... etc.
+
+
+# 2) Define a palette‐making function for each language
+pal_red    <- colorRampPalette(c("white", "red"))
+pal_green  <- colorRampPalette(c("white", "green"))
+pal_blue   <- colorRampPalette(c("white", "blue"))
+pal_purple <- colorRampPalette(c("white", "purple"))
+
+# 3) Build a matrix of background colors for every “body” cell
+#
+#    - n_row = number of rows in combined_cm
+#    - n_col = number of columns in combined_cm
+n_row <- nrow(combined_cm)
+n_col <- ncol(combined_cm)
+
+# 3a) Identify which columns are numeric (i.e. the confusion counts).
+#     We assume the first two columns are “language” and “correct_response,” 
+#     and everything else (3:n_col) are numeric counts.
+numeric_cols <- 3:n_col
+
+# 3b) Preallocate a character matrix of “fill” colors, same dimension as combined_cm
+bg_mat <- matrix(NA, nrow = n_row, ncol = n_col)
+
+# 3c) Loop over each row and column:
+for (i in seq_len(n_row)) {
+  # 1. Grab this row’s language
+  lang <- combined_cm$language[i]
+  
+  # 2. Extract the numeric counts for this row
+  vals <- as.numeric(combined_cm[i, numeric_cols])
+  
+  # 3. Normalize within row (max → 1, min → 0)
+  #    If a row is all zeros (edge case), set all norms to 0 to avoid division-by-zero.
+  if (all(vals == 0)) {
+    row_norm <- rep(0, length(vals))
+  } else {
+    row_norm <- vals / max(vals)
+  }
+  
+  # 4. Choose the appropriate palette function based on language:
+  pal_fun <- switch(
+    lang,
+    "French"   = pal_red,
+    "Greek"    = pal_green,
+    "Japanese" = pal_blue,
+    "Thai"     = pal_purple,
+    # (If you have extra languages, add them here. Default → gray)
+    pal_default <- colorRampPalette(c("white", "gray"))
+  )
+  
+  # 5. Generate 100 shades from “white” → hue, then pick by normalized value:
+  shades <- pal_fun(100)  # a vector of 100 hex colors from white to that hue
+  #    For each normalized v in [0,1], pick shade index = floor(v*99) + 1.
+  cell_colors <- shades[floor(row_norm * 99) + 1]
+  
+  # 6. Fill in bg_mat for numeric columns
+  bg_mat[i, numeric_cols] <- cell_colors
+  
+  # 7. For the first two (non‐numeric) columns, leave as white (or NA)
+  bg_mat[i, 1:2] <- "white"
+}
+
+# 4) Create a custom theme that uses bg_mat for the “core” cells
+ttheme_colored <- ttheme_minimal(
+  core = list(
+    fg_params = list(col = "black", fontsize = 10), 
+    bg_params = list(fill = bg_mat, col = NA)
+  ),
+  colhead = list(
+    fg_params = list(col = "white", fontsize = 11, fontface = "bold"),
+    bg_params = list(fill = "black", col = NA)
+  ),
+  rowhead = list(  # (not used, but define so that row names don't appear oddly)
+    fg_params = list(col = "black", fontsize = 10),
+    bg_params = list(fill = NA, col = NA)
+  )
+)
+
+# 5) Turn combined_cm into a tableGrob with that theme
+tbl <- tableGrob(
+  combined_cm,
+  theme = ttheme_colored,
+  rows  = NULL  # hide rownames so we only see our two columns + numeric columns
+)
+
+# 6) Finally, save this grob as a PNG (adjust width/height as needed)
+ggsave(
+  filename = "combined_confusion_matrix_colored.png",
+  plot     = tbl,
+  width    = 12,    # inches—tweak to fit all columns legibly
+  height   = 8,     # inches
+  dpi      = 300
+)
+
+# ------------------------------------------------------------------------------
+# After running the above, you’ll have a file named:
+#   “combined_confusion_matrix_colored.png”
+# in your working directory. It will show:
+#  • For each language‐row, cells with higher counts are darker shades of that
+#    language’s color (red/green/blue/purple).
+#  • The two leftmost columns (“language” & “correct_response”) remain white 
+#    with black text, so your numeric cells stand out in their color gradient.
+# ------------------------------------------------------------------------------
+
+
+
+```
+
+The above outputs gray scaled.
+
+**attempt 2:**
+
+```{r}
+# ──────────────────────────────────────────────────────────────────────────────
+# 1. Load necessary packages (install if needed)
+# ──────────────────────────────────────────────────────────────────────────────
+# install.packages(c("gridExtra", "grid", "dplyr"))
+library(dplyr)
+library(gridExtra)
+library(grid)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 2. Identify which columns are numeric (the count columns)
+# ──────────────────────────────────────────────────────────────────────────────
+# combined_cm has columns: language, correct_response, <response1>, <response2>, …
+# We want to color only the “<response*>” columns.
+numeric_cols <- setdiff(names(combined_cm), c("language", "correct_response"))
+num_idx      <- match(numeric_cols, names(combined_cm))  # column indices of numeric columns
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 3. Build a fill‐color matrix (rows × columns), NA where no fill is needed
+# ──────────────────────────────────────────────────────────────────────────────
+n_rows <- nrow(combined_cm)
+n_cols <- ncol(combined_cm)
+
+# Initialize every cell as NA (transparent)
+fill_matrix <- matrix(NA_character_, nrow = n_rows, ncol = n_cols)
+
+# Function to get a hex color for a normalized value using a color ramp
+get_row_colors <- function(vals, ramp_func) {
+  # vals: numeric vector (≥ 0). ramp_func: function(x) → c(r,g,b) (0–255)
+  if (all(vals == 0)) {
+    # If the entire row is zero, return all the lightest shade (white)
+    rep("#FFFFFF", length(vals))
+  } else {
+    row_max   <- max(vals, na.rm = TRUE)
+    norm_vals <- vals / row_max
+    sapply(norm_vals, function(nv) {
+      rgb_vals <- ramp_func(nv) / 255
+      rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3])
+    })
+  }
+}
+
+# Build the matrix row‐by‐row
+for (i in seq_len(n_rows)) {
+  lang     <- combined_cm$language[i]
+  row_vals <- as.numeric(combined_cm[i, numeric_cols])
+  
+  # Choose ramp based on language
+  if (lang == "french") {
+    ramp <- colorRamp(c("white", "#F8766D"))
+  } else if (lang == "greek") {
+    ramp <- colorRamp(c("white", "#7CAE00"))
+  } else if (lang == "japanese") {
+    ramp <- colorRamp(c("white", "#00BFC4"))
+  } else if (lang %in% c("thai", "Thai")) {
+    ramp <- colorRamp(c("white", "#C77CFF"))
+  } else {
+    # Fallback to gray if language name is unexpected
+    ramp <- colorRamp(c("white", "grey"))
+  }
+  
+  # Compute a vector of hex colors for this row’s numeric columns
+  this_row_colors <- get_row_colors(row_vals, ramp)
+  
+  # Place them into the appropriate columns of fill_matrix
+  fill_matrix[i, num_idx] <- this_row_colors
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. Create a theme that uses fill_matrix for cell backgrounds, then draw/save
+# ──────────────────────────────────────────────────────────────────────────────
+tt <- ttheme_default(
+  core = list(
+    fg_params = list(fontface = "plain", fontsize = 10),
+    bg_params = list(fill = fill_matrix, col = NA)
+  ),
+  colhead = list(
+    fg_params = list(fontface = "bold", fontsize = 11),
+    bg_params = list(fill = "#DDDDDD", col = NA)
+  )
+)
+
+# Build the table grob (drop default rownames)
+tg <- tableGrob(combined_cm, rows = NULL, theme = tt)
+
+# Save as PNG
+png(
+  filename = "colored_confusion_matrix2.png",
+  width    = 12,    # inches
+  height   = 8,     # inches
+  units    = "in",
+  res      = 300    # dpi
+)
+grid.draw(tg)
+dev.off()
+
+```
+
+##################GGPLOT DEFAULT COLORS##################### \#
+
+"#F8766D" "#7CAE00" "#00BFC4" "#C77CFF"
+
+\###########################################################
+
+Now, percentage version:\
+
+```{r}
+# ──────────────────────────────────────────────────────────────────────────────
+# Precondition: `combined_cm` exists with columns:
+#   • language         (character)
+#   • correct_response (character)
+#   • <response1>, <response2>, …  (numeric counts)
+#
+# Goal: Display percentages per row (including zeros) and color cells by row‐wise percentage.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# 1. Load required packages
+# install.packages(c("dplyr", "gridExtra", "grid"))
+library(dplyr)
+library(gridExtra)
+library(grid)
+
+# 2. Identify numeric‐count columns and their indices
+numeric_cols <- setdiff(names(combined_cm), c("language", "correct_response"))
+num_idx      <- match(numeric_cols, names(combined_cm))
+
+# 3. Compute a matrix of row‐wise percentages (0–1) and a display matrix of formatted strings
+n_rows <- nrow(combined_cm)
+n_cols <- ncol(combined_cm)
+
+# Initialize matrices
+perc_matrix <- matrix(0, nrow = n_rows, ncol = length(numeric_cols))
+disp_matrix <- matrix("", nrow = n_rows, ncol = length(numeric_cols))
+
+for (i in seq_len(n_rows)) {
+  # Extract raw counts for this row
+  counts    <- as.numeric(combined_cm[i, numeric_cols])
+  row_total <- sum(counts, na.rm = TRUE)
+  
+  if (row_total > 0) {
+    row_perc <- counts / row_total    # proportions between 0 and 1
+  } else {
+    row_perc <- rep(0, length(counts)) # if total is zero, keep zeros
+  }
+  
+  perc_matrix[i, ] <- row_perc
+  
+  # Format as percentage strings (e.g., "25.0%")
+  disp_matrix[i, ] <- sprintf("%.1f", row_perc * 100)
+}
+
+# 4. Build a display data frame (`display_df`) that has:
+#    • language
+#    • correct_response
+#    • the percent strings in place of raw counts
+#
+display_df <- combined_cm %>%
+  # Start with language & correct_response
+  select(language, correct_response) %>%
+  # Then bind the character matrix of percentages (with appropriate column names)
+  bind_cols(as.data.frame(disp_matrix, stringsAsFactors = FALSE))
+
+# Assign the same column names to the percent columns
+colnames(display_df)[3:ncol(display_df)] <- numeric_cols
+
+# 5. Build a fill‐color matrix using `perc_matrix`
+#    (so higher % → darker color). We’ll use white→color ramps per language.
+fill_matrix <- matrix(NA_character_, nrow = n_rows, ncol = n_cols)
+
+# Helper to convert a numeric vector [0,1] to hex colors via a ramp function
+get_row_colors <- function(norm_vals, ramp_func) {
+  # norm_vals: numeric vector between 0 and 1
+  if (all(norm_vals == 0)) {
+    rep("#FFFFFF", length(norm_vals))
+  } else {
+    sapply(norm_vals, function(v) {
+      rgb_vals <- ramp_func(v) / 255
+      rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3])
+    })
+  }
+}
+
+for (i in seq_len(n_rows)) {
+  lang     <- combined_cm$language[i]
+  norm_vals <- perc_matrix[i, ]
+  
+  # Select color ramp by lowercase language
+  lang_lc <- tolower(lang)
+  if (lang_lc == "french") {
+    ramp <- colorRamp(c("white", "#F8766D"))
+  } else if (lang_lc == "greek") {
+    ramp <- colorRamp(c("white", "#7CAE00"))
+  } else if (lang_lc == "japanese") {
+    ramp <- colorRamp(c("white", "#00BFC4"))
+  } else if (lang_lc == "thai") {
+    ramp <- colorRamp(c("white", "#C77CFF"))
+  } else {
+    ramp <- colorRamp(c("white", "grey"))
+  }
+  
+  this_row_colors <- get_row_colors(norm_vals, ramp)
+  fill_matrix[i, num_idx] <- this_row_colors
+}
+
+# 6. Create a table theme that uses `fill_matrix` for the cell backgrounds,
+#    and draw the table using `display_df` (with percent strings).
+tt <- ttheme_default(
+  core = list(
+    fg_params = list(fontface = "plain", fontsize = 10),
+    bg_params = list(fill = fill_matrix, col = NA)
+  ),
+  colhead = list(
+    fg_params = list(fontface = "bold", fontsize = 11),
+    bg_params = list(fill = "#DDDDDD", col = NA)
+  )
+)
+
+# Build the table grob (drop rownames)
+tg <- tableGrob(display_df, rows = NULL, theme = tt)
+
+# 7. Save as PNG
+png(
+  filename = "colored_confusion_matrix_percent.png",
+  width    = 12,    # inches
+  height   = 8,     # inches
+  units    = "in",
+  res      = 300    # dpi
+)
+grid.draw(tg)
+dev.off()
+
+```
+
+## Statistical analysis
+
+to do:
+
+-   overall accuracy - chance level?
+
+-   base model - correct \~ 1 + random effects
+
+-   showing overall effect of language, and overall effect of emotion.
+
+-   if converge, post hoc.
+
+-   planB: if no converge, look only at angry, sad, happy
+
+Dataframe prep
+
+```{r}
+library(lme4)
+library(dplyr)
+
+big_df <- big_df %>%
+  mutate(
+    
+    language         = factor(language),
+    correct_response = factor(correct_response),
+
+    ProlID    = factor(ProlID),
+    speakerID = factor(speakerID),
+    sentenceID= factor(sentenceID),
+    
+    correct = as.integer(correct)
+  )
+```
+
+### Descriptive
+
+accuracy overall
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# 1. Compute per‐participant accuracy, then the overall mean of those accuracies
+participant_acc <- big_df %>%
+  group_by(ProlID) %>%
+  summarize(accuracy = mean(correct), .groups = "drop")
+
+#    • participant_acc now has one row per ProlID, with their mean(correct).
+#    • To get the grand mean of those participant‐wise accuracies:
+mean_accuracy_across_participants <- mean(participant_acc$accuracy)
+print(mean_accuracy_across_participants)
+
+```
+
+Accuracy by overall emotion and language
+
+```{r}
+emotion_avg_raw <- big_df %>%
+  group_by(correct_response) %>%
+  summarize(mean_accuracy = mean(correct), .groups = "drop")
+
+print(emotion_avg_raw)
+
+language_avg_raw <- big_df %>%
+  group_by(language) %>%
+  summarize(mean_accuracy = mean(correct), .groups = "drop")
+
+print(language_avg_raw)
+
+
+```
+
+To show:
+
+```{r}
+# (a) First compute accuracy per participant × language × emotion:
+acc_lang_emotion <- big_df %>%
+  group_by(ProlID, language, correct_response) %>%
+  summarize(accuracy = mean(correct), .groups = "drop")
+
+#    • Now each row of acc_lang_emotion is one participant’s accuracy for that language/emotion.
+
+# (b) Make a ggplot with individual points (one per ProlID) and maybe overlay the average across participants
+ggplot(acc_lang_emotion, aes(x = language, y = accuracy, color = correct_response)) +
+  # Jitter the points so they don’t all overlap exactly at the same frequency
+  geom_jitter(width = 0.2, height = 0, alpha = 0.7, size = 2) +
+  # Add a bigger black point at the mean accuracy for each language × emotion
+  stat_summary(
+    aes(group = correct_response),
+    fun = mean,
+    geom = "point",
+    shape = 18,
+    size = 3,
+    color = "black"
+  ) +
+  facet_wrap(~ correct_response, nrow = 1) +
+  labs(
+    x = "Language",
+    y = "Accuracy (proportion correct)",
+    color = "Emotion",
+    title = "Participant-wise Accuracy by Language and Emotion",
+    subtitle = paste0("Overall mean across participants: ", round(mean_accuracy_across_participants, 3))
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```
+
+### base model
+
+```{r}
+model_base <- glmer(correct ~ 1 + (1 | ProlID) + (1| speakerID) + 
+                      (1 | sentenceID),data =  big_df,family = binomial)
+summary(model_base)
+```
+
+### no interaction, just language effect model
+
+```{r}
+model_noint <- glmer(
+  correct ~ language +
+    (1 | ProlID) +
+    (1 | speakerID) +
+    (1 | sentenceID),
+  data   = big_df,
+  family = binomial,
+)
+
+summary(model_noint)
+```
+
+contrast language model and base model
+
+```{r}
+anova(model_base, model_noint) 
+```
+
+languages have effect!
+
+### no interaction, by only emotion model
+
+```{r}
+model_noint2 <- glmer(
+  correct ~ correct_response +
+    (1 | ProlID) +
+    (1 | speakerID) +
+    (1 | sentenceID),
+  data   = big_df,
+  family = binomial,
+)
+
+summary(model_noint2)
+```
+
+```{r}
+anova(model_base, model_noint2)
+```
+
+evidence for emotion influence to performance!
+
+### no interaction, both main predictors
+
+```{r}
+model_noint3 <- glmer(
+  correct ~ language + correct_response +
+    (1 | ProlID) ,
+  data   = big_df,
+  family = binomial,
+control=glmerControl(optimizer="bobyqa"))
+
+summary(model_noint3)
+
+```
+
+#note:language + correct_response + (1 \| ProlID) + (1 + correct_response \| speakerID) did not converge. simplified to prolID and speakerID, still not. added optimizer, still not. only ProlID did not even converge.
+
+#note2: added optimizer, worked
+
+```{r}
+anova(model_base, model_noint, model_noint2, model_noint3)
+```
+
+### Interaction model
+
+```{r}
+
+
+model <- glmer(
+  correct ~ language * correct_response +  (1 | ProlID) + (1 | speakerID),
+  data   = big_df,
+  family = binomial,
+control=glmerControl(optimizer="bobyqa"))
+
+summary(model)
+
+```
+
+this is singular fit:
+
+model \<- glmer( correct \~ language \* correct_response + (1 \| ProlID) + (1 + correct_response \| speakerID), data = big_df, family = binomial, control=glmerControl(optimizer="bobyqa"))
+
+step2: testing another random effect structures
+
+```{r}
+
+
+anova(model, model_noint3)
+
+
+
+
+```
+
+### Seeing distributions of items across conditions
+
+```{r}
+#just to see and confirm data distributions across conditions
+table(big_df$language, big_df$correct_response)
+```
+
+```         
+```
+
+### Post-hoc
+
+every condition
+
+```{r}
+
+library(emmeans)
+
+emm <- emmeans(
+  object   = model,
+  specs    = ~ language * correct_response,
+  type     = "response"
+)
+
+
+contrast_lang_within_emotion <- emm %>%
+  contrast(
+    method = "pairwise",              # all‐pair comparisons
+    by     = "correct_response",      # do them separately for each emotion
+    adjust = "tukey"                  # Tukey adjustment
+  )
+
+contrast_emotion_within_language <- emm %>%
+  contrast(
+    method = "pairwise",
+    by     = "language",
+    adjust = "tukey"
+  )
+
+summary(emm)
+summary(contrast_lang_within_emotion, infer = TRUE)
+summary(contrast_emotion_within_language, infer = TRUE)
+
+```
+
+Post hoc, for LANGUAGE predictor
+
+```{r}
+library(emmeans)
+
+emm_lang <- emmeans(model_noint3, ~ language, type = "correct")
+
+summary(emm_lang)
+
+pairs(emm_lang, adjust = "tukey")
+
+
+```
+
+###results
+
+Only sig: French-greek and greek-japanese
+
+Post hoc, for EMOTION predictor
+
+```{r}
+library(emmeans)
+
+emm_emo <- emmeans(model_noint3, ~ correct_response, type = "correct")
+
+summary(emm_emo)
+
+pairs(emm_emo, adjust = "tukey")
+```
+
+mostly different except for fear-sad and happy-surprise
+
+### 3 emotion models
+
+No 2-predictor models converged because of this issue (according to GPT): If any cell in that table has very few observations (especially zero failures or zero successes), the logistic likelihood will try to push its coefficient toward ±∞, causing nonconvergence.
+
+Therefore trying models where only looking at the emotion tested across languages: happy, angry, sad
+
+```{r}
+
+library(dplyr)
+threeemo_df <- big_df %>%
+  filter(correct_response %in% c("Sad", "Angry", "Happy"))
+
+```
+
+```{r}
+model_3emo_1r <- glmer(
+  correct ~ language + correct_response +  (1 | ProlID),
+  data   = threeemo_df,
+  family = binomial)
+
+summary(model_3emo_1r)
+
+```
+
+this one fits!!!! finally...
+
+adding another
+
+```{r}
+model_3emo_2r <- glmer(
+  correct ~ language + correct_response +  (1 | ProlID) +(1|speakerID),
+  data   = threeemo_df,
+  family = binomial)
+
+summary(model_3emo_2r)
+
+```
+
+this fits too
+
+```{r}
+model_3emo_3r <- glmer(
+  correct ~ language + correct_response +  (1 | ProlID) +(1|speakerID) +(1|sentenceID),
+  data   = threeemo_df,
+  family = binomial)
+
+summary(model_3emo_3r)
+
+```
+
+This fits too
+
+Trying interaction
+
+Note: 3 rand no fit
+
+```{r}
+
+model_3emo_3r_int <- glmer(
+  correct ~ language * correct_response + (1|ProlID),
+  data   = threeemo_df,
+  family = binomial,
+control=glmerControl(optimizer="bobyqa"))
+
+summary(model_3emo_3r_int)
+
+```
+
+This does not fit...
+
+Trying another optimzer
+
+```{r}
+library(optimx)  # required for some optimizers
+
+glmm_all = allFit(model_3emo_3r_int)
+```
+
+```{r}
+anova(model_3emo_3r, model_3emo_3r_int)
+```
+
+To do:
+
+-   add confidence interval
+
+-   check attention check
+
+-   look at demographics? age?, also other survey results
+
+-   overtime, neutral probability goes up?
+
+## Making metadata for Hf data set creation—
+
+```{r}
+library(dplyr)
+
+metadata_df <- big_df %>%
+  select(
+    stimulus_file,
+    language,
+    emotion       = correct_response,
+    speakerID,
+    sentenceID
+  ) %>%
+  distinct()
+
+
+
+```
+
+\-
+
+```{r}
+
+write.csv(big_df, "metadata.csv", row.names = FALSE)
+
+```

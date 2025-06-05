@@ -1808,13 +1808,13 @@ console.log('TOTAL:',    audioFiles.length);  // should be 76
               c = subset.filter({correct:true}).count();
 
         const label = lang === 'french'
-          ? 'Canadian French'
+          ? 'CANADIAN FRENCH'
           : lang.toUpperCase();
         html += `<p><strong>${label}:</strong> ${c}/${t} correct 
             (${Math.round(c/t*100)}%)</p>`;
       });
       
-      html += `<p>Press Continue to finish.</p>`;
+      html += `<p>Please press Continue to save data and finish.</p>`;
       return html;
     }, //end of stimulus:function(){
 
