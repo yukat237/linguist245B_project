@@ -419,6 +419,10 @@ big_df <- big_df %>%
 
 ```
 
+## Visualizations
+
+### Bar
+
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -453,7 +457,7 @@ getwd()
 ```         
 ```
 
-confusion matrix
+### Confusion matrix
 
 ```{r}
 library(dplyr)
@@ -1146,6 +1150,12 @@ ggplot(acc_lang_emotion, aes(x = language, y = accuracy, color = correct_respons
     legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
+```
+
+### Demographics
+
+```{r}
 
 ```
 

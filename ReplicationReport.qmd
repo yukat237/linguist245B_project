@@ -136,46 +136,309 @@ You can comment this section out prior to final report with data collection.
 #### Actual Sample
   Sample size, demographics, data exclusions based on rules spelled out in analysis plan
 
+  120 participants were recruited on Prolific. 119 data were successfully stored in OSF data folder, all of which completed the study without being force-exited from the study by missing 5 responses in a row. 
+
 
 
 #### Differences from pre-data collection methods plan
   Any differences from what was described as the original plan, or “none”.
+  1) Experimental design changes: in the actual experiment, 76 items were tested per participant. I prepared a stimuli pool of 4 languages, 4
+  2) Analyses design change: I decided to run inferential analysis on all of the emotions tested, instead of only the main 3 emotions common across the datasets.
+  
 
 
 ## Results
 
-
 ### Data preparation
 
-Data preparation following the analysis plan.
-	
+
 ```{r include=F}
 ### Data Preparation
 
+
 #### Load Relevant Libraries and Functions
+library(dplyr)
+library(tibble)
+library(purrr)
 
 #### Import data
 
+files <- list.files(
+  path       = "C:/Users/yuka/Desktop/linguist245B_project/data/osfstorage-archive",
+  pattern    = "\\.csv$",
+  full.names = TRUE
+)
+
 #### Data exclusion / filtering
 
+big_df <- files %>%
+  map_df(function(fpath) {
+    data   <- read.csv(fpath, header = TRUE, sep = ",")
+    prolID <- data[1, 2]  
+
+    data %>%
+      filter(trial_part == "choice") %>%
+      select(2,14,15, 16, 18) %>%
+      add_column(ProlID = prolID, .before = 1)
+  })
+
+
+big_df <- big_df %>%
+  mutate(
+    response = recode(
+      response,
+      `0` = "Happy",
+      `1` = "Sad",
+      `2` = "Angry",
+      `3` = "Fear",
+      `4` = "Surprise",
+      `5` = "Neutral"
+    )
+  )
+
+
+big_df <- big_df %>%
+  mutate(correct = as.integer(as.logical(correct)))
+
+
 #### Prepare data for analysis - create columns etc.
+
+#Add speakerID and sentenceID based on stimulus_file
+big_df <- big_df %>%
+  mutate(
+    filename = sub("^stim/final_stim_scaled/", "", stimulus_file)
+  ) %>%
+  mutate(
+    speakerID = case_when(
+      language == "french" ~ sub("^.*__(\\d+)-.*$", "\\1", filename),
+      language == "greek"  ~ sub("^.*\\((\\d+)\\).*",      "\\1", filename),
+      language == "japanese" ~ sub("^.*?__(.*?)_.*$",     "\\1", filename),
+      language == "thai"   ~ sub("^.*actor(\\d{3}).*$",    "\\1", filename),
+      
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  
+  mutate(
+    sentenceID = case_when(
+      language == "french" ~ sub("^.*-(\\d+)_intscaled\\.wav$", "\\1", filename),
+      language == "greek"  ~ sub("^.*?([0-9]+)\\s*\\(\\d+\\).*",  "\\1", filename),
+      language == "japanese" ~ sub("^.*_(\\d+)__cut_intscaled\\.wav$", "\\1", filename),
+      language == "thai"   ~ sub("^.*script(\\d+).*",       "\\1", filename),
+      
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  select(-filename)
+
+
+big_df <- big_df %>%
+  mutate(
+    sentenceID = case_when(
+      language == "french"   ~ paste0(sentenceID, "f"),
+      language == "thai"     ~ paste0(sentenceID, "t"),
+      language == "greek"    ~ paste0(sentenceID, "g"),
+      language == "japanese" ~ paste0(sentenceID, "j"),
+      TRUE                   ~ sentenceID
+    )
+  )
+
+
 ```
 
 ### Confirmatory analysis
 
-The analyses as specified in the analysis plan.  
+Descriptive statistics
 
-*Side-by-side graph with original graph is ideal here*
+
+Overall Accuracy
+
+```{r}
+
+participant_acc <- big_df %>%
+  group_by(ProlID) %>%
+  summarize(accuracy = mean(correct), .groups = "drop")
+
+mean_accuracy_across_participants <- mean(participant_acc$accuracy)
+mean_accuracy_across_participants
+
+```
+
+Mean accuracy of language overall (emotions collapsed) as well as emotions overall (languages collapsed)
+```{r}
+
+emotion_avg_raw <- big_df %>%
+  group_by(correct_response) %>%
+  summarize(mean_accuracy = mean(correct), .groups = "drop")
+
+print(emotion_avg_raw)
+
+language_avg_raw <- big_df %>%
+  group_by(language) %>%
+  summarize(mean_accuracy = mean(correct), .groups = "drop")
+
+print(language_avg_raw)
+
+```
+
+
+
+GLMER
+
+The best fit model:
+```{r}
+
+model <- glmer(
+  correct ~ language * correct_response +  (1 | ProlID) + (1 | speakerID),
+  data   = big_df,
+  family = binomial,
+control=glmerControl(optimizer="bobyqa"))
+
+summary(model)
+
+```
+
+
+Model comparison
+
+
+```{r}
+
+
+#no interaction model
+model_noint3 <- glmer(
+  correct ~ language + correct_response +
+    (1 | ProlID) ,
+  data   = big_df,
+  family = binomial,
+control=glmerControl(optimizer="bobyqa"))
+
+summary(model_noint3)
+
+
+anova(model, model_noint3)
+```
+
+
+
 
 ### Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+Confusion Matrix
+
+```{r}
+
+library(dplyr)
+library(gridExtra)
+library(grid)
+
+numeric_cols <- setdiff(names(combined_cm), c("language", "correct_response"))
+num_idx      <- match(numeric_cols, names(combined_cm))
+
+n_rows <- nrow(combined_cm)
+n_cols <- ncol(combined_cm)
+
+
+perc_matrix <- matrix(0, nrow = n_rows, ncol = length(numeric_cols))
+disp_matrix <- matrix("", nrow = n_rows, ncol = length(numeric_cols))
+
+for (i in seq_len(n_rows)) {
+  counts    <- as.numeric(combined_cm[i, numeric_cols])
+  row_total <- sum(counts, na.rm = TRUE)
+  
+  if (row_total > 0) {
+    row_perc <- counts / row_total
+  } else {
+    row_perc <- rep(0, length(counts)) 
+  }
+  
+  perc_matrix[i, ] <- row_perc
+  
+  disp_matrix[i, ] <- sprintf("%.1f", row_perc * 100)
+}
+
+display_df <- combined_cm %>%
+  select(language, correct_response) %>%
+  bind_cols(as.data.frame(disp_matrix, stringsAsFactors = FALSE))
+
+colnames(display_df)[3:ncol(display_df)] <- numeric_cols
+
+fill_matrix <- matrix(NA_character_, nrow = n_rows, ncol = n_cols)
+
+
+get_row_colors <- function(norm_vals, ramp_func) {
+  if (all(norm_vals == 0)) {
+    rep("#FFFFFF", length(norm_vals))
+  } else {
+    sapply(norm_vals, function(v) {
+      rgb_vals <- ramp_func(v) / 255
+      rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3])
+    })
+  }
+}
+
+for (i in seq_len(n_rows)) {
+  lang     <- combined_cm$language[i]
+  norm_vals <- perc_matrix[i, ]
+  
+  lang_lc <- tolower(lang)
+  if (lang_lc == "french") {
+    ramp <- colorRamp(c("white", "#F8766D"))
+  } else if (lang_lc == "greek") {
+    ramp <- colorRamp(c("white", "#7CAE00"))
+  } else if (lang_lc == "japanese") {
+    ramp <- colorRamp(c("white", "#00BFC4"))
+  } else if (lang_lc == "thai") {
+    ramp <- colorRamp(c("white", "#C77CFF"))
+  } else {
+    ramp <- colorRamp(c("white", "grey"))
+  }
+  
+  this_row_colors <- get_row_colors(norm_vals, ramp)
+  fill_matrix[i, num_idx] <- this_row_colors
+}
+
+tt <- ttheme_default(
+  core = list(
+    fg_params = list(fontface = "plain", fontsize = 10),
+    bg_params = list(fill = fill_matrix, col = NA)
+  ),
+  colhead = list(
+    fg_params = list(fontface = "bold", fontsize = 11),
+    bg_params = list(fill = "#DDDDDD", col = NA)
+  )
+)
+
+tg <- tableGrob(display_df, rows = NULL, theme = tt)
+
+
+grid.draw(tg)
+png(
+  filename = "colored_confusion_matrix_percent.png",
+  width    = 12,    # inches
+  height   = 8,     # inches
+  units    = "in",
+  res      = 300    # dpi
+)
+
+```
+
+```{r}
+
+
+knitr::include_graphics("C:/Users/yuka/Desktop/linguist245B_project/experiment/stim/colored_confusion_matrix_percent.png")
+
+```
+
 
 ## Discussion
 
 ### Summary of Replication Attempt
 
 Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+
+
+
 
 ### Commentary
 
