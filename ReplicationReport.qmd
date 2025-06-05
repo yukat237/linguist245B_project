@@ -130,20 +130,14 @@ datasets, which is different from the original study where they also asked them 
 
 ### Methods Addendum (Post Data Collection)
 
-You can comment this section out prior to final report with data collection.
-
-
 #### Actual Sample
-  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
 
-  120 participants were recruited on Prolific. 119 data were successfully stored in OSF data folder, all of which completed the study without being force-exited from the study by missing 5 responses in a row. 
-
-
+  120 participants were recruited on Prolific. 119 data were successfully stored in OSF data folder, all of which completed the study without being force-exited from the study by missing 5 responses in a row. Mean age was 37.7 (SD: 12.61; range: 18-72). 53.3% were female, and 46.7% were male. 65% were White, 30% were Black, 3% were Mixed and 1.7% reported 'Other'. 19.2% answered Yes to student status. 50% reported as full-time, and 30% were part-time, 8.3% not in paid work, 5% unemployed, 1.7% other, and the rest of 5% was data expired.
 
 #### Differences from pre-data collection methods plan
   Any differences from what was described as the original plan, or “none”.
-  1) Experimental design changes: in the actual experiment, 76 items were tested per participant. I prepared a stimuli pool of 4 languages, 4
-  2) Analyses design change: I decided to run inferential analysis on all of the emotions tested, instead of only the main 3 emotions common across the datasets.
+  1) Experimental design changes: in the actual experiment, 76 items were tested per participant. I prepared a stimuli pool of 4 languages, 4 - 6 emotions depending on the language, 4 speakers (2 male, 2 female), and the number of sentences varied across languages (6 for Canadian French, 40 for each Japanese emotion, 20 for Greek, and 3 for Thai). For each session, 4 items were picked from each language x emotion condition. The four items were from each 4 speakers. The presentation of sentences were randomized but also with minimized repetitions within participant. Also, Japanese stimuli were manuallay pre-cut in duration, so that the extracted sound does not include intentional non-linguistic cues at the beginning of phrases and the duration range is around 2-5 seconds overall. This was done to make sure Japanese stimuli are in the same condition as the stimuli in other languages. Also, the time limit per item was added, so that participants only have 10 seconds to select an option of emotion. The overall session lasted about 10-20 minutes. I paid $3 for the participation.
+  2) Analyses design change: I decided to run inferential analysis on all of the emotions tested, instead of only the main 3 emotions common across the datasets. Random effects were speaker in general instead of speaker gender.
   
 
 
@@ -430,6 +424,74 @@ knitr::include_graphics("C:/Users/yuka/Desktop/linguist245B_project/experiment/s
 
 ```
 
+Post-hoc Analyses
+
+
+Language:
+
+
+```{r}
+library(emmeans)
+
+emm_lang <- emmeans(model_noint3, ~ language, type = "correct")
+
+summary(emm_lang)
+
+pairs(emm_lang, adjust = "tukey")
+
+```
+
+Emotion:
+
+```{r}
+library(emmeans)
+
+emm_emo <- emmeans(model_noint3, ~ correct_response, type = "correct")
+
+summary(emm_emo)
+
+pairs(emm_emo, adjust = "tukey")
+```
+
+
+
+
+every condition:
+
+```{r}
+
+library(emmeans)
+
+emm <- emmeans(
+  object   = model,
+  specs    = ~ language * correct_response,
+  type     = "response"
+)
+
+
+contrast_lang_within_emotion <- emm %>%
+  contrast(
+    method = "pairwise",              # all‐pair comparisons
+    by     = "correct_response",      # do them separately for each emotion
+    adjust = "tukey"                  # Tukey adjustment
+  )
+
+contrast_emotion_within_language <- emm %>%
+  contrast(
+    method = "pairwise",
+    by     = "language",
+    adjust = "tukey"
+  )
+
+summary(emm)
+summary(contrast_lang_within_emotion, infer = TRUE)
+summary(contrast_emotion_within_language, infer = TRUE)
+
+
+
+```
+
+
 
 ## Discussion
 
@@ -437,7 +499,7 @@ knitr::include_graphics("C:/Users/yuka/Desktop/linguist245B_project/experiment/s
 
 Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
 
-
+I partially replicated the original result; that is, universality of emotion was shown but 
 
 
 ### Commentary
