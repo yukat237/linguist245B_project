@@ -6,145 +6,78 @@ format:
   html:
     toc: true
     toc_depth: 3
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 <!-- Replication reports should all use this template to standardize reporting across projects.  These reports will be public supplementary materials that accompany the summary report(s) of the aggregate results. -->
 
 ## Introduction
 
-Conveying and recognizing emotions is an integral part of human communication.
-Psychologists have studied this topic cross-culturally to explore humans' ability to recognize emotional displays independently of culture
-and learning-- but primarily through facial expressions, with comparatively less focus on vocal emotion. 
-Given this, Pell et al. (2009) investigated the universality of emotion recognition in human speech.
+Conveying and recognizing emotions is an integral part of human communication. Psychologists have studied this topic cross-culturally to explore humans' ability to recognize emotional displays independently of culture and learning-- but primarily through facial expressions, with comparatively less focus on vocal emotion. Given this, Pell et al. (2009) investigated the universality of emotion recognition in human speech.
 
-They tested whether Argentine Spanish speakers could recognize speaker emotions in foreign languages: English, German, and Arabic 
-in addition to their native language, Argentine Spanish. All stimuli were pseudo-sentences validated by native speakers to 
-effectively convey the intended emotion. The task was simple: participants listened to each audio item and selected the perceived emotion
-from seven choices: anger (enojo), disgust (repugnancia), fear (miedo), sadness (tristeza), joy (alegría), surprise (sorpresa), and neutral (neutralidad).
+They tested whether Argentine Spanish speakers could recognize speaker emotions in foreign languages: English, German, and Arabic in addition to their native language, Argentine Spanish. All stimuli were pseudo-sentences validated by native speakers to effectively convey the intended emotion. The task was simple: participants listened to each audio item and selected the perceived emotion from seven choices: anger (enojo), disgust (repugnancia), fear (miedo), sadness (tristeza), joy (alegría), surprise (sorpresa), and neutral (neutralidad).
 
-Results showed that each emotion was generally recognized above chance: 64% accuracy in Spanish, 59% in Arabic, 58% in English, and 56% in German.
-Using ANOVA and post hoc Tukey comparisons, the authors also found that participants performed significantly better in their native language
-than in the foreign languages, suggesting an "in-group advantage" in emotional recognition. 
-As for individual emotions, while there was no main effect of emotion, they did find interactions with language.
-“Joy” was recognized significantly more accurately in Spanish (89%) than in Arabic (59%) or German (57%), both of which outperformed English (32%).
-“Anger” was more accurately recognized in Spanish (81%) and German (77%) compared to English (67%) and Arabic (66%).
-Interestingly, “sadness” was recognized with the least accuracy in Spanish (51%), which differed significantly from
-Arabic (77%), English (74%), and German (65%). These patterns for anger and sadness closely mirrored the reported recognition rates
-by native speakers of each language, which may suggest that these effects are item-dependent.
+Results showed that each emotion was generally recognized above chance: 64% accuracy in Spanish, 59% in Arabic, 58% in English, and 56% in German. Using ANOVA and post hoc Tukey comparisons, the authors also found that participants performed significantly better in their native language than in the foreign languages, suggesting an "in-group advantage" in emotional recognition. As for individual emotions, while there was no main effect of emotion, they did find interactions with language. “Joy” was recognized significantly more accurately in Spanish (89%) than in Arabic (59%) or German (57%), both of which outperformed English (32%). “Anger” was more accurately recognized in Spanish (81%) and German (77%) compared to English (67%) and Arabic (66%). Interestingly, “sadness” was recognized with the least accuracy in Spanish (51%), which differed significantly from Arabic (77%), English (74%), and German (65%). These patterns for anger and sadness closely mirrored the reported recognition rates by native speakers of each language, which may suggest that these effects are item-dependent.
 
-In the present replication study, I aim to replicate both the universality and in-group advantage of emotion recognition
-using different datasets and participant groups.
+In the present replication study, I aim to replicate both the universality and in-group advantage of emotion recognition using different datasets and participant groups.
 
 ## Methods
 
 ### Power Analysis
 
-Although Pell et al. (2009) did not directly report Cohen’s d, they provided F-values from a 4 (Language) × 5 (Emotion) ANOVA.
-They reported a main effect of Language on vocal emotion recognition scores, F(3, 180) = 7.49, p < .0001;
-a significant main effect of Emotion, F(4, 240) = 63.59, p < .0001; and a significant Language × Emotion interaction,
-F(12, 720) = 39.65, p < .0001. To estimate the required sample size for the replication, I focused on the main effects.
-For the main effect of Emotion, the reported partial eta squared was 0.515, which corresponds to an f² of 1.061856 (converted using eta2_to_f2).
-A power analysis using pwr.f2.test with u = 5, f² = 1.061856, α = 0.05, and power = 0.80 suggests that 12.5 participants would be sufficient.
-For the main effect of Language, the partial eta squared was 0.111, corresponding to an f² of 0.1248594. A separate power analysis using u = 3
-with the same alpha and power levels indicates a required sample size of approximately 87.3 participants.
+Although Pell et al. (2009) did not directly report Cohen’s d, they provided F-values from a 4 (Language) × 5 (Emotion) ANOVA. They reported a main effect of Language on vocal emotion recognition scores, F(3, 180) = 7.49, p \< .0001; a significant main effect of Emotion, F(4, 240) = 63.59, p \< .0001; and a significant Language × Emotion interaction, F(12, 720) = 39.65, p \< .0001. To estimate the required sample size for the replication, I focused on the main effects. For the main effect of Emotion, the reported partial eta squared was 0.515, which corresponds to an f² of 1.061856 (converted using eta2_to_f2). A power analysis using pwr.f2.test with u = 5, f² = 1.061856, α = 0.05, and power = 0.80 suggests that 12.5 participants would be sufficient. For the main effect of Language, the partial eta squared was 0.111, corresponding to an f² of 0.1248594. A separate power analysis using u = 3 with the same alpha and power levels indicates a required sample size of approximately 87.3 participants.
 
 ### Planned Sample
 
-Participants will be recruited through Prolific. They will be preselected based on their language background: native English speakers
-currently living in the U.S., with no more than two years of Spanish education and no/minimal exposure to any other languages.
-This includes avoiding exposure to non-English media—such as games, songs, shows, or animations—that involve spoken content in other languages.
+Participants will be recruited through Prolific. They will be preselected based on their language background: native English speakers currently living in the U.S., with no more than two years of Spanish education and no/minimal exposure to any other languages. This includes avoiding exposure to non-English media—such as games, songs, shows, or animations—that involve spoken content in other languages.
 
-Based on the power analyses, I plan to aim for a sample size of 90. The study will terminate once n = 100 is reached,
-which allows a buffer to account for potential data exclusion. This buffer is necessary because discrepancies between participants’ self-reported
-language backgrounds and their Prolific profiles are common. Participants who fail any attention checks during the study will be immediately exited,
-and their data will be excluded. Compensation will only be provided up to the point of exit.
-
+Based on the power analyses, I plan to aim for a sample size of 90. The study will terminate once n = 100 is reached, which allows a buffer to account for potential data exclusion. This buffer is necessary because discrepancies between participants’ self-reported language backgrounds and their Prolific profiles are common. Participants who fail any attention checks during the study will be immediately exited, and their data will be excluded. Compensation will only be provided up to the point of exit.
 
 ### Materials
 
-I will use completely different datasets from the original articles.
-The test languages are:
-  - Canadian French
-  - Japanese
-  - Thai 
-  - Greek
-The materials for each language are all open source that is either downloadable freely or access by request.
-Here are the articles for each source:
-  - CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402).
-  - JVNV: Detai Xin, Junfeng Jiang, Shinnosuke Takamichi, Yuki Saito, Akiko Aizawa, Hiroshi Saruwatari, "JVNV: A Corpus of Japanese Emotional Speech with Verbal Content and Nonverbal Expressions," arXiv preprint 2310.06072, Oct. 2023.
-  - THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0.
-  - AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
+I will use completely different datasets from the original articles. The test languages are: - Canadian French - Japanese - Thai - Greek The materials for each language are all open source that is either downloadable freely or access by request. Here are the articles for each source: - CaFE: Gournay, P., Lahaie, O., & Lefebvre, R. (2018, June). A canadian french emotional speech dataset. In Proceedings of the 9th ACM multimedia systems conference (pp. 399-402). - JVNV: Detai Xin, Junfeng Jiang, Shinnosuke Takamichi, Yuki Saito, Akiko Aizawa, Hiroshi Saruwatari, "JVNV: A Corpus of Japanese Emotional Speech with Verbal Content and Nonverbal Expressions," arXiv preprint 2310.06072, Oct. 2023. - THAI SER: AIResearch, VISTEC, depa, and Chulalongkorn University (2021). THAI-SER Dataset, Version 2.0. Creative Commons BY-SA 4.0. - AESDD: Vryzas, N., Kotsakis, R., Liatsou, A., Dimoulas, C. A., & Kalliris, G. (2018). Speech emotion recognition for performance interaction. Journal of the Audio Engineering Society, 66(6), 457-467.
 
+### Procedure
 
-### Procedure	
+After participants provide informed consent, they will receive an introduction to the task and instructions. Next, they will complete an audio check and a short practice trial to familiarize themselves with the format. The main trails start after this. For each trial, they will hear an audio clip once and judge the expressed emotion, selecting from the following options: happy, sad, angry, fearful, neutral, or surprised. The stimulus set will vary across emotional category (primarily happiness, anger, and sadness; others are fillers), language (4 languages), speaker (2 females, 2 males), and sentence (3 sentences), with each clip lasting approximately 4 seconds. Attention checks will be embedded; participants who fail these checks will have their session terminated right away, and compensation will be prorated based on time completed.
 
-After participants provide informed consent, they will receive an introduction to the task and instructions. 
-Next, they will complete an audio check and a short practice trial to familiarize themselves with the format.
-The main trails start after this. For each trial, they will hear an audio clip once and judge the expressed emotion, 
-selecting from the following options: happy, sad, angry, fearful, neutral, or surprised. The stimulus set will vary across emotional category
-(primarily happiness, anger, and sadness; others are fillers), language (4 languages), speaker (2 females, 2 males), and sentence (3 sentences),
-with each clip lasting approximately 4 seconds. Attention checks will be embedded; participants who fail these checks will have their session
-terminated right away, and compensation will be prorated based on time completed. 
-
-After the main task, participants will complete a brief questionnaire to confirm their background information (including language history) to ensure data quality. 
-Compensation will be approximately $13 per hour. Each session will last approximately 40 minutes. 
-
-
+After the main task, participants will complete a brief questionnaire to confirm their background information (including language history) to ensure data quality. Compensation will be approximately \$13 per hour. Each session will last approximately 40 minutes.
 
 ### Analysis Plan
 
-Can also quote directly, though it is less often spelled out effectively for an analysis strategy section. 
- The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
+Can also quote directly, though it is less often spelled out effectively for an analysis strategy section. The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.
 
-Key analyses:
-1) Whether performances are above chance-level (universality)
-Accuracy rate per participant (%) will be calculated, and the overall mean accuracy for each language will be compared to the chance rate (i.e., 1/6 = about 0.16).
-2) Whether there are differences in accuracy between emotions (in-group advantage)
-I plan to run the mixed-effects logistic regression, using lme4 package on R.
-The main interest is: Accuracy~Emotion*Language + random effects, where different random effects structures will be tested to find the best fit.
-Random effects include: subject, item, and speaker gender.
-The Emotion factor include three for the main analysis: sadness, anger, and happiness, as these are the only emotions tested equally across all the langauges.
-
-
+Key analyses: 1) Whether performances are above chance-level (universality) Accuracy rate per participant (%) will be calculated, and the overall mean accuracy for each language will be compared to the chance rate (i.e., 1/6 = about 0.16). 2) Whether there are differences in accuracy between emotions (in-group advantage) I plan to run the mixed-effects logistic regression, using lme4 package on R. The main interest is: Accuracy\~Emotion\*Language + random effects, where different random effects structures will be tested to find the best fit. Random effects include: subject, item, and speaker gender. The Emotion factor include three for the main analysis: sadness, anger, and happiness, as these are the only emotions tested equally across all the langauges.
 
 ### Differences from Original Study
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.
-The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
+Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study. The goal, of course, is to minimize those differences, but differences will inevitably occur. Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
 
-Since this is part of a bigger study that involves comparisons with speech language models performance, I will 1)use different datasets for stimuli,
-2)recruite participants with different language background with different recruitment method, 3)use slightly different condition design, 4)apply another statistics to reflect random effects better the original article.
+Since this is part of a bigger study that involves comparisons with speech language models performance, I will 1)use different datasets for stimuli, 2)recruite participants with different language background with different recruitment method, 3)use slightly different condition design, 4)apply another statistics to reflect random effects better the original article.
 
-#1: the stimuli are datasets created by ASR field researchers who aim to develop better emotion recognition systems.
-This is the novel part of the current study-- in the past, psychologists used thier own datasets that are not easily accessible; however, the datasets
-used in this study are publically available and all the stimulli and their creation processes are open.
+#1: the stimuli are datasets created by ASR field researchers who aim to develop better emotion recognition systems. This is the novel part of the current study-- in the past, psychologists used thier own datasets that are not easily accessible; however, the datasets used in this study are publically available and all the stimulli and their creation processes are open.
 
-#2: Since the speech language model portion of the study uses English as its "native language" (i.e., the model is pretrained by English only, and will 
-be fine-tuned by English emotional datasets), I am recruiting English monolingual speakers. 
+#2: Since the speech language model portion of the study uses English as its "native language" (i.e., the model is pretrained by English only, and will be fine-tuned by English emotional datasets), I am recruiting English monolingual speakers.
 
-#3: Since the main goal of the study is to compare the behaviors of humans and a speech model, this human portion of the study does not test with English 
-datasets, which is different from the original study where they also asked them to judge emotions of their native language.
+#3: Since the main goal of the study is to compare the behaviors of humans and a speech model, this human portion of the study does not test with English datasets, which is different from the original study where they also asked them to judge emotions of their native language.
 
 #4: the original article only used ANOVA. In this study, I plan to analyze using linear-mixed models to account for random effects better than ANOVA.
-
 
 ### Methods Addendum (Post Data Collection)
 
 #### Actual Sample
 
-  120 participants were recruited on Prolific. 119 data were successfully stored in OSF data folder, all of which completed the study without being force-exited from the study by missing 5 responses in a row. Mean age was 37.7 (SD: 12.61; range: 18-72). 53.3% were female, and 46.7% were male. 65% were White, 30% were Black, 3% were Mixed and 1.7% reported 'Other'. 19.2% answered Yes to student status. 50% reported as full-time, and 30% were part-time, 8.3% not in paid work, 5% unemployed, 1.7% other, and the rest of 5% was data expired.
+120 participants were recruited on Prolific. 119 data were successfully stored in OSF data folder, all of which completed the study without being force-exited from the study by missing 5 responses in a row. Mean age was 37.7 (SD: 12.61; range: 18-72). 53.3% were female, and 46.7% were male. 65% were White, 30% were Black, 3% were Mixed and 1.7% reported 'Other'. 19.2% answered Yes to student status. 50% reported as full-time, and 30% were part-time, 8.3% not in paid work, 5% unemployed, 1.7% other, and the rest of 5% was data expired.
 
 #### Differences from pre-data collection methods plan
-  Any differences from what was described as the original plan, or “none”.
-  1) Experimental design changes: in the actual experiment, 76 items were tested per participant. I prepared a stimuli pool of 4 languages, 4 - 6 emotions depending on the language, 4 speakers (2 male, 2 female), and the number of sentences varied across languages (6 for Canadian French, 40 for each Japanese emotion, 20 for Greek, and 3 for Thai). For each session, 4 items were picked from each language x emotion condition. The four items were from each 4 speakers. The presentation of sentences were randomized but also with minimized repetitions within participant. Also, Japanese stimuli were manuallay pre-cut in duration, so that the extracted sound does not include intentional non-linguistic cues at the beginning of phrases and the duration range is around 2-5 seconds overall. This was done to make sure Japanese stimuli are in the same condition as the stimuli in other languages. Also, the time limit per item was added, so that participants only have 10 seconds to select an option of emotion. The overall session lasted about 10-20 minutes. I paid $3 for the participation.
-  2) Analyses design change: I decided to run inferential analysis on all of the emotions tested, instead of only the main 3 emotions common across the datasets. Random effects were speaker in general instead of speaker gender.
-  
 
+Any differences from what was described as the original plan, or “none”. 1) Experimental design changes: in the actual experiment, 76 items were tested per participant. I prepared a stimuli pool of 4 languages, 4 - 6 emotions depending on the language, 4 speakers (2 male, 2 female), and the number of sentences varied across languages (6 for Canadian French, 40 for each Japanese emotion, 20 for Greek, and 3 for Thai). For each session, 4 items were picked from each language x emotion condition. The four items were from each 4 speakers. The presentation of sentences were randomized but also with minimized repetitions within participant. Also, Japanese stimuli were manuallay pre-cut in duration, so that the extracted sound does not include intentional non-linguistic cues at the beginning of phrases and the duration range is around 2-5 seconds overall. This was done to make sure Japanese stimuli are in the same condition as the stimuli in other languages. Also, the time limit per item was added, so that participants only have 10 seconds to select an option of emotion. The overall session lasted about 10-20 minutes. I paid \$3 for the participation. 2) Analyses design change: I decided to run inferential analysis on all of the emotions tested, instead of only the main 3 emotions common across the datasets. Random effects were speaker in general instead of speaker gender.
 
 ## Results
 
 ### Data preparation
-
 
 ```{r include=F}
 ### Data Preparation
@@ -242,8 +175,7 @@ big_df <- big_df %>%
 
 ### Confirmatory analysis
 
-Descriptive statistics
-
+#### Descriptive statistics
 
 Overall Accuracy
 
@@ -259,6 +191,7 @@ mean_accuracy_across_participants
 ```
 
 Mean accuracy of language overall (emotions collapsed) as well as emotions overall (languages collapsed)
+
 ```{r}
 
 emotion_avg_raw <- big_df %>%
@@ -275,11 +208,18 @@ print(language_avg_raw)
 
 ```
 
+Overall, participants showed emotion recognition performance well above chance level (chance = 16.7%). The mean accuracy across all trials and participants was 44.1%.
 
+Mean accuracies for each emotion (collapsing across languages) were as follows: Angry-58.8%, Fear 41.7%, Happy 22.9%, Neutral 79.9%, sad 39.7%, surprise 33.4%. Similarly, mean accuracies for each language (collapsing across emotions) were: Canadian French 51.8%, Greek 33.5%, Japanese 41.4%, and Thai 46.7%.
 
-GLMER
+Inferential Statistics A mixed-effects logistic regression model was fit to the data, predicting accuracy as a function of Language, Emotion, and their interaction. The model included random intercepts for participants and speakers.
+
+#### Inferential Statistics
+
+A mixed-effects logistic regression model was fit to the data. It predicts accuracy as a function of Language, Emotion, and their interaction. The best fit model included random intercepts for participants and speakers.
 
 The best fit model:
+
 ```{r}
 
 model <- glmer(
@@ -292,9 +232,7 @@ summary(model)
 
 ```
 
-
 Model comparison
-
 
 ```{r}
 
@@ -313,10 +251,81 @@ summary(model_noint3)
 anova(model, model_noint3)
 ```
 
+Comparison between the full interaction model and the main-effects-only model showed that the interaction model fit significantly better, suggesting that the effect of Emotion varied across Languages: χ²(11) = 694.8, p \< .001.
+
+Post-hoc Analysis
+
+Language:
+
+```{r}
+library(emmeans)
+
+emm_lang <- emmeans(model_noint3, ~ language, type = "correct")
+
+summary(emm_lang)
+
+pairs(emm_lang, adjust = "tukey")
+
+```
+
+This contrast showed that, although numerically the accuracy was the highest with French, second highest with Thai, the third was Japanese and Greek was the lowest, the significant differences were found only in French-Japanese and French-Greek.
+
+Emotion:
+
+```{r}
+library(emmeans)
+
+emm_emo <- emmeans(model_noint3, ~ correct_response, type = "correct")
+
+summary(emm_emo)
+
+pairs(emm_emo, adjust = "tukey")
+
+```
+
+This pairwise comparisons showed that every condition pair was significant, except for the fear-sad contrast.
+
+Every pair comparison:
+
+```{r}
+
+library(emmeans)
+
+emm <- emmeans(
+  object   = model,
+  specs    = ~ language * correct_response,
+  type     = "response"
+)
 
 
+contrast_lang_within_emotion <- emm %>%
+  contrast(
+    method = "pairwise",              
+    by     = "correct_response",     
+    adjust = "tukey"                  
+  )
+
+contrast_emotion_within_language <- emm %>%
+  contrast(
+    method = "pairwise",
+    by     = "language",
+    adjust = "tukey"
+  )
+
+summary(emm)
+summary(contrast_lang_within_emotion, infer = TRUE)
+summary(contrast_emotion_within_language, infer = TRUE)
+
+
+```
+
+Pairwise contrasts for all conditions revealed that for some emotions, certain languages were recognized with significantly higher accuracy than others. For example, sad stimuli were recognized significantly more accurately in French than Japanese, Japanese than Greek, and Greek than Thai. Interestingly, sad Thai stimuli were well below chance level. Surprise did not differ between French and Japanese, which are the only languages that were tested for surprise. Neutral condition did not significantly differ between French and Thai. Accuracies for happy were only differed significantly between Greek and French, as well as Greek and Thai., where Greek was higher than Thai and French. Fear was significant only for the French and Greek, among the three languages tested (French, Greek, Japanese). Lastly, accuracy for angry in French and Thai were significantly higher than Japanese and Greek.
+
+Also, it revealed that for some languages, certain emotions were recognized with significantly higher accuracy than others. For French stimuli, participants recognized neutral, angry and sad the highest, and surprise and fear, and happy was the significantly lowest. Japanese also had angry as the highest as well as sad and fear, which was significantly more accurate than surprise, and happy was recognized the least. Regarding Greek, angry and fear was recognized most accurately, relative to happy, and the sad was least accurate. Thai stimuli's highest accuracy emotion was neutral, then angry, which was significantly higher than sad and happy.
 
 ### Exploratory analyses
+
+A confusion matrix was generated for each language to explore patterns of misclassification.
 
 Confusion Matrix
 
@@ -424,84 +433,24 @@ knitr::include_graphics("C:/Users/yuka/Desktop/linguist245B_project/experiment/s
 
 ```
 
-Post-hoc Analyses
-
-
-Language:
-
-
-```{r}
-library(emmeans)
-
-emm_lang <- emmeans(model_noint3, ~ language, type = "correct")
-
-summary(emm_lang)
-
-pairs(emm_lang, adjust = "tukey")
-
-```
-
-Emotion:
-
-```{r}
-library(emmeans)
-
-emm_emo <- emmeans(model_noint3, ~ correct_response, type = "correct")
-
-summary(emm_emo)
-
-pairs(emm_emo, adjust = "tukey")
-```
-
-
-
-
-every condition:
-
-```{r}
-
-library(emmeans)
-
-emm <- emmeans(
-  object   = model,
-  specs    = ~ language * correct_response,
-  type     = "response"
-)
-
-
-contrast_lang_within_emotion <- emm %>%
-  contrast(
-    method = "pairwise",              # all‐pair comparisons
-    by     = "correct_response",      # do them separately for each emotion
-    adjust = "tukey"                  # Tukey adjustment
-  )
-
-contrast_emotion_within_language <- emm %>%
-  contrast(
-    method = "pairwise",
-    by     = "language",
-    adjust = "tukey"
-  )
-
-summary(emm)
-summary(contrast_lang_within_emotion, infer = TRUE)
-summary(contrast_emotion_within_language, infer = TRUE)
-
-
-
-```
-
-
+In general, angry emotion and neutral (lack of emotion) showed relatively high accuracy with little confusions, while other emotions all showed more confusion with other emotions. Particularly, fear and sad were mutually confused in Japanese (fear stimuli: 30.9% sad response and 44.3% fear response, sad stimuli: 53.8% sad response and 26.7% fear response). French fear was confused with sad while sad was quite accurately recognized and there was little confusion. Greek fear was not confused much, yet sad stimuli was confused with neutral–indeed, 73.1% participants selected neutral for sad stimuli. This was seen in Thai sad stimuli as well.
 
 ## Discussion
 
 ### Summary of Replication Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+The current study largely replicated the key findings from Pell et al. (2009), providing further support for the cross-linguistic universality of vocal emotion recognition. Overall, participants demonstrated accuracy well above chance for most emotion-language combinations, indicating that listeners were generally able to identify emotional expressions even in unfamiliar languages. However, certain conditions deviated from this general pattern—happiness was recognized with relatively low accuracy close to chance level across three of the four languages, and sadness expressed in Greek was systematically misclassified as neutral.
 
-I partially replicated the original result; that is, universality of emotion was shown but 
+The replication also confirmed the previously observed negative emotion bias, whereby negative emotions (e.g., anger and sadness) tended to be recognized more accurately than positive emotions such as happiness and surprise. Happiness consistently yielded the lowest or second-lowest accuracy across languages, suggesting that cross-linguistic cues for happiness may be more variable or subtle.
 
+The confusion matrix analyses further revealed systematic misclassifications that aligned with the pairwise post-hoc comparisons. In particular, fear and sadness were frequently confused, as reflected in both the statistical models and the response distributions. This pattern was especially pronounced in the Japanese stimuli, where fear stimuli were often misclassified as sadness, and vice versa. Greek sad stimuli were also frequently confused with neutral, as well as for Thai sad stimuli.
+
+In sum, these findings suggest both robust cross-linguistic recognition of vocal emotions and language-specific variability, consistent with prior work but also highlighting some unique misclassification patterns specific to the present datasets' languages.
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+Several design differences between the present replication and the original study may account for the specific patterns observed. First, the current study used newly created, publicly available emotional speech datasets in four non-native languages (French, Japanese, Thai, and Greek), while the original study tested using different stimulus materials all recorded in the same lab environment by the authors. The use of distinct datasets may have introduced corpus-level and item-level differences in the clarity and intensity of emotional expressions. Moreover, the present participants were English monolinguals, which is another difference from the original study’s Spanish-speaking sample.
+
+One important limitation of the present study is the lack of native-speaker validation for the stimuli. Without confirmation that native speakers reliably recognize the intended emotions in these recordings, it remains unclear whether some stimuli were inherently ambiguous or poorly produced. Future work should incorporate native-speaker ratings to better characterize the clarity of emotional expression in each dataset.
+
+In addition, another potential limitation is that this study was within-participant design. That is, every participant listened to all languages in their experiment session, which may have highlighted the relativity between datasets and biased them to perceive Greek and Thai items as neutral. It may make sense to run another study with between-participant design, which I expect to find less neutral responses to Greek and Thai items due to the lack of relativity.
