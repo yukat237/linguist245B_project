@@ -212,8 +212,6 @@ Overall, participants showed emotion recognition performance well above chance l
 
 Mean accuracies for each emotion (collapsing across languages) were as follows: Angry-58.8%, Fear 41.7%, Happy 22.9%, Neutral 79.9%, sad 39.7%, surprise 33.4%. Similarly, mean accuracies for each language (collapsing across emotions) were: Canadian French 51.8%, Greek 33.5%, Japanese 41.4%, and Thai 46.7%.
 
-Inferential Statistics A mixed-effects logistic regression model was fit to the data, predicting accuracy as a function of Language, Emotion, and their interaction. The model included random intercepts for participants and speakers.
-
 #### Inferential Statistics
 
 A mixed-effects logistic regression model was fit to the data. It predicts accuracy as a function of Language, Emotion, and their interaction. The best fit model included random intercepts for participants and speakers.
