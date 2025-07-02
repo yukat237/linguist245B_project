@@ -292,9 +292,16 @@ cleandf <- cleandf %>%
 
 ```
 
-Multiple data processing————
+# Process ALL CSVs ————
 
 ```{r}
+#############################
+
+# MAIN DATA!!!!
+
+#############################
+
+
 library(dplyr)
 library(tibble)
 library(purrr)
@@ -306,18 +313,54 @@ files <- list.files(
   full.names = TRUE
 )
 
-# 2) Process and bind them
-big_df <- files %>%
-  # map_df returns a single data frame by row-binding each iteration
-  map_df(function(fpath) {
-    data   <- read.csv(fpath, header = TRUE, sep = ",")
-    prolID <- data[1, 2]  
+#--
+# initialize
+attentioncheck_failure <- c()
+attentioncheck_passed<- c()
+big_df <- NULL  # will grow via rbind
 
-    data %>%
-      filter(trial_part == "choice") %>%
-      select(2,14,15, 16, 18) %>%
-      add_column(ProlID = prolID, .before = 1)
-  })
+for (fpath in files) {
+  # read data and get ProlID
+  data <- read.csv(fpath, header = TRUE, sep = ",")
+  prolID <- data[1, 2]
+
+  # ---- attention‐check logic ----
+  ac_rows <- grep("attentioncheck", data$stimulus)
+  if (length(ac_rows) >= 3) {
+    ac_corrects <- data$correct[ac_rows + 1]
+    attentioncheck_passed<- c(attentioncheck_passed, prolID)
+    if (any(ac_corrects == FALSE)) {
+      attentioncheck_failure <- c(attentioncheck_failure, prolID)
+      next
+    }
+  }
+  # --------------------------------
+
+  # filter to choice trials
+  choice_idx <- which(data$trial_part == "choice")
+  # select columns 2,14,15,16,18
+  sub_data <- data[choice_idx, c(2, 14, 15, 16, 18)]
+  # add ProlID as first column
+  sub_data <- cbind(ProlID = prolID, sub_data)
+
+  # append to big_df
+  big_df <- if (is.null(big_df)) sub_data else rbind(big_df, sub_data)
+}
+
+
+#old
+# 2) Process and bind them
+#big_df <- files %>%
+#  map_df(function(fpath) {
+#    data   <- read.csv(fpath, header = TRUE, sep = ",")
+#   prolID <- data[1, 2]  
+
+#   data %>%
+#      filter(trial_part == "choice") %>%
+#     select(2,14,15, 16, 18) %>%
+#      add_column(ProlID = prolID, .before = 1)
+#  })
+
 
 # big_df now has all participants’ cleaned data stacked together
 
@@ -337,7 +380,6 @@ big_df <- big_df %>%
   )
 
 
-
 # Make sure 'correct' is numeric 0/1
 big_df <- big_df %>%
   mutate(correct = as.integer(as.logical(correct)))
@@ -349,16 +391,12 @@ big_df <- big_df %>%
 # addingspeaker ID and sentence ID
 ########
 
-# 1. Make sure dplyr is loaded
-library(dplyr)
 
-# 2. Add speakerID and sentenceID based on stimulus_file
+#Add speakerID and sentenceID based on stimulus_file
 big_df <- big_df %>%
-  # (a) strip off the common prefix so we can work with just the filename
   mutate(
     filename = sub("^stim/final_stim_scaled/", "", stimulus_file)
   ) %>%
-  # (b) extract speakerID according to language‐specific rules
   mutate(
     speakerID = case_when(
       # ── French: after “__”, take digits before the first “-”
@@ -377,7 +415,7 @@ big_df <- big_df %>%
       TRUE ~ NA_character_
     )
   ) %>%
-  # (c) extract sentenceID according to language‐specific rules
+  #extract sentenceID according to language‐specific rules
   mutate(
     sentenceID = case_when(
       # ── French: take the number immediately before “_intscaled.wav”
@@ -396,11 +434,8 @@ big_df <- big_df %>%
       TRUE ~ NA_character_
     )
   ) %>%
-  # (d) drop the temporary filename column if you don’t need it
+  #drop the temporary filename column if you don’t need it
   select(-filename)
-
-# Now big_df has two new columns: speakerID and sentenceID
-
 
 ############ New change
 
@@ -419,45 +454,136 @@ big_df <- big_df %>%
 
 ```
 
+NOW DEMOGRAPHIC DATA
+
+```{r}
+
+library(dplyr)
+library(stringr)
+
+#read data
+demo <- read.csv("C:/Users/yuka/Desktop/linguist245B_project/data/demographics_final.csv", header = TRUE, sep = ",")
+
+
+# 1) pull out the raw IDs
+drop_ids <- str_extract(
+  datatodrop,
+  '(?<="prolific_id":")[^"]+'
+)
+
+# 2) filter demo so that only needed info stays
+demo_filtered <- demo %>%
+  filter(
+    Status == "APPROVED",
+    !Participant.id %in% drop_ids
+  ) %>%
+  select(-c(1,4,5,6,7,8,10:21,25:28))
+```
+
+### Any unqualified data?
+
+attention check all passed!
+
+Technical difficulity
+
+-   I recoded this person {"prolific_id":"67c585f8e60aec06bb2e7863"} 's response as No, because i dont think they counted which question number it was, and all the other answers after were also "No" so I think it's highly likely that the 7 is a typo.
+
+-   Only 2 real issues potentially:
+
+    -   {"prolific_id":"65da0c93826bdadcf98372a9"}...said "a couple in and out"
+
+    -   {"prolific_id":"683666e57971ab1ebb826601"}...said just Yes
+
+```{r}
+techdiff_IDs <- c('{"prolific_id":"65da0c93826bdadcf98372a9"}', '{"prolific_id":"683666e57971ab1ebb826601"}')
+```
+
+Unqualified Criteria
+
+-   below are the people who self-reported to be exposed to at least one of the stimuli languages
+
+-   12 in total
+
+```{r}
+#cleaned_surveyr
+unqualifieddata<-subset(cleaned_surveyr, is.na(cleaned_surveyr$media_exposure_to_stimuli_lang) == FALSE | is.na(cleaned_surveyr$family_exposure_to_stimuli_language) == FALSE)
+
+unqualifiedP_IDs <-unqualifieddata$ProlID
+print(unqualifiedP_IDs)
+```
+
+Other issues? (noticed by manual screening)
+
+-   {"prolific_id":"68378ae158654a68e5b29f74"}...this person answered they took 10 years of English.
+
+-   {"prolific_id":"67c71622fd09b1bc69452143"} and {"prolific_id":"673c94098ca9d9f0d710726f"}...almost exact same answers twice.
+
+```{r}
+others_IDs <- c('{"prolific_id":"68378ae158654a68e5b29f74"}','{"prolific_id":"67c71622fd09b1bc69452143"}',  '{"prolific_id":"673c94098ca9d9f0d710726f"}')
+```
+
+If I were to get rid of all of these data, it will be -2 -12 -3 = -17 data.
+
+119-17= 102 data overall
+
+```{r}
+#data drop from bigdf
+datatodrop <- c(techdiff_IDs, unqualifiedP_IDs, others_IDs)
+
+
+length(unique(big_df$ProlID))  
+
+big_df <- big_df[!(big_df$ProlID %in% datatodrop), ]
+
+length(unique(big_df$ProlID))  
+
+```
+
+```{r}
+
+```
+
+#next step– rerun everything with this new data
+
+length(unique(clean_df\$ProlID))
+
 ## Visualizations
 
 ### Bar
 
 ```{r}
-library(dplyr)
 library(ggplot2)
 
-
-
-df_bar <- big_df %>%
-  group_by(language, correct_response) %>%
-  summarise(mean_acc = mean(correct), .groups = "drop")
-
-ggplot(df_bar, aes(x = correct_response, y = mean_acc, fill = language)) +
-  geom_col(position = position_dodge(width = 0.8)) +
+ggplot(big_df, aes(x = correct_response, y = correct, fill = language)) +
+  stat_summary(
+    fun     = mean,
+    geom    = "col",
+    position = position_dodge(width = 0.8)
+  ) +
+  stat_summary(
+    fun.data  = mean_cl_normal,       # mean ± 1.96*SE
+    geom      = "errorbar",
+    position  = position_dodge(width = 0.8),
+    width     = 0.2
+  ) +
+  scale_fill_discrete(
+    name   = "Language",
+    labels = c("French", "Greek", "Japanese", "Thai")
+  ) +
   labs(
-    x = "Emotion",
-    y = "Mean Accuracy",
+    x    = "Emotion",
+    y    = "Mean Accuracy",
     fill = "Language"
   ) +
   theme_minimal()
 
-
-
-```
-
-```{r}
-getwd()
-```
-
-```{r}
-
-```
-
-```         
 ```
 
 ### Confusion matrix
+
+**-------GO STRAIGHT TO THE LAST 2 CELLS TO PRINT THE MATRIX!------**
+
+I'm just keeping the old working codes for a record.
 
 ```{r}
 library(dplyr)
@@ -496,13 +622,6 @@ conf_mat_list <- conf_by_lang %>%
 ```
 
 Confusion matrix -nicer-
-
-```{r}
-getwd()
-```
-
-```         
-```
 
 ```{r}
 # 0) Install/load necessary packages
@@ -913,7 +1032,50 @@ dev.off()
 
 \###########################################################
 
-Now, percentage version:\
+**Now, percentage version:**
+
+**THIS IS THE FINAL VER!!!!!!!!!!! (TO RECREATE, just need to run the 2 chunks below)**\
+
+```{r}
+#############"precondition" stuff copied here"###############
+
+library(dplyr)
+library(tidyr)
+
+# 1) Count raw frequencies per (language, correct_response, response)
+conf_by_lang <- big_df %>%
+  count(language, correct_response, response, name = "freq")
+
+# 2) (Optional) Add a proportion column within each language & true emotion
+conf_by_lang <- conf_by_lang %>%
+  group_by(language, correct_response) %>%
+  mutate(
+    prop = freq / sum(freq)
+  ) %>%
+  ungroup()
+
+# 3) Pivot to wide format so you get a matrix of (true emotion × chosen emotion) for each language
+#    – Rows: correct_response (true)
+#    – Cols: response (chosen)
+#    – Cell: either freq or prop
+conf_mat_list <- conf_by_lang %>%
+  select(language, correct_response, response, freq) %>%
+  pivot_wider(
+    names_from  = response,
+    values_from = freq,
+    values_fill = 0
+  ) %>%
+  group_by(language) %>%
+  group_split()  # returns a list of data frames, one per language
+
+# Now conf_mat_list[[i]] is a matrix‐like data frame for the i-th language,
+# where the first column is 'language', second is 'correct_response', and
+# the remaining columns are counts for each possible response label.
+
+# 1) Bind all rows together into a single data frame
+combined_cm <- bind_rows(conf_mat_list)
+
+```
 
 ```{r}
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1038,7 +1200,6 @@ png(
   res      = 300    # dpi
 )
 grid.draw(tg)
-dev.off()
 
 ```
 
@@ -1076,6 +1237,188 @@ big_df <- big_df %>%
   )
 ```
 
+```{r}
+nrow(demo_filtered)
+
+```
+
+Why do i have 103 data? i think i should only have 102....
+
+demo info prob has the participants info whose file was not saved on osf...
+
+```{r}
+library(dplyr)
+cleaned_surveyr_17Pdropped <- subset(
+  cleaned_surveyr,
+  ! ProlID %in% datatodrop
+)
+```
+
+This worked, and became 102!! this is the list of IDs with data.
+
+```{r}
+
+drop_ids <- str_extract(
+  datatodrop,
+  '(?<="prolific_id":")[^"]+'
+)
+
+demo_filtered<-subset(demo_filtered,! Participant.id %in% drop_ids)
+```
+
+This is the list of IDs from Prolific's demographic data. 103 total.
+
+```{r}
+idlist_of_cleaned_surveyr_17Pdropped <- str_extract(
+  cleaned_surveyr_17Pdropped$ProlID,
+  '(?<="prolific_id":")[^"]+'
+)
+
+########-------------------------########
+
+# idlist_of_cleaned_surveyr_17Pdropped
+#     this is from self report at the beginning of the experiment
+#
+# demo_filtered$Participant.id
+#     this is directly from Prolific
+
+########-------------------------#########
+
+missing_in_demo <- setdiff(
+  idlist_of_cleaned_surveyr_17Pdropped,
+  demo_filtered$Participant.id
+)
+
+missing_in_survey <- setdiff(
+  demo_filtered$Participant.id,
+  idlist_of_cleaned_surveyr_17Pdropped
+)
+
+missing_in_demo #this is what is NOT in Prolific data, but selfreported
+missing_in_survey #this is what is NOT in self reported, but in Prolific data
+```
+
+Now demo info should be cut down in the same way (aka drop the 17 from demo_filtered) –\> and then combine! then rerun descriptive with only the kept data.
+
+```{r}
+
+files <- list.files(
+  path       = "C:/Users/yuka/Desktop/linguist245B_project/data/osfstorage-archive",
+  pattern    = "\\.csv$",
+  full.names = TRUE
+)
+
+string_to_find <- "657f8d99678be2d216a85c3d"
+found_files   <- character()  # will collect any matching file paths
+
+for (fpath in files) {
+  # read with stringsAsFactors = FALSE to keep everything as character
+  data <- read.csv(fpath, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+  
+  # flatten to a character matrix and test for the email
+  if (any(grepl(string_to_find, as.matrix(data), fixed = TRUE), na.rm = TRUE)) {
+    found_files <- c(found_files, fpath)
+  }
+}
+
+found_files
+
+```
+
+Self reported ('copy and pasted' at the beginning of the study), but NOT in Prolific data:
+
+-   graniaheadwardshemphill254\@gmail.com ... 468o13zzu8.csv...osf says 3:46 saved this data
+
+-   657f8d99678be2d216a85c3d ... on demo df, this is marked as RETURNED. Apparently this person completed but returned. (possibly bc they realized their data shouldnt be used?) I should delete this data too.
+
+Found in demo data, but NOT self reported: (all these ppl are marked approrved. one should be the gmail person, another is the person returned, the other is the one OSF failed to save?)...
+
+-   666f76b68b89442817be678a ... time taken 789 sec (13.15min) ...closest to sko3w425dv.csv's time elapsed, only 0.8sec off. this file reported "67e28d5b36505c655badd4b0" as their ID. but this ID does exist in demo df so not this...time taken 828
+
+    -   ended at: 2025-05-30T06:41:15.306000Z--- so 3:41 ish
+
+-   6834d360dff6bfa3d5c6dca8 ... according to demo df, time taken = 1080 sec (18min); 17:59, according to the Prolific portal
+
+    -   ended at 6:47am UTC so 3:47pm JPT=11:47pmPDT
+
+    -   demo df: ended at: 2025-05-30T06:47:03.782000Z (UTC)
+
+-   67c8d564424823af9a9c3293 ... according to demo df, time taken = 1057 sec (17.61667min); 17:36, according to the Prolific portal.
+
+    -   ended at 7:14am UTC so 4:14pm JPT = 0:14am PDT
+
+    -   demo df: ended at: 2025-05-30T07:14:39.121000Z (UTC)
+
+Basically all these mean: I thought there are 102 valid data files after cutting 17 data out, but there are actually 101 (the one person returned after compeletion). Out of 101, 1 of them cannot be linked to the demographic data (they put their gmail). There are 3 demographics data recorded and they are approved, but no data exist for 2 of them and 1 of them is probably the gmail person. Out of the rest 2, one is the person whose data is missing on osf, which makes sense cus i only got 119 data overall. I have no idea what happened to the other one data. According to the OSF record, 683 ended at 3:47, while 67c ended at 4:14.
+
+For demographics data, I just want to identify which of the 3 belongs to the gmail person. The only information that can connect these two are the length of the experiment. 468o13zzu8.csv suggests that 16.58min has passed when they saw the score. Out of the 3 demo data, No2 (data starting with 683) and No3 (data starting with 67c) are longer than that, so not the 666 data. But both 683 and 67c are about 18min, not really sure which one.
+
+Now, osf says 3:46 was when 468o13zzu8.csv was recorded. This is in JPT somehow, so that is equivalent to 6:46am UTC. 683 was saved at 6:47am, while 67c was saved at 7:14am. This strongly suggests that 683 is the demo data for 468o13zzu8.csv person.
+
+Below is the code to 1)cut data 657f8d99678be2d216a85c3d and make total 101, and 2) replace gmail with the real Prolific ID.
+
+```{r}
+#no more data used from 657f8d99678be2d216a85c3d because this person retruned.
+big_df <- big_df %>%
+  filter(ProlID != '{"prolific_id":"657f8d99678be2d216a85c3d"}')
+
+```
+
+```{r}
+#replacing gmail data.(if this is problematic i can delete this too later)
+big_df <- big_df %>%
+  mutate(
+    ProlID = if_else(
+      ProlID == '{"prolific_id":"graniaheadwardshemphill254@gmail.com"}',
+      '{"prolific_id":"6834d360dff6bfa3d5c6dca8"}',
+      ProlID
+    )
+  )
+```
+
+```{r}
+#add 657f8d99678be2d216a85c3d to this for future use of datatodrop.
+datatodrop <- append(datatodrop,"{\"prolific_id\":\"657f8d99678be2d216a85c3d\"}")
+```
+
+```{r}
+#drop also from cleaned_surveyr_17Pdropped
+cleaned_surveyr_18Pdropped<- cleaned_surveyr_17Pdropped  %>%
+  filter(ProlID != '{"prolific_id":"657f8d99678be2d216a85c3d"}')
+#replacing gmail data for this too
+cleaned_surveyr_18Pdropped <- cleaned_surveyr_18Pdropped %>%
+  mutate(
+    ProlID = if_else(
+      ProlID == '{"prolific_id":"graniaheadwardshemphill254@gmail.com"}',
+      '{"prolific_id":"6834d360dff6bfa3d5c6dca8"}',
+      ProlID
+    )
+  )
+```
+
+```{r}
+#drop also from demo_filtered
+demo_filtered<- demo_filtered  %>%
+  filter(Participant.id != "657f8d99678be2d216a85c3d")
+#replacing gmail data for this too
+demo_filtered <- demo_filtered %>%
+  mutate(
+    Participant.id = if_else(
+      Participant.id == "graniaheadwardshemphill254@gmail.com",
+      "6834d360dff6bfa3d5c6dca8",
+      Participant.id
+    )
+  )
+```
+
+Data dropped and updated for
+
+-   big_df (main data)
+
+-   cleaned_surveyr_18Pdropped (survey info, newly made)
+
+-   demo_filtered (demograpahic data)
+
 ### Descriptive
 
 accuracy overall
@@ -1084,13 +1427,10 @@ accuracy overall
 library(dplyr)
 library(ggplot2)
 
-# 1. Compute per‐participant accuracy, then the overall mean of those accuracies
 participant_acc <- big_df %>%
   group_by(ProlID) %>%
   summarize(accuracy = mean(correct), .groups = "drop")
 
-#    • participant_acc now has one row per ProlID, with their mean(correct).
-#    • To get the grand mean of those participant‐wise accuracies:
 mean_accuracy_across_participants <- mean(participant_acc$accuracy)
 print(mean_accuracy_across_participants)
 
@@ -1114,21 +1454,15 @@ print(language_avg_raw)
 
 ```
 
-To show:
+Quick Visualization: (kinda meaningless)
 
 ```{r}
-# (a) First compute accuracy per participant × language × emotion:
 acc_lang_emotion <- big_df %>%
   group_by(ProlID, language, correct_response) %>%
   summarize(accuracy = mean(correct), .groups = "drop")
 
-#    • Now each row of acc_lang_emotion is one participant’s accuracy for that language/emotion.
-
-# (b) Make a ggplot with individual points (one per ProlID) and maybe overlay the average across participants
 ggplot(acc_lang_emotion, aes(x = language, y = accuracy, color = correct_response)) +
-  # Jitter the points so they don’t all overlap exactly at the same frequency
   geom_jitter(width = 0.2, height = 0, alpha = 0.7, size = 2) +
-  # Add a bigger black point at the mean accuracy for each language × emotion
   stat_summary(
     aes(group = correct_response),
     fun = mean,
@@ -1155,11 +1489,116 @@ ggplot(acc_lang_emotion, aes(x = language, y = accuracy, color = correct_respons
 
 ### Demographics
 
+Summary
+
 ```{r}
+library(dplyr)
+descriptives <- list(
+  numeric = demo_filtered %>%
+    summarise(
+      n         = n(),
+      mean_time = mean(Time.taken, na.rm = TRUE),
+      sd_time   = sd(Time.taken,   na.rm = TRUE),
+      mean_age  = mean(Age,        na.rm = TRUE),
+      sd_age    = sd(Age,          na.rm = TRUE)
+    ),
+  sex           = demo_filtered %>% count(Sex)           %>% mutate(percent = round(n / sum(n) * 100, 1)),
+  ethnicity     = demo_filtered %>% count(Ethnicity.simplified) %>% mutate(percent = round(n / sum(n) * 100, 1)),
+  student_stat  = demo_filtered %>% count(Student.status) %>% mutate(percent = round(n / sum(n) * 100, 1)),
+  employment    = demo_filtered %>% count(Employment.status) %>% mutate(percent = round(n / sum(n) * 100, 1))
+)
 
 ```
 
-### base model
+Visualizations
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# helper that takes an unquoted column name
+create_pie <- function(data, var, title) {
+  df <- data %>%
+    count({{var}}) %>%
+    rename(group = {{var}}, count = n) %>%
+    mutate(pct = count / sum(count) * 100)
+
+  ggplot(df, aes(x = "", y = pct, fill = group)) +
+    geom_col(width = 1) +
+    coord_polar(theta = "y") +
+    geom_text(aes(label = ifelse(pct >= 5, paste0(round(pct), "%"), "")),
+              position = position_stack(vjust = 0.5)) +
+    labs(title = title, fill = NULL) +
+    theme_void() +
+    scale_fill_brewer(palette = "Pastel2")
+}
+
+
+```
+
+```{r}
+#Compute raw counts
+sex_counts        <- demo_filtered %>% count(Sex) %>% arrange(desc(n))
+ethnicity_counts  <- demo_filtered %>% count(Ethnicity.simplified) %>% arrange(desc(n))
+student_counts    <- demo_filtered %>% count(Student.status) %>% arrange(desc(n))
+employment_counts <- demo_filtered %>% count(Employment.status) %>% arrange(desc(n))
+
+```
+
+```{r}
+#tables
+kable(sex_counts,        col.names = c("Sex",        "Count"), caption = "Sex")
+kable(ethnicity_counts,  col.names = c("Ethnicity",  "Count"), caption = "Ethnicity")
+kable(student_counts,    col.names = c("Student Status",    "Count"), caption = "Student Status")
+kable(employment_counts, col.names = c("Employment Status", "Count"), caption = "Employment Status")
+```
+
+```{r}
+create_pie(demo_filtered, Sex, "Sex Distribution")
+
+
+```
+
+```{r}
+ggsave("sex_distribution_pie_chart.png")
+```
+
+```{r}
+
+create_pie(demo_filtered,Ethnicity.simplified, "Ethnicity Distribution")
+
+
+```
+
+```{r}
+ggsave("ethnicity_pie_chart.png")
+
+```
+
+```{r}
+create_pie(demo_filtered,Student.status,   "Student-Status Distribution")
+
+
+```
+
+```{r}
+ggsave("student_status_pie_chart.png")
+```
+
+```{r}
+create_pie(demo_filtered,Employment.status, "Employment Status Distribution")
+```
+
+```{r}
+#saves the last ran chart
+ggsave(
+  filename = "employment_status_pie_chart.png"
+)
+```
+
+### Inferential 
+
+#### base model
 
 ```{r}
 model_base <- glmer(correct ~ 1 + (1 | ProlID) + (1| speakerID) + 
@@ -1167,7 +1606,7 @@ model_base <- glmer(correct ~ 1 + (1 | ProlID) + (1| speakerID) +
 summary(model_base)
 ```
 
-### no interaction, just language effect model
+#### no interaction, just language effect model
 
 ```{r}
 model_noint <- glmer(
@@ -1190,7 +1629,7 @@ anova(model_base, model_noint)
 
 languages have effect!
 
-### no interaction, by only emotion model
+#### no interaction, by only emotion model
 
 ```{r}
 model_noint2 <- glmer(
@@ -1211,7 +1650,7 @@ anova(model_base, model_noint2)
 
 evidence for emotion influence to performance!
 
-### no interaction, both main predictors
+#### no interaction, both main predictors
 
 ```{r}
 model_noint3 <- glmer(
@@ -1233,7 +1672,7 @@ summary(model_noint3)
 anova(model_base, model_noint, model_noint2, model_noint3)
 ```
 
-### Interaction model
+#### Interaction model
 
 ```{r}
 
@@ -1264,7 +1703,7 @@ anova(model, model_noint3)
 
 ```
 
-### Seeing distributions of items across conditions
+#### Seeing distributions of items across conditions
 
 ```{r}
 #just to see and confirm data distributions across conditions
@@ -1274,7 +1713,7 @@ table(big_df$language, big_df$correct_response)
 ```         
 ```
 
-### Post-hoc
+#### Post-hoc
 
 every condition
 
@@ -1341,7 +1780,7 @@ pairs(emm_emo, adjust = "tukey")
 
 mostly different except for fear-sad and happy-surprise
 
-### 3 emotion models
+#### 3 emotion models
 
 No 2-predictor models converged because of this issue (according to GPT): If any cell in that table has very few observations (especially zero failures or zero successes), the logistic likelihood will try to push its coefficient toward ±∞, causing nonconvergence.
 
@@ -1425,13 +1864,257 @@ anova(model_3emo_3r, model_3emo_3r_int)
 
 To do:
 
--   add confidence interval
+-   add confidence interval –\> DONE
 
--   check attention check
+-   check attention check –\> DONE
 
 -   look at demographics? age?, also other survey results
 
 -   overtime, neutral probability goes up?
+
+## Survey Responses—
+
+end-of-the-experiment surveys
+
+```{r}
+# make sure these are loaded
+library(dplyr)
+library(purrr)
+library(jsonlite)
+
+# 1) Get all your files
+files <- list.files(
+  path       = "C:/Users/yuka/Desktop/linguist245B_project/data/osfstorage-archive",
+  pattern    = "\\.csv$",
+  full.names = TRUE
+)
+
+# 2) Process each file, extract choice trials + ProlID + survey answers
+big_df_wSurvey <- files %>%
+  map_df(function(fpath) {
+    data    <- read.csv(fpath, header = TRUE, sep = ",")
+    prolID  <- data[1, 2]    # your ID
+
+    # find the survey row (skip row 1)
+    survey_idx <- which(
+      data$trial_type == "survey-html-form" &
+      seq_len(nrow(data)) != 1
+    )
+    if (length(survey_idx) > 0) {
+      survey_json <- data[survey_idx[1], 2]
+      survey_info <- fromJSON(survey_json)
+    } else {
+      # in case there's no survey row
+      survey_info <- list(
+        language_guesses  = NA_character_,
+        tech_difficulity  = NA_character_,
+        distraction       = NA_character_,
+        other_languages   = NA_character_,
+        media_exposures   = NA_character_,
+        family_exposure   = NA_character_,
+        comments          = NA_character_
+      )
+    }
+
+    data %>%
+      filter(trial_part == "choice") %>%
+      select(2, 14, 15, 16, 18) %>%        # your original columns
+      add_column(ProlID = prolID, .before = 1) %>%
+      mutate(
+        language_guesses = survey_info$language_guesses,
+        tech_difficulity = survey_info$tech_difficulity,
+        distraction      = survey_info$distraction,
+        other_languages  = survey_info$other_languages,
+        media_exposures  = survey_info$media_exposures,
+        family_exposure  = survey_info$family_exposure,
+        comments         = survey_info$comments
+      )
+  })
+
+# 3) Then your recoding step as before
+big_df_wSurvey <- big_df_wSurvey %>%
+  mutate(
+    response = recode(
+      response,
+      `0` = "Happy",
+      `1` = "Sad",
+      `2` = "Angry",
+      `3` = "Fear",
+      `4` = "Surprise",
+      `5` = "Neutral"
+    ),
+    correct = as.integer(as.logical(correct))
+  )
+
+
+
+```
+
+ONLY ID and survey resp.
+
+```{r}
+library(dplyr)
+library(purrr)
+library(jsonlite)
+
+# 1) Your file list
+files <- list.files(
+  path       = "C:/Users/yuka/Desktop/linguist245B_project/data/osfstorage-archive",
+  pattern    = "\\.csv$",
+  full.names = TRUE
+)
+
+# 2) Map over files to pull ProlID + survey info
+survey_df <- files %>%
+  map_df(function(fpath) {
+    data   <- read.csv(fpath, header = TRUE, sep = ",")
+    prolID <- data[1, 2]
+
+    # find the first non‐header survey row
+    survey_idx <- which(
+      data$trial_type == "survey-html-form" &
+      seq_len(nrow(data)) != 1
+    )[1]
+
+    if (!is.na(survey_idx)) {
+      survey_json <- data[survey_idx, 2]
+      survey_info <- fromJSON(survey_json)
+    } else {
+      # if missing, fill with NA
+      survey_info <- list(
+        language_guesses  = NA_character_,
+        tech_difficulity  = NA_character_,
+        distraction       = NA_character_,
+        other_languages   = NA_character_,
+        media_exposures   = NA_character_,
+        family_exposure   = NA_character_,
+        comments          = NA_character_
+      )
+    }
+
+    # return a one‐row tibble
+    tibble(
+      ProlID           = prolID,
+      language_guesses = survey_info$language_guesses,
+      tech_difficulity = survey_info$tech_difficulity,
+      distraction      = survey_info$distraction,
+      other_languages  = survey_info$other_languages,
+      media_exposures  = survey_info$media_exposures,
+      family_exposure  = survey_info$family_exposure,
+      comments         = survey_info$comments
+    )
+  })
+
+
+```
+
+output survey results to csv
+
+```{r}
+write.csv(survey_df,"C:/Users/yuka/Desktop/linguist245B_project/data/surveydata.csv", row.names = FALSE)
+```
+
+\~ I hand-cleaned the data \~
+
+```{r}
+
+cleaned_surveyr <- read.csv("C:/Users/yuka/Desktop/linguist245B_project/data/surveyresults_cleaned.csv", header = TRUE, sep = ",")
+
+```
+
+```{r}
+View(cleaned_surveyr)
+```
+
+Visualization
+
+```{r}
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+
+```
+
+```{r}
+
+
+#Subset data
+df_subset <- cleaned_surveyr %>%
+  select(
+    ProlID,
+    cleaned_language_guesses,
+    cleaned_tech_difficulity,
+    cleaned_other_languages,
+    cleaned_media_exposures,
+    cleaned_family_exposure,
+    media_exposure_to_stimuli_lang,
+    family_exposure_to_stimuli_language
+  )
+
+#Count NAs in cleaned_language_guesses
+na_count <- sum(
+  is.na(df_subset$cleaned_language_guesses) |
+  df_subset$cleaned_language_guesses == "NA" |
+  df_subset$cleaned_language_guesses == ""
+)
+```
+
+```{r}
+
+#Tidy & tally, then order factor by descending count
+lang_counts <- df_subset %>%
+  mutate(
+    cleaned_language_guesses = ifelse(
+      is.na(cleaned_language_guesses) |
+      cleaned_language_guesses == "NA" |
+      cleaned_language_guesses == "",
+      NA_character_,
+      cleaned_language_guesses
+    )
+  ) %>%
+  separate_rows(cleaned_language_guesses, sep = ",") %>%
+  mutate(cleaned_language_guesses = str_trim(cleaned_language_guesses)) %>%
+  filter(!is.na(cleaned_language_guesses)) %>%
+  count(language = cleaned_language_guesses) %>%
+  arrange(desc(n)) %>%
+  mutate(
+    language = factor(language, levels = language),
+    label = paste0(language, " (", n, ")")
+  )
+
+#Plot with conditional labels
+ggplot(lang_counts, aes(x = "", y = n, fill = language)) +
+  geom_col(width = 1, color = "white") +
+  coord_polar(theta = "y") +
+  geom_text(
+    aes(x = 1.3, label = ifelse(n > 3, label, NA_character_)),
+    position = position_stack(vjust = 0.5),
+    show.legend = FALSE
+  ) +
+  labs(
+    title   = "Distribution of Language Guesses",
+    fill    = "Language",
+    caption = paste("No response (NA):", na_count)
+  ) +
+  theme_void()
+```
+
+Save
+
+```{r}
+# saves the last ggplot as a 6×6 in PNG at 300 dpi
+ggsave(
+  filename = "language_guess_pie_chart.png",
+  width    = 6,
+  height   = 6,
+  units    = "in",
+  dpi      = 300
+)
+
+
+```
 
 ## Making metadata for Hf data set creation—
 
