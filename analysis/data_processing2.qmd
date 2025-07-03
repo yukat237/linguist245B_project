@@ -1671,15 +1671,41 @@ summary(model_noint3)
 anova(model_base, model_noint, model_noint2, model_noint3)
 ```
 
-This suggests model_noint3 is not di
+Summary so far
+
+-   model_base: Only random effects
+
+-   model_noint: Only language
+
+-   model_noint2: Only correct_response
+
+-   model_noint3: both language and correct_response
+
+The best model is model_noint3, since both predictors (language and correct_response) jointly explain more variance than either alone.
+
+The improvement from model_noint2 to model_noint3 is statistically significant (p = 0.0084), though not nearly as dramatic as from model_base to model_noint2.
+
+So,
+
+-   correct_response explains a huge amount.
+
+-   language explains a bit more even after accounting for that.
+
+In other words:
+
+-   model_noint improves over model_base → language alone helps
+
+-    model_noint2 improves over model_base → correct_response alone helps a lot
+
+-   model_noint3 improves over model_noint2 → language still adds significant incremental value beyond correct_response
 
 #### Interaction model
 
 ```{r}
 
-
 model <- glmer(
-  correct ~ language * correct_response +  (1 | ProlID) + (1 | speakerID),
+  correct ~ language * correct_response + 
+    (1 | ProlID) + (1 | speakerID) + (1 | sentenceID),
   data   = big_df,
   family = binomial,
 control=glmerControl(optimizer="bobyqa"))
@@ -1688,30 +1714,19 @@ summary(model)
 
 ```
 
-this is singular fit:
-
-model \<- glmer( correct \~ language \* correct_response + (1 \| ProlID) + (1 + correct_response \| speakerID), data = big_df, family = binomial, control=glmerControl(optimizer="bobyqa"))
-
-step2: testing another random effect structures
+comparison
 
 ```{r}
-
-
 anova(model, model_noint3)
-
-
-
-
 ```
+
+This suggests overall interaction model is a lot better than the no-interaction model!
 
 #### Seeing distributions of items across conditions
 
 ```{r}
 #just to see and confirm data distributions across conditions
 table(big_df$language, big_df$correct_response)
-```
-
-```         
 ```
 
 #### Post-hoc
