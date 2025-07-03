@@ -480,7 +480,7 @@ demo_filtered <- demo %>%
   select(-c(1,4,5,6,7,8,10:21,25:28))
 ```
 
-### Any unqualified data?
+### Data drop pt1
 
 attention check all passed!
 
@@ -538,14 +538,6 @@ big_df <- big_df[!(big_df$ProlID %in% datatodrop), ]
 length(unique(big_df$ProlID))  
 
 ```
-
-```{r}
-
-```
-
-#next step– rerun everything with this new data
-
-length(unique(clean_df\$ProlID))
 
 ## Visualizations
 
@@ -1217,7 +1209,7 @@ to do:
 
 -   planB: if no converge, look only at angry, sad, happy
 
-Dataframe prep
+### Df prep
 
 ```{r}
 library(lme4)
@@ -1242,7 +1234,9 @@ nrow(demo_filtered)
 
 ```
 
-Why do i have 103 data? i think i should only have 102....
+Why do i have 103 data? i think i should only have 102...
+
+### Data drop pt2
 
 demo info prob has the participants info whose file was not saved on osf...
 
@@ -1308,7 +1302,7 @@ files <- list.files(
   full.names = TRUE
 )
 
-string_to_find <- "657f8d99678be2d216a85c3d"
+string_to_find <- "666f76b68b89442817be678a"
 found_files   <- character()  # will collect any matching file paths
 
 for (fpath in files) {
@@ -1547,10 +1541,17 @@ employment_counts <- demo_filtered %>% count(Employment.status) %>% arrange(desc
 
 ```{r}
 #tables
-kable(sex_counts,        col.names = c("Sex",        "Count"), caption = "Sex")
-kable(ethnicity_counts,  col.names = c("Ethnicity",  "Count"), caption = "Ethnicity")
-kable(student_counts,    col.names = c("Student Status",    "Count"), caption = "Student Status")
-kable(employment_counts, col.names = c("Employment Status", "Count"), caption = "Employment Status")
+kable(sex_counts, col.names = c("Sex", "Count"), caption = "Sex") %>%
+  kable_styling(position = "center", full_width = FALSE) 
+
+kable(ethnicity_counts, col.names = c("Ethnicity", "Count"), caption = "Ethnicity") %>% kable_styling(position = "center", full_width = FALSE) 
+
+kable(student_counts, col.names = c("Student Status", "Count"), caption = "Student Status") %>%
+  kable_styling(position = "center", full_width = FALSE) 
+
+kable(employment_counts, col.names = c("Employment Status", "Count"), caption = "Employment Status") %>%
+  kable_styling(position = "center", full_width = FALSE) 
+
 ```
 
 ```{r}
@@ -1627,7 +1628,7 @@ contrast language model and base model
 anova(model_base, model_noint) 
 ```
 
-languages have effect!
+significcantly different –\> languages have effect!
 
 #### no interaction, by only emotion model
 
@@ -1648,14 +1649,14 @@ summary(model_noint2)
 anova(model_base, model_noint2)
 ```
 
-evidence for emotion influence to performance!
+sig diff –\> evidence for emotion influence to performance!
 
 #### no interaction, both main predictors
 
 ```{r}
 model_noint3 <- glmer(
   correct ~ language + correct_response +
-    (1 | ProlID) ,
+    (1 | ProlID) + (1 | speakerID) + (1 | sentenceID) ,
   data   = big_df,
   family = binomial,
 control=glmerControl(optimizer="bobyqa"))
@@ -1664,13 +1665,13 @@ summary(model_noint3)
 
 ```
 
-#note:language + correct_response + (1 \| ProlID) + (1 + correct_response \| speakerID) did not converge. simplified to prolID and speakerID, still not. added optimizer, still not. only ProlID did not even converge.
-
-#note2: added optimizer, worked
+#note: added optimizer. language + correct_response + (1 \| ProlID) + (1 + correct_response \| speakerID) was singular fit. Then, simplified to prolID/speakerID/sentenceID, which worked (and this is the same structure as the other previous models!)
 
 ```{r}
 anova(model_base, model_noint, model_noint2, model_noint3)
 ```
+
+This suggests model_noint3 is not di
 
 #### Interaction model
 
